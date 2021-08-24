@@ -1,1 +1,1 @@
-# go-eosiolib
+# chain module for Go Smart Contracts
