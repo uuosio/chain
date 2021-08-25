@@ -1,6 +1,7 @@
 package chain
 
 /*
+#include <stddef.h>
 #include <stdint.h>
 typedef uint8_t uint128_t;
 typedef uint64_t capi_name;

@@ -1,8 +1,7 @@
 package chain
 
 /*
-#include <stdlib.h>
-#include <string.h>
+#include <stddef.h>
 #include <stdint.h>
 void printn(uint64_t a);
 void printui( uint64_t value );

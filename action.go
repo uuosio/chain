@@ -1,6 +1,7 @@
 package chain
 
 /*
+#include <stddef.h>
 #include <stdint.h>
 #define bool char
 

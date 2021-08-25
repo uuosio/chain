@@ -5,7 +5,8 @@ import (
 )
 
 /*
-#include <stdlib.h>
+#include <stddef.h>
+#include <stdint.h>
 typedef uint8_t uint128_t;
 
 void prints( const char* cstr );
