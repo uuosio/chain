@@ -1,1 +1,1 @@
-# chain module for Go Smart Contracts
+# Chain Module for Go Smart Contracts
