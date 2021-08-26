@@ -25,6 +25,12 @@ var (
 )
 
 func NewMultiIndex(code chain.Name, scope chain.Name, table chain.Name, indexTypes []int, unpacker ...Unpacker) *MultiIndex {
+
+	if table.N&uint64(0x0f) != 0 {
+		// Limit table names to 12 characters so that the last character (4 bits) can be used to distinguish between the secondary indices.
+		panic("NewMultiIndex:Invalid multi-index table name ")
+	}
+
 	mi := &MultiIndex{}
 	mi.code = code
 	mi.scope = scope
@@ -33,21 +39,22 @@ func NewMultiIndex(code chain.Name, scope chain.Name, table chain.Name, indexTyp
 	mi.indexTypes = indexTypes
 	mi.idxDBs = make([]SecondaryDB, len(indexTypes))
 	for i, v := range indexTypes {
+		idxTable := (table.N & uint64(0xfffffffffffffff0)) | uint64(i)
 		switch v {
 		case IDX64:
-			mi.idxDBs[i] = NewIdxDB64(i, code.N, scope.N, table.N)
+			mi.idxDBs[i] = NewIdxDB64(i, code.N, scope.N, idxTable)
 			break
 		case IDX128:
-			mi.idxDBs[i] = NewIdxDB128(i, code.N, scope.N, table.N)
+			mi.idxDBs[i] = NewIdxDB128(i, code.N, scope.N, idxTable)
 			break
 		case IDX256:
-			mi.idxDBs[i] = NewIdxDB256(i, code.N, scope.N, table.N)
+			mi.idxDBs[i] = NewIdxDB256(i, code.N, scope.N, idxTable)
 			break
 		case IDXFloat64:
-			mi.idxDBs[i] = NewIdxDBFloat64(i, code.N, scope.N, table.N)
+			mi.idxDBs[i] = NewIdxDBFloat64(i, code.N, scope.N, idxTable)
 			break
 		case IDXFloat128:
-			mi.idxDBs[i] = NewIdxDBFloat128(i, code.N, scope.N, table.N)
+			mi.idxDBs[i] = NewIdxDBFloat128(i, code.N, scope.N, idxTable)
 		default:
 			panic("invalid index")
 		}
