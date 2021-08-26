@@ -1,7 +1,7 @@
 package main
 
 import (
-	"chain"
+	"github.com/uuosio/chain"
 )
 
 var gContractName = chain.NewName("hello")

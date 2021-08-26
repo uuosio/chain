@@ -1,8 +1,8 @@
 package main
 
 import (
-	"chain"
-	"chain/database"
+	"github.com/uuosio/chain"
+	"github.com/uuosio/chain/database"
 )
 
 type Symbol struct {

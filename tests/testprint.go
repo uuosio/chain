@@ -1,9 +1,10 @@
 package main
 
 import (
-	"chain"
-	"chain/logger"
 	"unsafe"
+
+	"github.com/uuosio/chain"
+	"github.com/uuosio/chain/logger"
 )
 
 func main() {

@@ -1,10 +1,11 @@
 package main
 
 import (
-	"chain"
-	"chain/database"
-	"chain/logger"
 	"encoding/binary"
+
+	"github.com/uuosio/chain"
+	"github.com/uuosio/chain/database"
+	"github.com/uuosio/chain/logger"
 )
 
 /*

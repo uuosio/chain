@@ -1,9 +1,11 @@
 package main
 
 import (
-	"chain"
-	"chain/logger"
 	"encoding/hex"
+
+	"github.com/uuosio/chain/logger"
+
+	"github.com/uuosio/chain"
 )
 
 func main() {

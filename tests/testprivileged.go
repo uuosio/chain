@@ -1,8 +1,8 @@
 package main
 
 import (
-	"chain"
-	"chain/logger"
+	"github.com/uuosio/chain"
+	"github.com/uuosio/chain/logger"
 )
 
 func main() {

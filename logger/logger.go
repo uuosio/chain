@@ -1,6 +1,6 @@
 package logger
 
-import "chain"
+import "github.com/uuosio/chain"
 
 type Printable interface {
 	Print()

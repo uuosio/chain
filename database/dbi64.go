@@ -19,9 +19,10 @@ int32_t db_end_i64(uint64_t code, uint64_t scope, uint64_t table);
 import "C"
 
 import (
-	"chain"
 	"errors"
 	"unsafe"
+
+	"github.com/uuosio/chain"
 )
 
 type DBI64 struct {

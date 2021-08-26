@@ -17,8 +17,9 @@ int32_t db_idx_double_end(uint64_t code, uint64_t scope, uint64_t table);
 */
 import "C"
 import (
-	"chain"
 	"unsafe"
+
+	"github.com/uuosio/chain"
 )
 
 type IdxDBFloat64 struct {

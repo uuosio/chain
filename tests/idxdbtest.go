@@ -16,9 +16,10 @@ int32_t db_idx64_end(uint64_t code, uint64_t scope, uint64_t table);
 */
 import "C"
 import (
-	"chain"
-	"chain/database"
 	"fmt"
+
+	"github.com/uuosio/chain"
+	"github.com/uuosio/chain/database"
 )
 
 //func NewDBIdx64(code uint64, scope uint64, table uint64) *DBIdx64

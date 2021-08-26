@@ -16,7 +16,7 @@ int32_t db_idx64_end(uint64_t code, uint64_t scope, uint64_t table);
 */
 import "C"
 import (
-	"chain"
+	"github.com/uuosio/chain"
 )
 
 type IdxDB64 struct {

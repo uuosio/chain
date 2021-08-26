@@ -1,8 +1,9 @@
 package database
 
 import (
-	"chain"
 	"errors"
+
+	"github.com/uuosio/chain"
 )
 
 type MultiIndex struct {
