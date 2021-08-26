@@ -67,17 +67,17 @@ func (n *Float128) Unpack(data []byte) (int, error) {
 }
 
 type TimePoint struct {
-	elapsed uint64
+	Elapsed uint64
 }
 
 func (t *TimePoint) Pack() []byte {
 	enc := NewEncoder(8)
-	enc.PackUint64(t.elapsed)
+	enc.PackUint64(t.Elapsed)
 	return enc.GetBytes()
 }
 
 func (t *TimePoint) Unpack(data []byte) (int, error) {
 	dec := NewDecoder(data)
-	dec.Unpack(&t.elapsed)
+	dec.Unpack(&t.Elapsed)
 	return 8, nil
 }
