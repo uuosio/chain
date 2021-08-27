@@ -1,5 +1,9 @@
 package chain
 
+import (
+	"github.com/uuosio/chain/database"
+)
+
 type Template struct{}
 
 func (t *Template) Pack() []byte {
@@ -15,4 +19,38 @@ func (t *Template) Unpack(data []byte) (int, error) {
 }
 
 func (t *Template) Print() {
+}
+
+//table template
+type TableTemplate struct {
+	Id      uint64
+	Account Name
+}
+
+var (
+	TableTemplateSecondaryTypes = [2]int{
+		database.IDX64,
+	}
+)
+
+func (t *TableTemplate) GetPrimary() uint64 {
+	return t.Id
+}
+
+func (t *TableTemplate) GetSecondaryValue(index int) interface{} {
+	switch index {
+	case 0:
+		return t.Account.N
+	default:
+		panic("unknown index")
+	}
+}
+
+func (t *TableTemplate) SetSecondaryValue(index int, v interface{}) {
+	switch index {
+	case 0:
+		t.Account = v.(Name)
+	default:
+		panic("unknown index")
+	}
 }
