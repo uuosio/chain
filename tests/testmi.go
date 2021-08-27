@@ -8,11 +8,11 @@ import (
 //table mydata
 type MyData struct {
 	primary uint64
-	a1      uint64         //IDX64:target.a1:target.a1
-	a2      chain.Uint128  //IDX128:target.a2:target.a2
-	a3      chain.Uint256  //IDX256:target.a3:target.a3
-	a4      float64        //IDXFloat64:target.a4:target.a4
-	a5      chain.Float128 //IDXFloat128:target.a5:target.a5
+	a1      uint64         //IDX64:t.a1:t.a1=%v
+	a2      chain.Uint128  //IDX128:t.a2:t.a2=%v
+	a3      chain.Uint256  //IDX256:t.a3:t.a3=%v
+	a4      float64        //IDXFloat64:t.a4:t.a4=%v
+	a5      chain.Float128 //IDXFloat128:t.a5:t.a5
 }
 
 func (d *MyData) GetPrimary() uint64 {
@@ -50,7 +50,7 @@ func main() {
 	}
 	logger.Println("+++secondary:", secondary)
 	{
-		idxDB := mi.GetIdxDB(0)
+		idxDB := mi.GetIdxDBByIndex(0)
 		it, _secondary := idxDB.FindByPrimary(primary)
 		// it, _secondary := idxDB.Lowerbound(uint64(0))
 		secondary := _secondary.(uint64)
@@ -61,7 +61,7 @@ func main() {
 		}
 	}
 	{
-		idxDB := mi.GetIdxDB(1)
+		idxDB := mi.GetIdxDBByIndex(1)
 		it, _secondary := idxDB.FindByPrimary(primary)
 		// it, _secondary := idxDB.Lowerbound(uint64(0))
 		secondary := _secondary.(chain.Uint128)
@@ -74,7 +74,7 @@ func main() {
 		}
 	}
 	{
-		idxDB := mi.GetIdxDB(2)
+		idxDB := mi.GetIdxDBByIndex(2)
 		it, _secondary := idxDB.FindByPrimary(primary)
 		// it, _secondary := idxDB.Lowerbound(uint64(0))
 		secondary := _secondary.(chain.Uint256)
@@ -87,7 +87,7 @@ func main() {
 		}
 	}
 	{
-		idxDB := mi.GetIdxDB(3)
+		idxDB := mi.GetIdxDBByIndex(3)
 		it, _secondary := idxDB.FindByPrimary(primary)
 		// it, _secondary := idxDB.Lowerbound(uint64(0))
 		secondary := _secondary.(float64)
@@ -98,7 +98,7 @@ func main() {
 		}
 	}
 	{
-		idxDB := mi.GetIdxDB(4)
+		idxDB := mi.GetIdxDBByIndex(4)
 		it, _secondary := idxDB.FindByPrimary(primary)
 		// it, _secondary := idxDB.Lowerbound(uint64(0))
 		secondary := _secondary.(chain.Float128)
