@@ -7,12 +7,13 @@ import (
 )
 
 type MultiIndex struct {
-	code       chain.Name
-	scope      chain.Name
-	table      chain.Name
-	db         *DBI64
-	indexTypes []int
-	idxDBs     []SecondaryDB
+	code             chain.Name
+	scope            chain.Name
+	table            chain.Name
+	db               *DBI64
+	idxDBNameToIndex func(string) int
+	indexTypes       []int
+	idxDBs           []SecondaryDB
 }
 
 type MultiIndexValue interface {
@@ -25,7 +26,7 @@ var (
 	ErrNotMultiIndexValue = errors.New("not a MultiIndexValue type")
 )
 
-func NewMultiIndex(code chain.Name, scope chain.Name, table chain.Name, indexTypes []int, unpacker ...Unpacker) *MultiIndex {
+func NewMultiIndex(code chain.Name, scope chain.Name, table chain.Name, idxDBNameToIndex func(string) int, indexTypes []int, unpacker ...Unpacker) *MultiIndex {
 
 	if table.N&uint64(0x0f) != 0 {
 		// Limit table names to 12 characters so that the last character (4 bits) can be used to distinguish between the secondary indices.
@@ -37,6 +38,7 @@ func NewMultiIndex(code chain.Name, scope chain.Name, table chain.Name, indexTyp
 	mi.scope = scope
 	mi.table = table
 	mi.db = NewDBI64(code, scope, table, unpacker...)
+	mi.idxDBNameToIndex = idxDBNameToIndex
 	mi.indexTypes = indexTypes
 	mi.idxDBs = make([]SecondaryDB, len(indexTypes))
 	for i, v := range indexTypes {
@@ -190,6 +192,12 @@ func (mi *MultiIndex) IdxFind(index int, secondary interface{}) SecondaryIterato
 	return mi.idxDBs[index].Find(secondary)
 }
 
+func (mi *MultiIndex) IdxFindByName(idxDBName string, secondary interface{}) SecondaryIterator {
+	chain.Check(mi.idxDBNameToIndex != nil, "idxDBNameToIndex is nil")
+	index := mi.idxDBNameToIndex(idxDBName)
+	return mi.idxDBs[index].Find(secondary)
+}
+
 func (mi *MultiIndex) UpdateSecondaryValue(idxDB SecondaryDB, primary uint64, secondary interface{}, payer chain.Name) {
 	itPrimary := mi.db.Find(primary)
 	chain.Check(itPrimary.IsOk(), "primary not found!")
@@ -226,6 +234,12 @@ func (mi *MultiIndex) IdxUpdate(idxDB SecondaryDB, it SecondaryIterator, seconda
 	idxDB.Update(it, secondary, payer.N)
 }
 
-func (mi *MultiIndex) GetIdxDB(index int) SecondaryDB {
+func (mi *MultiIndex) GetIdxDBByIndex(index int) SecondaryDB {
+	return mi.idxDBs[index]
+}
+
+func (mi *MultiIndex) GetIdxDB(idxDBName string) SecondaryDB {
+	chain.Check(mi.idxDBNameToIndex != nil, "idxDBNameToIndex is nil")
+	index := mi.idxDBNameToIndex(idxDBName)
 	return mi.idxDBs[index]
 }
