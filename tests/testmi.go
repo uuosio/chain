@@ -2,76 +2,21 @@ package main
 
 import (
 	"github.com/uuosio/chain"
-	"github.com/uuosio/chain/database"
 	"github.com/uuosio/chain/logger"
 )
 
-var (
-	MyDataSecondaryTypes = [5]int{
-		database.IDX64, database.IDX128, database.IDX256, database.IDXFloat64, database.IDXFloat128,
-	}
-)
-
+//table mydata
 type MyData struct {
 	primary uint64
-	a1      uint64
-	a2      chain.Uint128
-	a3      chain.Uint256
-	a4      float64
-	a5      chain.Float128
-}
-
-func MyDataUnpacker(buf []byte) (database.DBValue, error) {
-	v := &MyData{}
-	_, err := v.Unpack(buf)
-	if err != nil {
-		return nil, err
-	}
-	return v, nil
+	a1      uint64         //IDX64:target.a1:target.a1
+	a2      chain.Uint128  //IDX128:target.a2:target.a2
+	a3      chain.Uint256  //IDX256:target.a3:target.a3
+	a4      float64        //IDXFloat64:target.a4:target.a4
+	a5      chain.Float128 //IDXFloat128:target.a5:target.a5
 }
 
 func (d *MyData) GetPrimary() uint64 {
 	return d.primary
-}
-
-func (d *MyData) GetSecondaryValue(index int) interface{} {
-	if index >= len(MyDataSecondaryTypes) {
-		panic("index overflow")
-	}
-	switch index {
-	case 0:
-		return d.a1
-	case 1:
-		return d.a2
-	case 2:
-		return d.a3
-	case 3:
-		return d.a4
-	case 4:
-		return d.a5
-	default:
-		panic("unknown index")
-	}
-}
-
-func (d *MyData) SetSecondaryValue(index int, v interface{}) {
-	if index >= len(MyDataSecondaryTypes) {
-		panic("index overflow")
-	}
-	switch index {
-	case 0:
-		d.a1 = v.(uint64)
-	case 1:
-		d.a2 = v.(chain.Uint128)
-	case 2:
-		d.a3 = v.(chain.Uint256)
-	case 3:
-		d.a4 = v.(float64)
-	case 4:
-		d.a5 = v.(chain.Float128)
-	default:
-		panic("unknown index")
-	}
 }
 
 func main() {
@@ -82,9 +27,8 @@ func main() {
 
 	code := chain.NewName("hello")
 	scope := chain.NewName("helloo")
-	table := chain.NewName("idxtablee5")
 	payer := code
-	mi := database.NewMultiIndex(code, scope, table, MyDataSecondaryTypes[:], MyDataUnpacker)
+	mi := NewMyDataDB(code, scope)
 
 	primary := uint64(1000)
 	secondary := uint64(0)
