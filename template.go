@@ -1,9 +1,5 @@
 package chain
 
-import (
-	"github.com/uuosio/chain/database"
-)
-
 type Template struct{}
 
 func (t *Template) Pack() []byte {
@@ -28,9 +24,7 @@ type TableTemplate struct {
 }
 
 var (
-	TableTemplateSecondaryTypes = [2]int{
-		database.IDX64,
-	}
+	TableTemplateSecondaryTypes = []int{}
 )
 
 func (t *TableTemplate) GetPrimary() uint64 {
