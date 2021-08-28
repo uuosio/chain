@@ -117,9 +117,13 @@ func main() {
     def test_mi(self):
         with open('testmi.go', 'r') as f:
             code = f.read()
-        code, abi = wasmcompiler.compile_go_src('hello', code)
+        code, abi = wasmcompiler.compile_go_src('testmi', code)
         assert code
         self.chain.deploy_contract('hello', code, b'', 0)
+        r = self.chain.push_action('hello', 'sayhello', b'hello,world')
+        print_console(r)
+
+        self.chain.produce_block()
         r = self.chain.push_action('hello', 'sayhello', b'hello,world')
         print_console(r)
 
@@ -174,3 +178,15 @@ func main() {
         self.chain.deploy_contract('hello', code, b'', 0)
         r = self.chain.push_action('hello', 'sayhello', b'hello,world')
         print_console(r)
+
+    def test_singleton(self):
+        with open('testsingleton.go', 'r') as f:
+            code = f.read()
+        code, abi = wasmcompiler.compile_go_src('testsingleton', code)
+        assert code
+        self.chain.deploy_contract('hello', code, b'', 0)
+
+        for i in range(4):
+            r = self.chain.push_action('hello', 'sayhello', b'hello,world')
+            print_console(r)
+            self.chain.produce_block()
