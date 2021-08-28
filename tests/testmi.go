@@ -7,16 +7,12 @@ import (
 
 //table mydata
 type MyData struct {
-	primary uint64
-	a1      uint64         //IDX64:t.a1:t.a1=%v
-	a2      chain.Uint128  //IDX128:t.a2:t.a2=%v
-	a3      chain.Uint256  //IDX256:t.a3:t.a3=%v
-	a4      float64        //IDXFloat64:t.a4:t.a4=%v
-	a5      chain.Float128 //IDXFloat128:t.a5:t.a5
-}
-
-func (d *MyData) GetPrimary() uint64 {
-	return d.primary
+	primary uint64         //primary:t.primary
+	a1      uint64         //IDX64:bya1:t.a1:t.a1=%v
+	a2      chain.Uint128  //IDX128:bya2:t.a2:t.a2=%v
+	a3      chain.Uint256  //IDX256:bya3:t.a3:t.a3=%v
+	a4      float64        //IDXFloat64:bya4:t.a4:t.a4=%v
+	a5      chain.Float128 //IDXFloat128:bya5:t.a5:t.a5=%v
 }
 
 func main() {
@@ -36,8 +32,7 @@ func main() {
 		it := mi.Find(primary)
 		if it.IsOk() {
 			logger.Println("+++update")
-			_data, _ := mi.GetByIterator(it)
-			data := _data.(*MyData)
+			data, _ := mi.GetByIterator(it)
 			logger.Println(data.a1, data.a4)
 			secondary = data.a1
 			data.a4 += float64(1.1)
@@ -50,7 +45,7 @@ func main() {
 	}
 	logger.Println("+++secondary:", secondary)
 	{
-		idxDB := mi.GetIdxDBByIndex(0)
+		idxDB := mi.GetIdxDB("bya1")
 		it, _secondary := idxDB.FindByPrimary(primary)
 		// it, _secondary := idxDB.Lowerbound(uint64(0))
 		secondary := _secondary.(uint64)
@@ -61,12 +56,12 @@ func main() {
 		}
 	}
 	{
-		idxDB := mi.GetIdxDBByIndex(1)
+		idxDB := mi.GetIdxDB("bya2")
 		it, _secondary := idxDB.FindByPrimary(primary)
 		// it, _secondary := idxDB.Lowerbound(uint64(0))
 		secondary := _secondary.(chain.Uint128)
 		n := secondary.Uint64()
-		n += 1
+		n += 2
 		secondary.SetUint64(n)
 		logger.Println(idxDB.GetIndex(), it.I, it.Primary, n)
 		if it.IsOk() {
@@ -74,12 +69,12 @@ func main() {
 		}
 	}
 	{
-		idxDB := mi.GetIdxDBByIndex(2)
+		idxDB := mi.GetIdxDB("bya3")
 		it, _secondary := idxDB.FindByPrimary(primary)
 		// it, _secondary := idxDB.Lowerbound(uint64(0))
 		secondary := _secondary.(chain.Uint256)
 		n := secondary.Uint64()
-		n += 1
+		n += 3
 		secondary.SetUint64(n)
 		logger.Println(idxDB.GetIndex(), it.I, it.Primary, n)
 		if it.IsOk() {
@@ -87,7 +82,7 @@ func main() {
 		}
 	}
 	{
-		idxDB := mi.GetIdxDBByIndex(3)
+		idxDB := mi.GetIdxDB("bya4")
 		it, _secondary := idxDB.FindByPrimary(primary)
 		// it, _secondary := idxDB.Lowerbound(uint64(0))
 		secondary := _secondary.(float64)
@@ -98,11 +93,11 @@ func main() {
 		}
 	}
 	{
-		idxDB := mi.GetIdxDBByIndex(4)
+		idxDB := mi.GetIdxDB("bya5")
 		it, _secondary := idxDB.FindByPrimary(primary)
 		// it, _secondary := idxDB.Lowerbound(uint64(0))
 		secondary := _secondary.(chain.Float128)
-		secondary[0] += 1
+		secondary[0] += 5
 		logger.Println(idxDB.GetIndex(), it.I, it.Primary, secondary[0])
 		if it.IsOk() {
 			mi.IdxUpdate(idxDB, it, secondary, payer)

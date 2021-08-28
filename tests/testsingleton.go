@@ -22,7 +22,6 @@ func NewContract(receiver, firstReceiver, action chain.Name) *MyContract {
 
 //action sayhello
 func (t *MyContract) SayHello() {
-	println("++++sayhello:")
 	code := t.Receiver
 	payer := t.Receiver
 	db := NewMySingletonDB(code, code)
