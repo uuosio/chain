@@ -10,10 +10,18 @@ type MultiIndex struct {
 	code             chain.Name
 	scope            chain.Name
 	table            chain.Name
-	db               *DBI64
 	idxDBNameToIndex func(string) int
-	indexTypes       []int
-	idxDBs           []SecondaryDB
+	IndexTypes       []int
+
+	DB     *DBI64
+	IDXDBs []SecondaryDB
+}
+
+type AccessMultiIndexValue interface {
+	Store(v MultiIndexValue, payer chain.Name)
+	Get(id uint64) (MultiIndexValue, error)
+	GetByIterator(it Iterator) (MultiIndexValue, error)
+	Update(it Iterator, v MultiIndexValue, payer chain.Name)
 }
 
 type MultiIndexValue interface {
@@ -37,27 +45,27 @@ func NewMultiIndex(code chain.Name, scope chain.Name, table chain.Name, idxDBNam
 	mi.code = code
 	mi.scope = scope
 	mi.table = table
-	mi.db = NewDBI64(code, scope, table, unpacker...)
+	mi.DB = NewDBI64(code, scope, table, unpacker...)
 	mi.idxDBNameToIndex = idxDBNameToIndex
-	mi.indexTypes = indexTypes
-	mi.idxDBs = make([]SecondaryDB, len(indexTypes))
+	mi.IndexTypes = indexTypes
+	mi.IDXDBs = make([]SecondaryDB, len(indexTypes))
 	for i, v := range indexTypes {
 		idxTable := (table.N & uint64(0xfffffffffffffff0)) | uint64(i)
 		switch v {
 		case IDX64:
-			mi.idxDBs[i] = NewIdxDB64(i, code.N, scope.N, idxTable)
+			mi.IDXDBs[i] = NewIdxDB64(i, code.N, scope.N, idxTable)
 			break
 		case IDX128:
-			mi.idxDBs[i] = NewIdxDB128(i, code.N, scope.N, idxTable)
+			mi.IDXDBs[i] = NewIdxDB128(i, code.N, scope.N, idxTable)
 			break
 		case IDX256:
-			mi.idxDBs[i] = NewIdxDB256(i, code.N, scope.N, idxTable)
+			mi.IDXDBs[i] = NewIdxDB256(i, code.N, scope.N, idxTable)
 			break
 		case IDXFloat64:
-			mi.idxDBs[i] = NewIdxDBFloat64(i, code.N, scope.N, idxTable)
+			mi.IDXDBs[i] = NewIdxDBFloat64(i, code.N, scope.N, idxTable)
 			break
 		case IDXFloat128:
-			mi.idxDBs[i] = NewIdxDBFloat128(i, code.N, scope.N, idxTable)
+			mi.IDXDBs[i] = NewIdxDBFloat128(i, code.N, scope.N, idxTable)
 		default:
 			panic("invalid index")
 		}
@@ -67,19 +75,19 @@ func NewMultiIndex(code chain.Name, scope chain.Name, table chain.Name, idxDBNam
 }
 
 func (mi *MultiIndex) Store(v MultiIndexValue, payer chain.Name) {
-	mi.db.Store(v, payer)
+	mi.DB.Store(v, payer)
 	primary := v.GetPrimary()
-	for i, db := range mi.idxDBs {
+	for i, db := range mi.IDXDBs {
 		db.Store(primary, v.GetSecondaryValue(i), payer.N)
 	}
 }
 
 func (mi *MultiIndex) Find(primary uint64) Iterator {
-	return mi.db.Find(primary)
+	return mi.DB.Find(primary)
 }
 
 func (mi *MultiIndex) Get(id uint64) (MultiIndexValue, error) {
-	data, err := mi.db.Get(id)
+	data, err := mi.DB.Get(id)
 	if err != nil {
 		return nil, err
 	}
@@ -89,16 +97,10 @@ func (mi *MultiIndex) Get(id uint64) (MultiIndexValue, error) {
 		return nil, ErrNotMultiIndexValue
 	}
 	return _data, nil
-	// v, err := mi.db.GetByIterator(it)
-	// if err != nil {
-	// 	return nil
-	// }
-	// return v
-	// TODO verify secondary values
 }
 
 func (mi *MultiIndex) GetByIterator(it Iterator) (MultiIndexValue, error) {
-	v, err := mi.db.GetByIterator(it)
+	v, err := mi.DB.GetByIterator(it)
 	if err != nil {
 		return nil, err
 	}
@@ -107,16 +109,9 @@ func (mi *MultiIndex) GetByIterator(it Iterator) (MultiIndexValue, error) {
 		return nil, ErrNotMultiIndexValue
 	}
 	return _v, nil
-
-	// v, err := mi.db.GetByIterator(it)
-	// if err != nil {
-	// 	return nil
-	// }
-	// return v
-	// TODO verify secondary values
 }
 
-func isEqual(indexType int, a, b interface{}) bool {
+func IsEqual(indexType int, a, b interface{}) bool {
 	switch indexType {
 	case IDX64:
 		return a.(uint64) == b.(uint64)
@@ -162,14 +157,14 @@ func isEqual(indexType int, a, b interface{}) bool {
 }
 
 func (mi *MultiIndex) Update(it Iterator, v MultiIndexValue, payer chain.Name) {
-	mi.db.Update(it, v, payer)
+	mi.DB.Update(it, v, payer)
 	primary := v.GetPrimary()
-	for i, db := range mi.idxDBs {
+	for i, db := range mi.IDXDBs {
 		it, oldSecondary := db.FindByPrimary(primary)
 		// logger.Println(primary, i, oldSecondary, ":")
 		chain.Check(it.IsOk(), "secondary value does not exists!")
 		secondary := v.GetSecondaryValue(i)
-		if isEqual(mi.indexTypes[i], oldSecondary, secondary) {
+		if IsEqual(mi.IndexTypes[i], oldSecondary, secondary) {
 		} else {
 			db.Update(it, secondary, payer.N)
 		}
@@ -177,31 +172,31 @@ func (mi *MultiIndex) Update(it Iterator, v MultiIndexValue, payer chain.Name) {
 }
 
 func (mi *MultiIndex) Lowerbound(id uint64) Iterator {
-	return mi.db.Lowerbound(id)
+	return mi.DB.Lowerbound(id)
 }
 
 func (mi *MultiIndex) Upperbound(id uint64) Iterator {
-	return mi.db.Upperbound(id)
+	return mi.DB.Upperbound(id)
 }
 
 func (mi *MultiIndex) End() Iterator {
-	return mi.db.End()
+	return mi.DB.End()
 }
 
 func (mi *MultiIndex) IdxFind(index int, secondary interface{}) SecondaryIterator {
-	return mi.idxDBs[index].Find(secondary)
+	return mi.IDXDBs[index].Find(secondary)
 }
 
 func (mi *MultiIndex) IdxFindByName(idxDBName string, secondary interface{}) SecondaryIterator {
 	chain.Check(mi.idxDBNameToIndex != nil, "idxDBNameToIndex is nil")
 	index := mi.idxDBNameToIndex(idxDBName)
-	return mi.idxDBs[index].Find(secondary)
+	return mi.IDXDBs[index].Find(secondary)
 }
 
 func (mi *MultiIndex) UpdateSecondaryValue(idxDB SecondaryDB, primary uint64, secondary interface{}, payer chain.Name) {
-	itPrimary := mi.db.Find(primary)
+	itPrimary := mi.DB.Find(primary)
 	chain.Check(itPrimary.IsOk(), "primary not found!")
-	_v, err := mi.db.GetByIterator(itPrimary)
+	_v, err := mi.DB.GetByIterator(itPrimary)
 	chain.Check(err == nil, "get primary value error!")
 	v, ok := _v.(MultiIndexValue)
 	if !ok {
@@ -209,37 +204,37 @@ func (mi *MultiIndex) UpdateSecondaryValue(idxDB SecondaryDB, primary uint64, se
 	}
 
 	newSecondary := v.GetSecondaryValue(idxDB.GetIndex())
-	if isEqual(mi.indexTypes[idxDB.GetIndex()], newSecondary, secondary) {
+	if IsEqual(mi.IndexTypes[idxDB.GetIndex()], newSecondary, secondary) {
 		return
 	}
 	v.SetSecondaryValue(idxDB.GetIndex(), secondary)
-	mi.db.Update(itPrimary, v, payer)
+	mi.DB.Update(itPrimary, v, payer)
 }
 
 func (mi *MultiIndex) IdxUpdate(idxDB SecondaryDB, it SecondaryIterator, secondary interface{}, payer chain.Name) {
-	itPrimary := mi.db.Find(it.Primary)
+	itPrimary := mi.DB.Find(it.Primary)
 	chain.Check(itPrimary.IsOk(), "primary not found!")
-	v, err := mi.db.GetByIterator(itPrimary)
+	v, err := mi.DB.GetByIterator(itPrimary)
 	chain.Check(err == nil, "get primary value error!")
 	vv, ok := v.(MultiIndexValue)
 	if !ok {
-		panic("Not a MultiIndexValue type")
+		panic("IdxUpdate: Not a MultiIndexValue type")
 	}
 	newSecondary := vv.GetSecondaryValue(idxDB.GetIndex())
-	if isEqual(mi.indexTypes[idxDB.GetIndex()], newSecondary, secondary) {
+	if IsEqual(mi.IndexTypes[idxDB.GetIndex()], newSecondary, secondary) {
 		return
 	}
 	vv.SetSecondaryValue(idxDB.GetIndex(), secondary)
-	mi.db.Update(itPrimary, v, payer)
+	mi.DB.Update(itPrimary, v, payer)
 	idxDB.Update(it, secondary, payer.N)
 }
 
 func (mi *MultiIndex) GetIdxDBByIndex(index int) SecondaryDB {
-	return mi.idxDBs[index]
+	return mi.IDXDBs[index]
 }
 
 func (mi *MultiIndex) GetIdxDB(idxDBName string) SecondaryDB {
 	chain.Check(mi.idxDBNameToIndex != nil, "idxDBNameToIndex is nil")
 	index := mi.idxDBNameToIndex(idxDBName)
-	return mi.idxDBs[index]
+	return mi.IDXDBs[index]
 }
