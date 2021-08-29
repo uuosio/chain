@@ -24,13 +24,17 @@ func (t *SingletonDB) Set(data DBValue, payer chain.Name) {
 	t.DB.Set(t.DB.table, data.Pack(), payer)
 }
 
-func (t *SingletonDB) Get() (Iterator, interface{}) {
+func (t *SingletonDB) Get() interface{} {
 	it, data := t.DB.Get(t.DB.table)
+	if !it.IsOk() {
+		return nil
+	}
+
 	if t.unpacker != nil {
 		value, err := t.unpacker(data)
 		chain.Check(err != nil, "SingletonDB.Get: unpacker error")
-		return it, value
+		return value
 	} else {
-		return it, data
+		return data
 	}
 }
