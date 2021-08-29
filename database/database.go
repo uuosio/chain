@@ -31,6 +31,7 @@ func (it Iterator) IsInvalid() bool {
 type SecondaryIterator struct {
 	I       int32
 	Primary uint64
+	dbIndex int
 }
 
 func (it *SecondaryIterator) IsOk() bool {

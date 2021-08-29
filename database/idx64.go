@@ -24,11 +24,10 @@ type IdxDB64 struct {
 	code    uint64
 	scope   uint64
 	table   uint64
-	mi      *MultiIndex
 }
 
 func NewIdxDB64(index int, code uint64, scope uint64, table uint64) *IdxDB64 {
-	v := &IdxDB64{index, code, scope, table, nil}
+	v := &IdxDB64{index, code, scope, table}
 	return v
 }
 
@@ -42,7 +41,7 @@ func (db *IdxDB64) Store(id uint64, secondary interface{}, payer uint64) Seconda
 	chain.Check(ok, "bad secondary type")
 	chain.Check(db.code == chain.CurrentReceiver().N, "bad code name")
 	ret := C.db_idx64_store(db.scope, db.table, payer, id, &_secondary)
-	return SecondaryIterator{ret, id}
+	return SecondaryIterator{ret, id, db.dbIndex}
 }
 
 //Update an association for a 64-bit integer secondary key to a primary key in a secondary 64-bit integer index table
@@ -61,21 +60,21 @@ func (db *IdxDB64) Remove(it SecondaryIterator) {
 func (db *IdxDB64) Next(it SecondaryIterator) SecondaryIterator {
 	var primary uint64 = 0
 	ret := C.db_idx64_next(it.I, &primary)
-	return SecondaryIterator{ret, primary}
+	return SecondaryIterator{ret, primary, db.dbIndex}
 }
 
 //Find the table row preceding the referenced table row in a secondary 64-bit integer index table
 func (db *IdxDB64) Previous(it SecondaryIterator) SecondaryIterator {
 	var primary uint64 = 0
 	ret := C.db_idx64_previous(it.I, (*C.uint64_t)(&primary))
-	return SecondaryIterator{ret, primary}
+	return SecondaryIterator{ret, primary, db.dbIndex}
 }
 
 //Find a table row in a secondary 64-bit integer index table by primary key
 func (db *IdxDB64) FindByPrimary(primary uint64) (SecondaryIterator, interface{}) {
 	var secondary uint64 = 0
 	ret := C.db_idx64_find_primary(db.code, db.scope, db.table, &secondary, primary)
-	return SecondaryIterator{ret, primary}, secondary
+	return SecondaryIterator{ret, primary, db.dbIndex}, secondary
 }
 
 //Find a table row in a secondary 64-bit integer index table by secondary key
@@ -84,7 +83,7 @@ func (db *IdxDB64) Find(secondary interface{}) SecondaryIterator {
 	_secondary, ok := secondary.(uint64)
 	chain.Check(ok, "bad secondary type")
 	ret := C.db_idx64_find_secondary(db.code, db.scope, db.table, &_secondary, &primary)
-	return SecondaryIterator{ret, primary}
+	return SecondaryIterator{ret, primary, db.dbIndex}
 }
 
 //Find the table row in a secondary 64-bit integer index table that matches the lowerbound condition for a given secondary key
@@ -93,7 +92,7 @@ func (db *IdxDB64) Lowerbound(secondary interface{}) (SecondaryIterator, interfa
 	_secondary, ok := secondary.(uint64)
 	chain.Assert(ok, "bad secondary type")
 	ret := C.db_idx64_lowerbound(db.code, db.scope, db.table, &_secondary, &primary)
-	return SecondaryIterator{ret, primary}, _secondary
+	return SecondaryIterator{ret, primary, db.dbIndex}, _secondary
 }
 
 //Find the table row in a secondary 64-bit integer index table that matches the upperbound condition for a given secondary key
@@ -102,11 +101,11 @@ func (db *IdxDB64) Upperbound(secondary interface{}) (SecondaryIterator, interfa
 	_secondary, ok := secondary.(uint64)
 	chain.Assert(ok, "bad secondary type")
 	ret := C.db_idx64_upperbound(db.code, db.scope, db.table, &_secondary, &primary)
-	return SecondaryIterator{ret, primary}, _secondary
+	return SecondaryIterator{ret, primary, db.dbIndex}, _secondary
 }
 
 //Get an end iterator representing just-past-the-end of the last table row of a secondary 64-bit integer index table
 func (db *IdxDB64) End() SecondaryIterator {
 	ret := C.db_idx64_end(db.code, db.scope, db.table)
-	return SecondaryIterator{ret, 0}
+	return SecondaryIterator{ret, 0, db.dbIndex}
 }

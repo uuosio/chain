@@ -43,7 +43,7 @@ func (db *IdxDBFloat64) Store(id uint64, secondary interface{}, payer uint64) Se
 	_secondary, ok := secondary.(float64)
 	chain.Check(ok, "bad secondary type")
 	ret := C.db_idx_double_store(db.scope, db.table, payer, id, &_secondary)
-	return SecondaryIterator{ret, id}
+	return SecondaryIterator{ret, id, db.dbIndex}
 }
 
 //Update an association for a double-precision floating-point secondary key to a primary key in a secondary double-precision floating-point index table
@@ -62,21 +62,21 @@ func (db *IdxDBFloat64) Remove(it SecondaryIterator) {
 func (db *IdxDBFloat64) Next(it SecondaryIterator) SecondaryIterator {
 	var primary uint64 = 0
 	ret := C.db_idx_double_next(it.I, &primary)
-	return SecondaryIterator{ret, primary}
+	return SecondaryIterator{ret, primary, db.dbIndex}
 }
 
 //Find the table row preceding the referenced table row in a secondary double-precision floating-point index table
 func (db *IdxDBFloat64) Previous(it SecondaryIterator) SecondaryIterator {
 	var primary uint64 = 0
 	ret := C.db_idx_double_previous(it.I, &primary)
-	return SecondaryIterator{ret, primary}
+	return SecondaryIterator{ret, primary, db.dbIndex}
 }
 
 //Find a table row in a secondary double-precision floating-point index table by primary key
 func (db *IdxDBFloat64) FindByPrimary(primary uint64) (SecondaryIterator, interface{}) {
 	var secondary float64
 	ret := C.db_idx_double_find_primary(db.code, db.scope, db.table, (*float64)(unsafe.Pointer(&secondary)), primary)
-	return SecondaryIterator{ret, primary}, secondary
+	return SecondaryIterator{ret, primary, db.dbIndex}, secondary
 }
 
 //Find a table row in a secondary double-precision floating-point index table by secondary key
@@ -85,7 +85,7 @@ func (db *IdxDBFloat64) Find(secondary interface{}) SecondaryIterator {
 	_secondary, ok := secondary.(float64)
 	chain.Check(ok, "not a float64 value")
 	ret := C.db_idx_double_find_secondary(db.code, db.scope, db.table, &_secondary, &primary)
-	return SecondaryIterator{ret, primary}
+	return SecondaryIterator{ret, primary, db.dbIndex}
 }
 
 //Find the table row in a secondary double-precision floating-point index table that matches the lowerbound condition for a given secondary key
@@ -94,7 +94,7 @@ func (db *IdxDBFloat64) Lowerbound(secondary interface{}) (SecondaryIterator, in
 	_secondary, ok := secondary.(float64)
 	chain.Assert(ok, "not a float64 value")
 	ret := C.db_idx_double_lowerbound(db.code, db.scope, db.table, &_secondary, &primary)
-	return SecondaryIterator{ret, primary}, _secondary
+	return SecondaryIterator{ret, primary, db.dbIndex}, _secondary
 }
 
 //Find the table row in a secondary double-precision floating-point index table that matches the upperbound condition for a given secondary key
@@ -103,11 +103,11 @@ func (db *IdxDBFloat64) Upperbound(secondary interface{}) (SecondaryIterator, in
 	_secondary, ok := secondary.(float64)
 	chain.Assert(ok, "not a float64 value")
 	ret := C.db_idx_double_upperbound(db.code, db.scope, db.table, &_secondary, &primary)
-	return SecondaryIterator{ret, primary}, _secondary
+	return SecondaryIterator{ret, primary, db.dbIndex}, _secondary
 }
 
 //Get an end iterator representing just-past-the-end of the last table row of a secondary double-precision floating-point index table
 func (db *IdxDBFloat64) End() SecondaryIterator {
 	ret := C.db_idx_double_end(db.code, db.scope, db.table)
-	return SecondaryIterator{ret, 0}
+	return SecondaryIterator{ret, 0, db.dbIndex}
 }

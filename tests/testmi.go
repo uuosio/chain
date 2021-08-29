@@ -55,14 +55,32 @@ func (t *TestMI) test1() {
 
 	it := mi.Lowerbound(uint64(1001))
 	for ; it.IsOk(); it, _ = mi.Next(it) {
-		logger.Println(it.I)
+		logger.Print(it.I)
 	}
+	logger.Println()
 
 	primary = uint64(1000)
 	for ; primary < maxPrimary; primary += 2 {
 		it, data := mi.Get(primary)
 		chain.Check(it.IsOk(), "not found")
 		chain.Check(data != nil, "data is nil")
+	}
+
+	{
+		idxDB := mi.GetIdxDB("bya1")
+		it := idxDB.End()
+		chain.Println("+++++++++bya1", it.I)
+		if it.IsValid() {
+			for {
+				it = idxDB.Previous(it)
+				chain.Println("+++++++bya1:", it.I)
+				if !it.IsOk() {
+					break
+				}
+				secondary := mi.IdxGet(it)
+				chain.Println("+++++++bya1 secondary:", secondary.(uint64))
+			}
+		}
 	}
 
 	primary = uint64(1000)
@@ -76,7 +94,7 @@ func (t *TestMI) test1() {
 		secondary += 1
 		logger.Println(idxDB.GetIndex(), it.I, it.Primary, secondary)
 		if it.IsOk() {
-			mi.IdxUpdate(idxDB, it, secondary, payer)
+			mi.IdxUpdate(it, secondary, payer)
 		}
 	}
 	{
@@ -89,7 +107,7 @@ func (t *TestMI) test1() {
 		secondary.SetUint64(n)
 		logger.Println(idxDB.GetIndex(), it.I, it.Primary, n)
 		if it.IsOk() {
-			mi.IdxUpdate(idxDB, it, secondary, payer)
+			mi.IdxUpdate(it, secondary, payer)
 		}
 	}
 	{
@@ -102,7 +120,7 @@ func (t *TestMI) test1() {
 		secondary.SetUint64(n)
 		logger.Println(idxDB.GetIndex(), it.I, it.Primary, n)
 		if it.IsOk() {
-			mi.IdxUpdate(idxDB, it, secondary, payer)
+			mi.IdxUpdate(it, secondary, payer)
 		}
 	}
 	{
@@ -113,7 +131,7 @@ func (t *TestMI) test1() {
 		secondary += 0.1
 		logger.Println(idxDB.GetIndex(), it.I, it.Primary, secondary)
 		if it.IsOk() {
-			mi.IdxUpdate(idxDB, it, secondary, payer)
+			mi.IdxUpdate(it, secondary, payer)
 		}
 	}
 	{
@@ -124,7 +142,7 @@ func (t *TestMI) test1() {
 		secondary[0] += 5
 		logger.Println(idxDB.GetIndex(), it.I, it.Primary, secondary[0])
 		if it.IsOk() {
-			mi.IdxUpdate(idxDB, it, secondary, payer)
+			mi.IdxUpdate(it, secondary, payer)
 		}
 	}
 }
