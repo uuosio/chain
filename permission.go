@@ -23,11 +23,7 @@ int64_t get_account_creation_time( capi_name account );
 import "C"
 import "unsafe"
 
-// int32_t
-// check_transaction_authorization( const char* trx_data,     uint32_t trx_size,
-// 								const char* pubkeys_data, uint32_t pubkeys_size,
-// 								const char* perms_data,   uint32_t perms_size
-// 							);
+//Checks if a transaction is authorized by a provided set of keys and permissions
 func CheckTransactionAuthorization(trx_data []byte, pubkeys_data []byte, perms_data []byte) int32 {
 	return C.check_transaction_authorization(
 		(*C.char)(unsafe.Pointer(&trx_data[0])), (C.uint32_t)(len(trx_data)),
@@ -36,13 +32,7 @@ func CheckTransactionAuthorization(trx_data []byte, pubkeys_data []byte, perms_d
 	)
 }
 
-// int32_t
-// check_permission_authorization( capi_name account,
-// 								capi_name permission,
-// 								const char* pubkeys_data, uint32_t pubkeys_size,
-// 								const char* perms_data,   uint32_t perms_size,
-// 								uint64_t delay_us
-// 							);
+//Checks if a permission is authorized by a provided delay and a provided set of keys and permissions
 func CheckPermissionAuthorization(account Name, permission Name, pubkeys_data []byte, perms_data []byte, delay_us uint64) int32 {
 	return C.check_permission_authorization(account.N, permission.N,
 		(*C.char)(unsafe.Pointer(&pubkeys_data[0])), (C.uint32_t)(len(pubkeys_data)),
@@ -51,12 +41,12 @@ func CheckPermissionAuthorization(account Name, permission Name, pubkeys_data []
 	)
 }
 
-// int64_t get_permission_last_used( capi_name account, capi_name permission );
+//Returns the last used time of a permission
 func GetPermissionLastUsed(account Name, permission Name) int64 {
 	return C.get_permission_last_used(account.N, permission.N)
 }
 
-// int64_t get_account_creation_time( capi_name account );
+//Returns the creation time of an account
 func GetAccountCreationTime(account Name) int64 {
 	return C.get_account_creation_time(account.N)
 }
@@ -116,6 +106,13 @@ func (t *KeyWeight) Unpack(data []byte) (int, error) {
 	dec.Unpack(&t.Key)
 	dec.Unpack(&t.Weight)
 	return dec.Pos(), nil
+}
+
+func (t *KeyWeight) Size() int {
+	size := 0
+	size += t.Key.Size()
+	size += 2
+	return size
 }
 
 type WaitWeight struct {

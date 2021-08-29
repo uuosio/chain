@@ -40,7 +40,7 @@ func (db *IdxDB256) GetIndex() int {
 	return db.dbIndex
 }
 
-// int32_t db_idx256_store(uint64_t scope, uint64_t table, uint64_t payer, uint64_t id, const uint128_t* data, uint32_t data_len );
+//Store an association of a 256-bit secondary key to a primary key in a secondary 256-bit index table
 func (db *IdxDB256) Store(id uint64, secondary interface{}, payer uint64) SecondaryIterator {
 	_secondary, ok := secondary.(chain.Uint256)
 	chain.Check(ok, "bad secondary type")
@@ -48,40 +48,40 @@ func (db *IdxDB256) Store(id uint64, secondary interface{}, payer uint64) Second
 	return SecondaryIterator{ret, id}
 }
 
-// void db_idx256_update(int32_t iterator, uint64_t payer, const uint128_t* data, uint32_t data_len);
+//Update an association for a 256-bit secondary key to a primary key in a secondary 256-bit index table
 func (db *IdxDB256) Update(it SecondaryIterator, secondary interface{}, payer uint64) {
 	_secondary, ok := secondary.(chain.Uint256)
 	chain.Check(ok, "bad secondary type")
 	C.db_idx256_update(it.I, payer, (*uint8)(unsafe.Pointer(&_secondary)), 2)
 }
 
-// void db_idx256_remove(int32_t iterator);
+//Remove a table row from a secondary 256-bit index table
 func (db *IdxDB256) Remove(it SecondaryIterator) {
 	C.db_idx256_remove(it.I)
 }
 
-// int32_t db_idx256_next(int32_t iterator, uint64_t* primary);
+//Find the table row following the referenced table row in a secondary 256-bit index table
 func (db *IdxDB256) Next(it SecondaryIterator) SecondaryIterator {
 	var primary uint64 = 0
 	ret := C.db_idx256_next(it.I, &primary)
 	return SecondaryIterator{ret, primary}
 }
 
-// int32_t db_idx256_previous(int32_t iterator, uint64_t* primary);
+//Find the table row preceding the referenced table row in a secondary 256-bit index table
 func (db *IdxDB256) Previous(it SecondaryIterator) SecondaryIterator {
 	var primary uint64 = 0
 	ret := C.db_idx256_previous(it.I, &primary)
 	return SecondaryIterator{ret, primary}
 }
 
-// int32_t db_idx256_find_primary(uint64_t code, uint64_t scope, uint64_t table, uint128_t* data, uint32_t data_len, uint64_t primary);
+//Find a table row in a secondary 128-bit integer index table by primary key
 func (db *IdxDB256) FindByPrimary(primary uint64) (SecondaryIterator, interface{}) {
 	var secondary chain.Uint256
 	ret := C.db_idx256_find_primary(db.code, db.scope, db.table, (*uint8)(unsafe.Pointer(&secondary)), 2, primary)
 	return SecondaryIterator{ret, primary}, secondary
 }
 
-// int32_t db_idx256_find_secondary(uint64_t code, uint64_t scope, uint64_t table, const uint128_t* data, uint32_t data_len, uint64_t* primary);
+// Find a table row in a secondary 256-bit index table by secondary key
 func (db *IdxDB256) Find(secondary interface{}) SecondaryIterator {
 	var primary uint64 = 0
 	var rawSecondary chain.Uint256
@@ -99,7 +99,7 @@ func (db *IdxDB256) Find(secondary interface{}) SecondaryIterator {
 	return SecondaryIterator{ret, primary}
 }
 
-// int32_t db_idx256_lowerbound(uint64_t code, uint64_t scope, uint64_t table, uint128_t* data, uint32_t data_len, uint64_t* primary);
+//Find the table row in a secondary 256-bit index table that matches the lowerbound condition for a given secondary key
 func (db *IdxDB256) Lowerbound(secondary interface{}) (SecondaryIterator, interface{}) {
 	var primary uint64 = 0
 	_secondary, ok := secondary.(chain.Uint256)
@@ -108,7 +108,7 @@ func (db *IdxDB256) Lowerbound(secondary interface{}) (SecondaryIterator, interf
 	return SecondaryIterator{ret, primary}, _secondary
 }
 
-// int32_t db_idx256_upperbound(uint64_t code, uint64_t scope, uint64_t table, uint128_t* data, uint32_t data_len, uint64_t* primary);
+//Find the table row in a secondary 256-bit index table that matches the upperbound condition for a given secondary key
 func (db *IdxDB256) Upperbound(secondary interface{}) (SecondaryIterator, interface{}) {
 	var primary uint64 = 0
 	_secondary, ok := secondary.(chain.Uint256)
@@ -117,7 +117,7 @@ func (db *IdxDB256) Upperbound(secondary interface{}) (SecondaryIterator, interf
 	return SecondaryIterator{ret, primary}, _secondary
 }
 
-// int32_t db_idx256_end(uint64_t code, uint64_t scope, uint64_t table);
+//Get an end iterator representing just-past-the-end of the last table row of a secondary 256-bit index table
 func (db *IdxDB256) End() SecondaryIterator {
 	ret := C.db_idx256_end(db.code, db.scope, db.table)
 	return SecondaryIterator{ret, 0}

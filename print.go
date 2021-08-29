@@ -32,53 +32,53 @@ type stringHeader struct {
 	len  uintptr
 }
 
-// void prints_l( const char* cstr, uint32_t len);
+//Prints string
 func Prints(str string) {
 	_str := (*stringHeader)(unsafe.Pointer(&str))
 	C.prints_l((*C.char)(_str.data), C.uint32_t(len(str)))
 }
 
-// void printi( int64_t value );
+//Prints value as a 64 bit signed integer
 func Printi(value int64) {
 	C.printi(C.int64_t(value))
 }
 
-// void printui( uint64_t value );
+//Prints value as a 64 bit unsigned integer
 func PrintUi(value uint64) {
 	C.printui(C.uint64_t(value))
 }
 
-// void printi128( const int128_t* value );
+//Prints value as a 128 bit signed integer
 func PrintI128(value [16]byte) {
 	C.printi128((*C.uint8_t)(&value[0]))
 }
 
-// void printui128( const uint128_t* value );
+//Prints value as a 128 bit unsigned integer
 func PrintUi128(value [16]byte) {
 	C.printui128((*C.uint8_t)(&value[0]))
 }
 
-// void printsf(float value);
+//Prints value as single-precision floating point number
 func PrintSf(value float32) {
 	C.printsf(value)
 }
 
-// void printdf(double value);
+//Prints value as double-precision floating point number
 func PrintDf(value float64) {
 	C.printdf(value)
 }
 
-// void printqf(const long double* value);
+//Prints value as quadruple-precision floating point number
 func PrintQf(value [16]byte) {
 	C.printqf((*C.uint8_t)(&value[0]))
 }
 
-// void printn( uint64_t name );
+//Prints a 64 bit names as base32 encoded string
 func PrintN(name uint64) {
 	C.printn(C.uint64_t(name))
 }
 
-// void printhex( const void* data, uint32_t datalen );
+//Prints hexidecimal data of length datalen
 func PrintHex(data []byte) {
 	C.printhex(unsafe.Pointer(&data[0]), C.uint32_t(len(data)))
 }

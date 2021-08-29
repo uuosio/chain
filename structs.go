@@ -18,6 +18,10 @@ func (n *Uint128) Unpack(data []byte) (int, error) {
 	return 16, nil
 }
 
+func (t *Uint128) Size() int {
+	return 16
+}
+
 func (n *Uint128) SetUint64(v uint64) {
 	tmp := Uint128{}
 	copy(n[:], tmp[:]) //memset
@@ -40,6 +44,10 @@ func (n *Uint256) Unpack(data []byte) (int, error) {
 		return 0, err
 	}
 	return 32, nil
+}
+
+func (t *Uint256) Size() int {
+	return 32
 }
 
 func (n *Uint256) SetUint64(v uint64) {
@@ -66,6 +74,10 @@ func (n *Float128) Unpack(data []byte) (int, error) {
 	return 16, nil
 }
 
+func (t *Float128) Size() int {
+	return 16
+}
+
 type TimePoint struct {
 	Elapsed uint64
 }
@@ -80,4 +92,8 @@ func (t *TimePoint) Unpack(data []byte) (int, error) {
 	dec := NewDecoder(data)
 	dec.Unpack(&t.Elapsed)
 	return 8, nil
+}
+
+func (t *TimePoint) Size() int {
+	return 8
 }

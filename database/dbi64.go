@@ -50,6 +50,7 @@ func (db *DBI64) Set(id uint64, data []byte, payer chain.Name) Iterator {
 	}
 }
 
+//Get a record in a primary 64-bit integer index table
 func (db *DBI64) Get(id uint64) (Iterator, []byte) {
 	it := db.Find(id)
 	if !it.IsOk() {
@@ -65,43 +66,52 @@ func (db *DBI64) GetByIterator(it Iterator) ([]byte, error) {
 	return raw, nil
 }
 
+//Store a record in a primary 64-bit integer index table
 func (db *DBI64) Store(primary uint64, data []byte, payer chain.Name) Iterator {
 	return db.storeI64(payer.N, primary, data)
 }
 
+//Update a record in a primary 64-bit integer index table
 func (db *DBI64) Update(it Iterator, data []byte, payer chain.Name) {
 	db.updateI64(it, payer.N, data)
 }
 
+//Remove a record from a primary 64-bit integer index table
 func (db *DBI64) Remove(it Iterator) {
 	C.db_remove_i64(it.I)
 }
 
+//Find the table row following the referenced table row in a primary 64-bit integer index table
 func (db *DBI64) Next(it Iterator) (next_iterator Iterator, primary uint64) {
 	ret := C.db_next_i64(int32(it.I), (*uint64)(unsafe.Pointer(&primary)))
 	return Iterator{ret}, primary
 }
 
+//Find the table row preceding the referenced table row in a primary 64-bit integer index table
 func (db *DBI64) Previous(it Iterator) (previous_iterator Iterator, primary uint64) {
 	ret := C.db_previous_i64(it.I, (*uint64)(unsafe.Pointer(&primary)))
 	return Iterator{ret}, primary
 }
 
+//Find a table row in a primary 64-bit integer index table by primary key
 func (db *DBI64) Find(id uint64) Iterator {
 	ret := C.db_find_i64(db.code, db.scope, db.table, id)
 	return Iterator{ret}
 }
 
+//Find the table row in a primary 64-bit integer index table that matches the lowerbound condition for a given primary key
 func (db *DBI64) Lowerbound(id uint64) Iterator {
 	ret := C.db_lowerbound_i64(db.code, db.scope, db.table, id)
 	return Iterator{ret}
 }
 
+//Find the table row in a primary 64-bit integer index table that matches the upperbound condition for a given primary key
 func (db *DBI64) Upperbound(id uint64) Iterator {
 	ret := C.db_upperbound_i64(db.code, db.scope, db.table, id)
 	return Iterator{ret}
 }
 
+//Get an iterator representing just-past-the-end of the last table row of a primary 64-bit integer index table
 func (db *DBI64) End() Iterator {
 	ret := C.db_end_i64(db.code, db.scope, db.table)
 	return Iterator{ret}

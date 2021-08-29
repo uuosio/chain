@@ -1,17 +1,5 @@
 package chain
 
-/*
-#include <stddef.h>
-#include <stdint.h>
-void printn(uint64_t a);
-void printui( uint64_t value );
-void prints( const char* cstr );
-uint32_t action_data_size(void);
-uint32_t read_action_data( void* msg, uint32_t len );
-void send_inline(char *serialized_action, size_t size);
-uint32_t get_active_producers( uint8_t* producers, uint32_t datalen );
-*/
-import "C"
 import (
 	"runtime"
 	"unsafe"
@@ -151,29 +139,6 @@ type StringHeader struct {
 	data unsafe.Pointer
 	len  uintptr
 }
-
-// var gPrintBuffer = unsafe.Pointer(uintptr(0))
-// var gPrintBufferSize = 513
-
-// func Prints(s string) {
-// 	if len(s)+1 > gPrintBufferSize {
-// 		gPrintBufferSize = len(s) + 1
-// 		if gPrintBuffer != unsafe.Pointer(uintptr(0)) {
-// 			runtime.Free(gPrintBuffer)
-// 			gPrintBuffer = unsafe.Pointer(uintptr(0))
-// 		}
-// 	}
-
-// 	if gPrintBuffer == unsafe.Pointer(uintptr(0)) {
-// 		gPrintBuffer = runtime.Alloc(uintptr(gPrintBufferSize))
-// 	}
-
-// 	pp := (*[1 << 30]byte)(gPrintBuffer)
-// 	copy(pp[:], s)
-// 	pp[len(s)] = 0
-// 	// C.printui(uint64(uintptr(unsafe.Pointer(&tmp))))
-// 	C.prints((*C.char)(gPrintBuffer))
-// }
 
 func Printui(n uint64) {
 	C.printui(n)

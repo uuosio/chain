@@ -27,55 +27,55 @@ type Checksum160 [20]byte
 type Checksum256 [32]byte
 type Checksum512 [64]byte
 
-// void assert_sha256( const char* data, uint32_t length, const struct capi_checksum256* hash );
+//Tests if the sha256 hash generated from data matches the provided checksum.
 func AssertSha256(data []byte, hash Checksum256) {
 	C.assert_sha256((*C.char)(unsafe.Pointer(&data[0])), uint32(len(data)), (*C.uint8_t)(unsafe.Pointer(&hash)))
 }
 
-// void assert_sha1( const char* data, uint32_t length, const struct capi_checksum160* hash );
+//Tests if the sha1 hash generated from data matches the provided checksum.
 func AssertSha1(data []byte, hash Checksum160) {
 	C.assert_sha1((*C.char)(unsafe.Pointer(&data[0])), uint32(len(data)), (*C.uint8_t)(unsafe.Pointer(&hash)))
 }
 
-// void assert_sha512( const char* data, uint32_t length, const struct capi_checksum512* hash );
+//Tests if the sha512 hash generated from data matches the provided checksum.
 func AssertSha512(data []byte, hash Checksum512) {
 	C.assert_sha512((*C.char)(unsafe.Pointer(&data[0])), uint32(len(data)), (*C.uint8_t)(unsafe.Pointer(&hash)))
 }
 
-// void assert_ripemd160( const char* data, uint32_t length, const struct capi_checksum160* hash );
+//Tests if the ripemod160 hash generated from data matches the provided checksum.
 func AssertRipemd160(data []byte, hash Checksum160) {
 	C.assert_ripemd160((*C.char)(unsafe.Pointer(&data[0])), uint32(len(data)), (*C.uint8_t)(unsafe.Pointer(&hash)))
 }
 
-// void sha256( const char* data, uint32_t length, struct capi_checksum256* hash );
+//Hashes data using sha256 and return hash value.
 func Sha256(data []byte) Checksum256 {
 	var hash Checksum256
 	C.sha256((*C.char)(unsafe.Pointer(&data[0])), uint32(len(data)), (*C.uint8_t)(unsafe.Pointer(&hash)))
 	return hash
 }
 
-// void sha1( const char* data, uint32_t length, struct capi_checksum160* hash );
+//Hashes data using sha1 and return hash value.
 func Sha1(data []byte) Checksum160 {
 	var hash Checksum160
 	C.sha1((*C.char)(unsafe.Pointer(&data[0])), uint32(len(data)), (*C.uint8_t)(unsafe.Pointer(&hash)))
 	return hash
 }
 
-// void sha512( const char* data, uint32_t length, struct capi_checksum512* hash );
+//Hashes data using sha512 and return hash value.
 func Sha512(data []byte) Checksum512 {
 	var hash Checksum512
 	C.sha512((*C.char)(unsafe.Pointer(&data[0])), uint32(len(data)), (*C.uint8_t)(unsafe.Pointer(&hash)))
 	return hash
 }
 
-// void ripemd160( const char* data, uint32_t length, struct capi_checksum160* hash );
+//Hashes data using ripemd160 and return hash value.
 func Ripemd160(data []byte) Checksum160 {
 	var hash Checksum160
 	C.ripemd160((*C.char)(unsafe.Pointer(&data[0])), uint32(len(data)), (*C.uint8_t)(unsafe.Pointer(&hash)))
 	return hash
 }
 
-// int recover_key( const struct capi_checksum256* digest, const char* sig, size_t siglen, char* pub, size_t publen );
+//Recover the public key from digest and signature
 func RecoverKey(digest Checksum256, sig []byte) []byte {
 	//TODO: handle webauth signature
 	var pub [128]byte //34
@@ -83,7 +83,7 @@ func RecoverKey(digest Checksum256, sig []byte) []byte {
 	return pub[:int(ret)]
 }
 
-// void assert_recover_key( const struct capi_checksum256* digest, const char* sig, size_t siglen, const char* pub, size_t publen );
+//Tests a given public key with the generated key from digest and the signature
 func AssertRecoverKey(digest Checksum256, sig []byte, pub []byte) {
 	C.assert_recover_key((*C.uint8_t)(unsafe.Pointer(&digest)), (*C.char)(unsafe.Pointer(&sig[0])), C.size_t(len(sig)), (*C.char)(unsafe.Pointer(&pub[0])), C.size_t(len(pub)))
 }

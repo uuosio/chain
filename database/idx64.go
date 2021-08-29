@@ -36,6 +36,7 @@ func (db *IdxDB64) GetIndex() int {
 	return db.dbIndex
 }
 
+//Store an association of a 64-bit integer secondary key to a primary key in a secondary 64-bit integer index table
 func (db *IdxDB64) Store(id uint64, secondary interface{}, payer uint64) SecondaryIterator {
 	_secondary, ok := secondary.(uint64)
 	chain.Check(ok, "bad secondary type")
@@ -44,39 +45,40 @@ func (db *IdxDB64) Store(id uint64, secondary interface{}, payer uint64) Seconda
 	return SecondaryIterator{ret, id}
 }
 
+//Update an association for a 64-bit integer secondary key to a primary key in a secondary 64-bit integer index table
 func (db *IdxDB64) Update(it SecondaryIterator, secondary interface{}, payer uint64) {
 	// db.mi.UpdateSecondaryValue(db, it.Primary, secondary, chain.Name{payer})
 	_secondary := secondary.(uint64)
 	C.db_idx64_update(it.I, payer, &_secondary)
 }
 
-// void db_idx64_remove(int32_t iterator);
+//Remove a table row from a secondary 64-bit integer index table
 func (db *IdxDB64) Remove(it SecondaryIterator) {
 	C.db_idx64_remove(it.I)
 }
 
-// int32_t db_idx64_next(int32_t iterator, uint64_t* primary);
+//Find the table row following the referenced table row in a secondary 64-bit integer index table
 func (db *IdxDB64) Next(it SecondaryIterator) SecondaryIterator {
 	var primary uint64 = 0
 	ret := C.db_idx64_next(it.I, &primary)
 	return SecondaryIterator{ret, primary}
 }
 
-// int32_t db_idx64_previous(int32_t iterator, uint64_t* primary);
+//Find the table row preceding the referenced table row in a secondary 64-bit integer index table
 func (db *IdxDB64) Previous(it SecondaryIterator) SecondaryIterator {
 	var primary uint64 = 0
 	ret := C.db_idx64_previous(it.I, (*C.uint64_t)(&primary))
 	return SecondaryIterator{ret, primary}
 }
 
-// int32_t db_idx64_find_primary(uint64_t code, uint64_t scope, uint64_t table, uint64_t* secondary, uint64_t primary);
+//Find a table row in a secondary 64-bit integer index table by primary key
 func (db *IdxDB64) FindByPrimary(primary uint64) (SecondaryIterator, interface{}) {
 	var secondary uint64 = 0
 	ret := C.db_idx64_find_primary(db.code, db.scope, db.table, &secondary, primary)
 	return SecondaryIterator{ret, primary}, secondary
 }
 
-// int32_t db_idx64_find_secondary(uint64_t code, uint64_t scope, uint64_t table, const uint64_t* secondary, uint64_t* primary);
+//Find a table row in a secondary 64-bit integer index table by secondary key
 func (db *IdxDB64) Find(secondary interface{}) SecondaryIterator {
 	var primary uint64 = 0
 	_secondary, ok := secondary.(uint64)
@@ -85,7 +87,7 @@ func (db *IdxDB64) Find(secondary interface{}) SecondaryIterator {
 	return SecondaryIterator{ret, primary}
 }
 
-// int32_t db_idx64_lowerbound(uint64_t code, uint64_t scope, uint64_t table, uint64_t* secondary, uint64_t* primary);
+//Find the table row in a secondary 64-bit integer index table that matches the lowerbound condition for a given secondary key
 func (db *IdxDB64) Lowerbound(secondary interface{}) (SecondaryIterator, interface{}) {
 	var primary uint64 = 0
 	_secondary, ok := secondary.(uint64)
@@ -94,7 +96,7 @@ func (db *IdxDB64) Lowerbound(secondary interface{}) (SecondaryIterator, interfa
 	return SecondaryIterator{ret, primary}, _secondary
 }
 
-// int32_t db_idx64_upperbound(uint64_t code, uint64_t scope, uint64_t table, uint64_t* secondary, uint64_t* primary);
+//Find the table row in a secondary 64-bit integer index table that matches the upperbound condition for a given secondary key
 func (db *IdxDB64) Upperbound(secondary interface{}) (SecondaryIterator, interface{}) {
 	var primary uint64 = 0
 	_secondary, ok := secondary.(uint64)
@@ -103,7 +105,7 @@ func (db *IdxDB64) Upperbound(secondary interface{}) (SecondaryIterator, interfa
 	return SecondaryIterator{ret, primary}, _secondary
 }
 
-// int32_t db_idx64_end(uint64_t code, uint64_t scope, uint64_t table);
+//Get an end iterator representing just-past-the-end of the last table row of a secondary 64-bit integer index table
 func (db *IdxDB64) End() SecondaryIterator {
 	ret := C.db_idx64_end(db.code, db.scope, db.table)
 	return SecondaryIterator{ret, 0}

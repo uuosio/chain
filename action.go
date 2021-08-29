@@ -32,6 +32,7 @@ import (
 	"unsafe"
 )
 
+//Read current action data
 func ReadActionData() []byte {
 	n := C.action_data_size()
 	buf := runtime.Alloc(uintptr(n))
@@ -40,18 +41,22 @@ func ReadActionData() []byte {
 	return pp[:n]
 }
 
+//Get the length of the current action's data field
 func ActionDataSize() uint32 {
 	return C.action_data_size()
 }
 
+//Add the specified account to set of accounts to be notified
 func RequireRecipient(name Name) {
 	C.require_recipient(name.N)
 }
 
+//Verifies that name exists in the set of provided auths on a action. Throws if not found.
 func RequireAuth(name Name) {
 	C.require_auth(name.N)
 }
 
+//Verifies that name has auth.
 func HasAuth(name Name) bool {
 	ret := C.has_auth(name.N)
 	if ret == 0 {
@@ -60,10 +65,12 @@ func HasAuth(name Name) bool {
 	return true
 }
 
+//Verifies that name exists in the set of provided auths on a action. Throws if not found.
 func RequireAuth2(name Name, permission Name) {
 	C.require_auth2(name.N, permission.N)
 }
 
+//Verifies that name is an existing account.
 func IsAccount(name Name) bool {
 	ret := C.is_account(name.N)
 	if ret == 0 {
@@ -72,49 +79,35 @@ func IsAccount(name Name) bool {
 	return true
 }
 
+//Send an inline action in the context of this action's parent transaction
 func SendInline(data []byte) {
 	//	a := (*sliceHeader)(unsafe.Pointer(&data))
 	p := (*C.char)(unsafe.Pointer(&data[0]))
 	C.send_inline(p, C.size_t(len(data)))
 }
 
+//Send an inline context free action in the context of this action's parent transaction
 func SendContextFreeInline(data []byte) {
 	a := (*SliceHeader)(unsafe.Pointer(&data))
 	C.send_context_free_inline((*C.char)(unsafe.Pointer(a.Data)), C.size_t(a.Len))
 }
 
+//Returns the time in microseconds from 1970 of the publication_time
 func PublicationTime() uint64 {
 	return C.publication_time()
 }
 
+//Get the current receiver of the action
 func CurrentReceiver() Name {
 	n := C.current_receiver()
 	return Name{n}
 }
 
+//Set the action return value which will be included in the action_receipt
 func SetActionReturnValue(return_value []byte) {
 	a := (*SliceHeader)(unsafe.Pointer(&return_value))
 	C.set_action_return_value((*C.char)(unsafe.Pointer(a.Data)), C.size_t(a.Len))
 }
-
-// type PermissionLevel struct {
-// 	Actor      Name
-// 	Permission Name
-// }
-
-// func (a *PermissionLevel) Pack() []byte {
-// 	enc := NewEncoder(16)
-// 	enc.PackName(a.Actor)
-// 	enc.PackName(a.Permission)
-// 	return enc.GetBytes()
-// }
-
-// func (a *PermissionLevel) Unpack(data []byte) (int, error) {
-// 	dec := NewDecoder(data)
-// 	dec.Unpack(&a.Actor)
-// 	dec.Unpack(&a.Permission)
-// 	return 16, nil
-// }
 
 type Action struct {
 	Account       Name

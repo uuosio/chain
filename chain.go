@@ -8,7 +8,7 @@ uint32_t get_active_producers( uint8_t* producers, uint32_t datalen );
 import "C"
 import "unsafe"
 
-// uint32_t get_active_producers( capi_name* producers, uint32_t datalen );
+//Gets the set of active producers.
 func GetActiveProducers() []Name {
 	var datalen uint32 = 0
 	datalen = C.get_active_producers((*C.uint8_t)(unsafe.Pointer(uintptr(0))), 0)
