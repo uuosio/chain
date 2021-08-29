@@ -299,7 +299,7 @@ func NewEncoder(initSize int) *Encoder {
 }
 
 func (enc *Encoder) Write(b []byte) {
-	enc.buf = append(enc.buf, b[:]...)
+	enc.buf = append(enc.buf, b...)
 }
 
 // Pack supported types:

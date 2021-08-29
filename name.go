@@ -24,6 +24,10 @@ func (a *Name) Unpack(data []byte) (int, error) {
 	return 8, nil
 }
 
+func (t *Name) Size() int {
+	return 8
+}
+
 func (a *Name) String() string {
 	return N2S(a.N)
 }
