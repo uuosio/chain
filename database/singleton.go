@@ -8,17 +8,29 @@ type SingletonInterface interface {
 }
 
 type SingletonDB struct {
-	DB *DBI64
+	DB       *DBI64
+	unpacker Unpacker
 }
 
 func NewSingletonDB(code, scope, table chain.Name, unpacker ...Unpacker) *SingletonDB {
-	return &SingletonDB{DB: NewDBI64(code, scope, table, unpacker...)}
+	if len(unpacker) > 0 {
+		return &SingletonDB{DB: NewDBI64(code, scope, table), unpacker: unpacker[0]}
+	} else {
+		return &SingletonDB{DB: NewDBI64(code, scope, table), unpacker: nil}
+	}
 }
 
 func (t *SingletonDB) Set(data DBValue, payer chain.Name) {
 	t.DB.Set(t.DB.table, data.Pack(), payer)
 }
 
-func (t *SingletonDB) Get() (interface{}, error) {
-	return t.DB.Get(t.DB.table)
+func (t *SingletonDB) Get() (Iterator, interface{}) {
+	it, data := t.DB.Get(t.DB.table)
+	if t.unpacker != nil {
+		value, err := t.unpacker(data)
+		chain.Check(err != nil, "SingletonDB.Get: unpacker error")
+		return it, value
+	} else {
+		return it, data
+	}
 }
