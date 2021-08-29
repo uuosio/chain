@@ -15,7 +15,16 @@ type MyData struct {
 	a5      chain.Float128 //IDXFloat128:bya5:t.a5:t.a5=%v
 }
 
-func main() {
+//contract testmi
+type TestMI struct {
+}
+
+func NewContract(receiver, firstReceiver, action chain.Name) *TestMI {
+	return &TestMI{}
+}
+
+//action test1
+func (t *TestMI) test1() {
 	// a := big.NewInt(1)
 	// b := big.NewInt(2)
 	// a = a.Add(a, b)
@@ -24,25 +33,39 @@ func main() {
 	code := chain.NewName("hello")
 	scope := chain.NewName("helloo")
 	payer := code
-	mi := NewMyDataDB(code, scope)
-
-	primary := uint64(1000)
 	secondary := uint64(0)
-	{
-		it := mi.Find(primary)
-		if it.IsOk() {
-			logger.Println("+++update")
-			data, _ := mi.GetByIterator(it)
+
+	mi := NewMyDataDB(code, scope)
+	primary := uint64(1000)
+	maxPrimary := uint64(1020)
+	for ; primary < maxPrimary; primary += 2 {
+		if it, data := mi.Get(primary); it.IsOk() {
 			logger.Println(data.a1, data.a4)
 			secondary = data.a1
 			data.a4 += float64(1.1)
 			mi.Update(it, data, payer)
 		} else {
 			data := &MyData{}
+			data.a1 = primary
+			data.a4 = float64(primary)
 			data.primary = primary
 			mi.Store(data, payer)
 		}
 	}
+
+	it := mi.Lowerbound(uint64(1001))
+	for ; it.IsOk(); it, _ = mi.Next(it) {
+		logger.Println(it.I)
+	}
+
+	primary = uint64(1000)
+	for ; primary < maxPrimary; primary += 2 {
+		it, data := mi.Get(primary)
+		chain.Check(it.IsOk(), "not found")
+		chain.Check(data != nil, "data is nil")
+	}
+
+	primary = uint64(1000)
 	logger.Println("+++secondary:", secondary)
 	{
 		idxDB := mi.GetIdxDB("bya1")
@@ -103,5 +126,31 @@ func main() {
 		if it.IsOk() {
 			mi.IdxUpdate(idxDB, it, secondary, payer)
 		}
+	}
+}
+
+//action test2
+func (t *TestMI) test2() {
+	code := chain.NewName("hello")
+	scope := chain.NewName("helloo")
+
+	mi := NewMyDataDB(code, scope)
+
+	primary := uint64(1000)
+	maxPrimary := uint64(1020)
+
+	for {
+		it := mi.Lowerbound(uint64(0))
+		if !it.IsOk() {
+			break
+		}
+		mi.Remove(it)
+	}
+
+	idxDB := mi.GetIdxDB("bya5")
+	primary = uint64(1000)
+	for ; primary < maxPrimary; primary += 2 {
+		it, _ := idxDB.FindByPrimary(primary)
+		chain.Check(!it.IsOk(), "Should be empty")
 	}
 }

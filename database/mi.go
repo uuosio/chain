@@ -25,6 +25,11 @@ type MultiIndexInterface interface {
 	Update(it Iterator, v MultiIndexValue, payer chain.Name)
 
 	Find(primary uint64) Iterator
+
+	Remove(it Iterator)
+	Next(it Iterator) (next_iterator Iterator, primary uint64)
+	Previous(it Iterator) (previous_iterator Iterator, primary uint64)
+
 	Lowerbound(id uint64) Iterator
 	Upperbound(id uint64) Iterator
 	End() Iterator
@@ -191,6 +196,33 @@ func (mi *MultiIndex) Update(it Iterator, v MultiIndexValue, payer chain.Name) {
 			db.Update(it, secondary, payer.N)
 		}
 	}
+}
+
+func (mi *MultiIndex) Remove(it Iterator) {
+	v, err := mi.GetByIterator(it)
+	chain.Check(err == nil, "mi.Remove: Invalid Iterator")
+	mi.DB.Remove(it)
+	for _, db := range mi.IDXDBs {
+		it, secondary := db.FindByPrimary(v.GetPrimary())
+		indexType := mi.GetIndexType(db.GetIndex())
+		_secondary := v.GetSecondaryValue(db.GetIndex())
+		chain.Check(IsEqual(indexType, secondary, _secondary), "mi.Remove: secondary value not the same")
+		db.Remove(it)
+	}
+}
+
+func (mi *MultiIndex) GetIndexType(index int) int {
+	return mi.IndexTypes[index]
+}
+
+//Find the table row following the referenced table row in a primary 64-bit integer index table
+func (mi *MultiIndex) Next(it Iterator) (next_iterator Iterator, primary uint64) {
+	return mi.DB.Next(it)
+}
+
+//Find the table row preceding the referenced table row in a primary 64-bit integer index table
+func (mi *MultiIndex) Previous(it Iterator) (previous_iterator Iterator, primary uint64) {
+	return mi.DB.Previous(it)
 }
 
 func (mi *MultiIndex) Lowerbound(id uint64) Iterator {

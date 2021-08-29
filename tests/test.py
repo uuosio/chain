@@ -121,11 +121,11 @@ func main() {
         logger.info("++++++++++code size %f", len(code)/1024)
         assert code
         self.chain.deploy_contract('hello', code, b'', 0)
-        r = self.chain.push_action('hello', 'sayhello', b'hello,world')
+        r = self.chain.push_action('hello', 'test1', b'hello,world')
         print_console(r)
 
         self.chain.produce_block()
-        r = self.chain.push_action('hello', 'sayhello', b'hello,world')
+        r = self.chain.push_action('hello', 'test2', b'hello,world')
         print_console(r)
 
     def test_print(self):
