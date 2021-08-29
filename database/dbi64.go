@@ -19,36 +19,25 @@ int32_t db_end_i64(uint64_t code, uint64_t scope, uint64_t table);
 import "C"
 
 import (
-	"errors"
 	"unsafe"
 
 	"github.com/uuosio/chain"
 )
 
 type DBI64 struct {
-	code     uint64
-	scope    uint64
-	table    uint64
-	unpacker Unpacker
+	code  uint64
+	scope uint64
+	table uint64
 }
 
-func NewDBI64(code chain.Name, scope chain.Name, table chain.Name, unpacker ...Unpacker) *DBI64 {
-	if len(unpacker) == 0 {
-		return &DBI64{code.N, scope.N, table.N, nil}
-	} else {
-		return &DBI64{code.N, scope.N, table.N, unpacker[0]}
-	}
+func NewDBI64(code chain.Name, scope chain.Name, table chain.Name) *DBI64 {
+	return &DBI64{code.N, scope.N, table.N}
 }
 
-func (db *DBI64) Init(code chain.Name, scope chain.Name, table chain.Name, unpacker ...Unpacker) {
+func (db *DBI64) Init(code chain.Name, scope chain.Name, table chain.Name) {
 	db.code = code.N
 	db.scope = scope.N
 	db.table = table.N
-	if len(unpacker) == 0 {
-		db.unpacker = nil
-	} else {
-		db.unpacker = unpacker[0]
-	}
 }
 
 func (db *DBI64) Set(id uint64, data []byte, payer chain.Name) Iterator {
@@ -61,64 +50,27 @@ func (db *DBI64) Set(id uint64, data []byte, payer chain.Name) Iterator {
 	}
 }
 
-func (db *DBI64) Get(id uint64) (interface{}, error) {
+func (db *DBI64) Get(id uint64) (Iterator, []byte) {
 	it := db.Find(id)
 	if !it.IsOk() {
-		return nil, errors.New("NotFound")
+		return it, nil
 	}
 
 	raw := db.getI64(it)
-	if db.unpacker != nil {
-		return db.unpacker(raw)
-	}
-	return raw, nil
+	return it, raw
 }
 
-func (db *DBI64) GetRaw(id uint64) ([]byte, error) {
-	it := db.Find(id)
-	if !it.IsOk() {
-		return nil, errors.New("NotFound")
-	}
-
+func (db *DBI64) GetByIterator(it Iterator) ([]byte, error) {
 	raw := db.getI64(it)
 	return raw, nil
 }
 
-func (db *DBI64) GetByIterator(it Iterator) (interface{}, error) {
-	raw := db.getI64(it)
-	if db.unpacker == nil {
-		return raw, nil
-	}
-	return db.unpacker(raw)
+func (db *DBI64) Store(primary uint64, data []byte, payer chain.Name) Iterator {
+	return db.storeI64(payer.N, primary, data)
 }
 
-func (db *DBI64) GetRawByIterator(it Iterator) []byte {
-	return db.getI64(it)
-}
-
-func (db *DBI64) Store(data DBValue, payer chain.Name) Iterator {
-	return db.storeI64(payer.N, data.GetPrimary(), data.Pack())
-	// primary := data.GetPrimary()
-	// itr := db.Find(primary)
-	// if !itr.IsOk() {
-	// 	return db.storeI64(payer, primary, data.Pack())
-	// } else {
-	// 	db.Update(itr, payer, data)
-	// 	return itr
-	// }
-}
-
-func (db *DBI64) Update(it Iterator, data interface{}, payer chain.Name) {
-	switch v := data.(type) {
-	case DBValue:
-		db.updateI64(it, payer.N, v.Pack())
-		break
-	case []byte:
-		db.updateI64(it, payer.N, v)
-		break
-	default:
-		panic("unknown data type")
-	}
+func (db *DBI64) Update(it Iterator, data []byte, payer chain.Name) {
+	db.updateI64(it, payer.N, data)
 }
 
 func (db *DBI64) Remove(it Iterator) {
