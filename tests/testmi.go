@@ -47,6 +47,7 @@ func main() {
 	{
 		idxDB := mi.GetIdxDB("bya1")
 		it, _secondary := idxDB.FindByPrimary(primary)
+		chain.Check(it.IsOk(), "Invalid secondary iterator")
 		// it, _secondary := idxDB.Lowerbound(uint64(0))
 		secondary := _secondary.(uint64)
 		secondary += 1

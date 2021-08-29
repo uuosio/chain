@@ -118,6 +118,7 @@ func main() {
         with open('testmi.go', 'r') as f:
             code = f.read()
         code, abi = wasmcompiler.compile_go_src('testmi', code)
+        logger.info("++++++++++code size %f", len(code)/1024)
         assert code
         self.chain.deploy_contract('hello', code, b'', 0)
         r = self.chain.push_action('hello', 'sayhello', b'hello,world')
@@ -173,7 +174,7 @@ func main() {
     def test_token(self):
         with open('testtoken.go', 'r') as f:
             code = f.read()
-        code, abi = wasmcompiler.compile_go_src('hello', code)
+        code, abi = wasmcompiler.compile_go_src('testtoken', code)
         assert code
         self.chain.deploy_contract('hello', code, b'', 0)
         r = self.chain.push_action('hello', 'sayhello', b'hello,world')

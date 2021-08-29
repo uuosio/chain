@@ -43,5 +43,5 @@ func main() {
 	// chain.Check(a.Size() == size, "bad size")
 	logger.Println(a.Size(), size)
 	logger.Println("Hello,world!")
-	chain.Check(true, "")
+	chain.Check(a.Size() == size, "")
 }

@@ -15,8 +15,6 @@ func (t *Template) Unpack(data []byte) (int, error) {
 }
 
 func (t *Template) Size() int {
-	// dec := chain.NewDecoder(data)
-	// return dec.Pos(), nil
 	return 0
 }
 

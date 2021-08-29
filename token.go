@@ -52,6 +52,20 @@ type Asset struct {
 	Symbol Symbol
 }
 
+func (a *Asset) Add(b Asset) {
+	Check(a.Symbol == b.Symbol, "Asset.Add:Symbol not the same")
+	a.Amount += b.Amount
+}
+
+func (a *Asset) Sub(b Asset) {
+	Check(a.Symbol == b.Symbol, "Asset.Sub:Symbol not the same")
+	a.Amount -= b.Amount
+}
+
+func (a *Asset) IsValid() bool {
+	return true
+}
+
 func (a *Asset) Pack() []byte {
 	enc := NewEncoder(16)
 	enc.WriteUint64(uint64(a.Amount))
@@ -64,6 +78,10 @@ func (a *Asset) Unpack(data []byte) (int, error) {
 	dec.Unpack(&a.Amount)
 	dec.Unpack(&a.Symbol)
 	return 16, nil
+}
+
+func (t *Asset) Size() int {
+	return 16
 }
 
 type Transfer struct {
