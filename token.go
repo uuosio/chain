@@ -20,6 +20,27 @@ func (a *Symbol) Code() uint64 {
 	return a.Value >> 8
 }
 
+func (a *Symbol) IsValid() bool {
+	sym := a.Value
+	for i := 0; i < 7; i++ {
+		c := byte(sym & 0xFF)
+		if !('A' <= c && c <= 'Z') {
+			return false
+		}
+		sym >>= 8
+		if sym&0xFF != 0 {
+			continue
+		}
+		for ; i < 7; i++ {
+			sym >>= 8
+			if sym&0xFF != 0 {
+				return false
+			}
+		}
+	}
+	return true
+}
+
 func (a *Symbol) Pack() []byte {
 	enc := NewEncoder(8)
 	enc.Pack(a.Value)
@@ -62,6 +83,7 @@ func (a *Asset) Sub(b Asset) {
 	a.Amount -= b.Amount
 }
 
+//TODO:
 func (a *Asset) IsValid() bool {
 	return true
 }

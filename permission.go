@@ -70,6 +70,10 @@ func (t *PermissionLevel) Unpack(data []byte) (int, error) {
 	return dec.Pos(), nil
 }
 
+func (t *PermissionLevel) Size() int {
+	return 16
+}
+
 type PermissionLevelWeight struct {
 	Permission PermissionLevel
 	Weight     uint16

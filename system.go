@@ -42,12 +42,17 @@ func EosioAssertCode(test bool, code uint64) {
 }
 
 //Returns the time in microseconds from 1970 of the current block
-func CurrentTime() uint64 {
-	return uint64(C.current_time())
+func CurrentTime() TimePoint {
+	return TimePoint{uint64(C.current_time())}
+}
+
+//Returns the time in microseconds from 1970 of the current block
+func Now() TimePoint {
+	return CurrentTime()
 }
 
 func CurrentTimeSeconds() uint32 {
-	t := CurrentTime() / 1000000
+	t := CurrentTime().Elapsed / 1000000
 	return uint32(t)
 }
 
