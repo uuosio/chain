@@ -21,11 +21,9 @@ type Token struct {
 	receiver      chain.Name
 	firstReceiver chain.Name
 	action        chain.Name
-	// statsDb CurrencyStatsDB
-	// accountDB AccountDB
 }
 
-func NewContract(receiver chain.Name, firstReceiver chain.Name, action chain.Name) *Token {
+func NewContract(receiver, firstReceiver, action chain.Name) *Token {
 	return &Token{receiver, firstReceiver, action}
 }
 
@@ -34,7 +32,7 @@ func (token *Token) Create(issuer chain.Name, maximumSupply chain.Asset) {
 	sym_code := maximumSupply.Symbol.Code()
 	db := NewCurrencyStatsDB(token.receiver, chain.Name{sym_code})
 	itr := db.Find(sym_code)
-	chain.Check(!itr.IsOk(), "token with symbol already exists")
+	check(!itr.IsOk(), "token with symbol already exists")
 
 	stats := &CurrencyStats{}
 	stats.Issuer = issuer
@@ -48,12 +46,12 @@ func (token *Token) Issue(to chain.Name, quantity chain.Asset, memo string) {
 	sym_code := quantity.Symbol.Code()
 	db := NewCurrencyStatsDB(token.receiver, chain.Name{sym_code})
 	it, item := db.Get(sym_code)
-	chain.Check(it.IsOk(), "token with symbol does not exist, create token before issue")
-	chain.Check(to == item.Issuer, "tokens can only be issued to issuer account")
+	check(it.IsOk(), "token with symbol does not exist, create token before issue")
+	check(to == item.Issuer, "tokens can only be issued to issuer account")
 
 	chain.RequireAuth(item.Issuer)
-	chain.Check(quantity.IsValid(), "invalid quantity")
-	chain.Check(quantity.Amount > 0, "must issue positive quantity")
+	check(quantity.IsValid(), "invalid quantity")
+	check(quantity.Amount > 0, "must issue positive quantity")
 
 	item.Supply.Add(quantity)
 	db.Store(item, chain.Name{0})
@@ -83,15 +81,15 @@ func (token *Token) Retire(quantity chain.Asset, memo string) {
 	// });
 
 	// sub_balance( st.issuer, quantity );
-	chain.Check(quantity.Symbol.IsValid(), "invalid symbol name")
-	chain.Check(len(memo) <= 256, "memo has more than 256 bytes")
+	check(quantity.Symbol.IsValid(), "invalid symbol name")
+	check(len(memo) <= 256, "memo has more than 256 bytes")
 	stats := NewCurrencyStatsDB(token.receiver, token.receiver)
 	it, item := stats.Get(quantity.Symbol.Code())
-	chain.Check(it.IsOk(), "token with symbol does not exist")
+	check(it.IsOk(), "token with symbol does not exist")
 	chain.RequireAuth(item.Issuer)
-	chain.Check(quantity.IsValid(), "invalid quantity")
-	chain.Check(quantity.Amount > 0, "must retire positive quantity")
-	chain.Check(quantity.Symbol == item.Supply.Symbol, "symbol precision mismatch")
+	check(quantity.IsValid(), "invalid quantity")
+	check(quantity.Amount > 0, "must retire positive quantity")
+	check(quantity.Symbol == item.Supply.Symbol, "symbol precision mismatch")
 
 	item.Supply.Sub(quantity)
 	stats.Store(item, chain.Name{0})
@@ -118,21 +116,21 @@ func (token *Token) Transfer(from chain.Name, to chain.Name, quantity chain.Asse
 
 	// sub_balance( from, quantity );
 	// add_balance( to, quantity, payer );
-	chain.Check(from != to, "cannot transfer to self")
+	check(from != to, "cannot transfer to self")
 	chain.RequireAuth(from)
-	chain.Check(chain.IsAccount(to), "to account does not exist")
+	check(chain.IsAccount(to), "to account does not exist")
 
 	stats := NewCurrencyStatsDB(token.receiver, chain.Name{quantity.Symbol.Code()})
 	it, st := stats.Get(quantity.Symbol.Code())
-	chain.Check(it.IsOk(), "token with symbol does not exist")
+	check(it.IsOk(), "token with symbol does not exist")
 
 	chain.RequireRecipient(from)
 	chain.RequireRecipient(to)
 
-	chain.Check(quantity.IsValid(), "invalid quantity")
-	chain.Check(quantity.Amount > 0, "must transfer positive quantity")
-	chain.Check(quantity.Symbol == st.Supply.Symbol, "symbol precision mismatch")
-	chain.Check(len(memo) <= 256, "memo has more than 256 bytes")
+	check(quantity.IsValid(), "invalid quantity")
+	check(quantity.Amount > 0, "must transfer positive quantity")
+	check(quantity.Symbol == st.Supply.Symbol, "symbol precision mismatch")
+	check(len(memo) <= 256, "memo has more than 256 bytes")
 
 	payer := chain.Name{0}
 	if chain.HasAuth(to) {
@@ -164,11 +162,11 @@ func (token *Token) Open(owner chain.Name, symbol chain.Symbol, ramPayer chain.N
 	// 	});
 	// }
 	chain.RequireAuth(ramPayer)
-	chain.Check(chain.IsAccount(owner), "owner account does not exist")
+	check(chain.IsAccount(owner), "owner account does not exist")
 	stats := NewCurrencyStatsDB(token.receiver, chain.Name{symbol.Code()})
 	it, st := stats.Get(symbol.Code())
-	chain.Check(it.IsOk(), "symbol does not exist")
-	chain.Check(st.Supply.Symbol == symbol, "symbol precision mismatch")
+	check(it.IsOk(), "symbol does not exist")
+	check(st.Supply.Symbol == symbol, "symbol precision mismatch")
 
 	accountDB := NewAccountDB(token.receiver, owner)
 	it = accountDB.Find(symbol.Code())
@@ -190,8 +188,8 @@ func (token *Token) Close(owner chain.Name, symbol chain.Symbol) {
 	chain.RequireAuth(owner)
 	accountDB := NewAccountDB(token.receiver, owner)
 	it, item := accountDB.Get(symbol.Code())
-	chain.Check(it.IsOk(), "Balance row already deleted or never existed. Action won't have any effect.")
-	chain.Check(item.Balance.Amount == 0, "Cannot close because the balance is not zero.")
+	check(it.IsOk(), "Balance row already deleted or never existed. Action won't have any effect.")
+	check(item.Balance.Amount == 0, "Cannot close because the balance is not zero.")
 	accountDB.Remove(it)
 }
 
@@ -206,8 +204,8 @@ func (token *Token) subBalance(owner chain.Name, value chain.Asset) {
 
 	accountDB := NewAccountDB(token.receiver, owner)
 	it, from := accountDB.Get(value.Symbol.Code())
-	chain.Check(it.IsOk(), "no balance object found")
-	chain.Check(from.Balance.Amount >= value.Amount, "overdrawn balance")
+	check(it.IsOk(), "no balance object found")
+	check(from.Balance.Amount >= value.Amount, "overdrawn balance")
 	from.Balance.Sub(value)
 	accountDB.Store(from, owner)
 }
