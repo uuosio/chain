@@ -8,4 +8,5 @@ var (
 
 	EosioContractName = NewName("eosio")
 	TokenContractName = NewName("eosio.token")
+	SamePayer         = Name{0}
 )

@@ -6,11 +6,6 @@ import (
 	"github.com/uuosio/chain"
 )
 
-type MISecondaryDB struct {
-	SecondaryDB
-	mi *MultiIndex
-}
-
 type MultiIndex struct {
 	code             chain.Name
 	scope            chain.Name
