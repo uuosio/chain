@@ -191,3 +191,71 @@ func main() {
             r = self.chain.push_action('hello', 'sayhello', b'hello,world')
             print_console(r)
             self.chain.produce_block()
+
+    def test_asset(self):
+        with open('testasset.go', 'r') as f:
+            code = f.read()
+        code, abi = wasmcompiler.compile_go_src('testasset', code)
+        assert code
+        self.chain.deploy_contract('hello', code, b'', 0)
+
+        try:
+            r = self.chain.push_action('hello', 'test1', b'hello,world')
+        except Exception as e:
+            error_msg = e.args[0]['action_traces'][0]['except']['stack'][0]['data']['s']
+            assert error_msg == 'addition overflow'
+
+        try:
+            r = self.chain.push_action('hello', 'test2', b'hello,world')
+        except Exception as e:
+            error_msg = e.args[0]['action_traces'][0]['except']['stack'][0]['data']['s']
+            assert error_msg == 'subtraction underflow'
+        self.chain.produce_block()
+
+        # magnitude of asset amount must be less than 2^62
+        try:
+            r = self.chain.push_action('hello', 'test3', b'hello,world')
+        except Exception as e:
+            error_msg = e.args[0]['action_traces'][0]['except']['stack'][0]['data']['s']
+            assert error_msg == 'magnitude of asset amount must be less than 2^62'
+        self.chain.produce_block()
+
+        #divide by zero
+        try:
+            r = self.chain.push_action('hello', 'test4', b'hello,world')
+        except Exception as e:
+            error_msg = e.args[0]['action_traces'][0]['except']['stack'][0]['data']['s']
+            assert error_msg == 'divide by zero'
+        self.chain.produce_block()
+
+        #signed division overflow
+        try:
+            r = self.chain.push_action('hello', 'test5', b'hello,world')
+        except Exception as e:
+            error_msg = e.args[0]['action_traces'][0]['except']['stack'][0]['data']['s']
+            assert error_msg == 'signed division overflow'
+        self.chain.produce_block()
+
+        #bad symbol
+        try:
+            r = self.chain.push_action('hello', 'test11', b'hello,world')
+        except Exception as e:
+            error_msg = e.args[0]['action_traces'][0]['except']['stack'][0]['data']['s']
+            assert error_msg == 'bad symbol'
+        self.chain.produce_block()
+
+        #multiplication overflow
+        try:
+            r = self.chain.push_action('hello', 'test12', b'hello,world')
+        except Exception as e:
+            error_msg = e.args[0]['action_traces'][0]['except']['stack'][0]['data']['s']
+            assert error_msg == 'multiplication overflow'
+        self.chain.produce_block()
+
+        #multiplication underflow
+        try:
+            r = self.chain.push_action('hello', 'test13', b'hello,world')
+        except Exception as e:
+            error_msg = e.args[0]['action_traces'][0]['except']['stack'][0]['data']['s']
+            assert error_msg == 'multiplication underflow'
+        self.chain.produce_block()

@@ -162,7 +162,3 @@ func GetApplyArgs() (Name, Name, Name) {
 	receiver, code, action := runtime.GetApplyArgs()
 	return Name{receiver}, Name{code}, Name{action}
 }
-
-func Check(b bool, msg string) {
-	Assert(b, msg)
-}

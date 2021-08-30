@@ -33,6 +33,10 @@ func NewContract(receiver, firstReceiver, action chain.Name) *Token {
 
 //action create
 func (token *Token) Create(issuer chain.Name, maximum_supply chain.Asset) {
+	check(maximum_supply.Symbol.IsValid(), "invalid symbol name")
+	check(maximum_supply.IsValid(), "invalid supply")
+	check(maximum_supply.Amount > 0, "max-supply must be positive")
+
 	sym_code := maximum_supply.Symbol.Code()
 	db := NewCurrencyStatsDB(token.receiver, chain.Name{sym_code})
 	itr := db.Find(sym_code)
@@ -57,7 +61,7 @@ func (token *Token) Issue(to chain.Name, quantity chain.Asset, memo string) {
 	check(quantity.IsValid(), "invalid quantity")
 	check(quantity.Amount > 0, "must issue positive quantity")
 
-	item.Supply.Add(quantity)
+	item.Supply.Add(&quantity)
 	db.Update(it, item, item.Issuer)
 
 	token.addBalance(to, quantity, to)
@@ -75,7 +79,7 @@ func (token *Token) Retire(quantity chain.Asset, memo string) {
 	check(quantity.Amount > 0, "must retire positive quantity")
 	check(quantity.Symbol == item.Supply.Symbol, "symbol precision mismatch")
 
-	item.Supply.Sub(quantity)
+	item.Supply.Sub(&quantity)
 	stats.Update(it, item, chain.SamePayer)
 	token.subBalance(item.Issuer, quantity)
 }
@@ -142,7 +146,7 @@ func (token *Token) subBalance(owner chain.Name, value chain.Asset) {
 	it, from := accountDB.Get(value.Symbol.Code())
 	check(it.IsOk(), "no balance object found")
 	check(from.Balance.Amount >= value.Amount, "overdrawn balance")
-	from.Balance.Sub(value)
+	from.Balance.Sub(&value)
 	accountDB.Update(it, from, owner)
 }
 
@@ -153,7 +157,7 @@ func (token *Token) addBalance(owner chain.Name, value chain.Asset, ramPayer cha
 		account := &Account{Balance: value}
 		accountDB.Store(account, owner)
 	} else {
-		to.Balance.Add(value)
+		to.Balance.Add(&value)
 		accountDB.Update(it, to, owner)
 	}
 }

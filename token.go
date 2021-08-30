@@ -1,5 +1,9 @@
 package chain
 
+import "math/big"
+
+const MAX_AMOUNT = (1 << 62) - 1
+
 type Symbol struct {
 	Value uint64
 }
@@ -18,6 +22,10 @@ func NewSymbol(name string, precision int) Symbol {
 
 func (a *Symbol) Code() uint64 {
 	return a.Value >> 8
+}
+
+func (a *Symbol) Precision() uint64 {
+	return a.Value & 0xff
 }
 
 func (a *Symbol) IsValid() bool {
@@ -73,19 +81,73 @@ type Asset struct {
 	Symbol Symbol
 }
 
-func (a *Asset) Add(b Asset) {
+func isAmountWithInRange(amount int64) bool {
+	return -MAX_AMOUNT <= amount && amount <= MAX_AMOUNT
+}
+
+func NewAsset(amount int64, symbol Symbol) *Asset {
+	Check(symbol.IsValid(), "bad symbol")
+	a := &Asset{amount, symbol}
+	Check(isAmountWithInRange(amount), "magnitude of asset amount must be less than 2^62")
+	return a
+}
+
+func (a *Asset) Add(b *Asset) *Asset {
 	Check(a.Symbol == b.Symbol, "Asset.Add:Symbol not the same")
 	a.Amount += b.Amount
+	Check(-MAX_AMOUNT <= a.Amount, "addition underflow")
+	Check(a.Amount <= MAX_AMOUNT, "addition overflow")
+	return a
 }
 
-func (a *Asset) Sub(b Asset) {
+func (a *Asset) Sub(b *Asset) *Asset {
 	Check(a.Symbol == b.Symbol, "Asset.Sub:Symbol not the same")
 	a.Amount -= b.Amount
+	Check(a.Amount >= -MAX_AMOUNT, "subtraction underflow")
+	Check(a.Amount <= MAX_AMOUNT, "subtraction overflow")
+	return a
 }
 
-//TODO:
+// asset& operator*=( int64_t a ) {
+// 	int128_t tmp = (int128_t)amount * (int128_t)a;
+// 	eosio::check( tmp <= max_amount, "multiplication overflow" );
+// 	eosio::check( tmp >= -max_amount, "multiplication underflow" );
+// 	amount = (int64_t)tmp;
+// 	return *this;
+// }
+
+func (a *Asset) Mul(b *Asset) *Asset {
+	Check(a.Symbol == b.Symbol, "Asset.Mul:Symbol not the same")
+	_a := big.NewInt(a.Amount)
+	_b := big.NewInt(b.Amount)
+	_z := big.NewInt(0)
+	_z.Mul(_a, _b)
+
+	m := big.NewInt(MAX_AMOUNT)
+	Check(m.Cmp(_z) >= 0, "multiplication overflow")
+
+	m = big.NewInt(-MAX_AMOUNT)
+	Check(_z.Cmp(m) >= 0, "multiplication underflow")
+	a.Amount = _z.Int64()
+	return a
+}
+
+// asset& operator/=( int64_t a ) {
+// 	eosio::check( a != 0, "divide by zero" );
+// 	eosio::check( !(amount == std::numeric_limits<int64_t>::min() && a == -1), "signed division overflow" );
+// 	amount /= a;
+// 	return *this;
+//  }
+func (a *Asset) Div(b *Asset) *Asset {
+	Check(a.Symbol == b.Symbol, "Asset.Mul:Symbol not the same")
+	Check(b.Amount != 0, "divide by zero")
+	Check(!(b.Amount == int64(-9223372036854775808) && b.Amount == -1), "signed division overflow")
+	a.Amount /= b.Amount
+	return a
+}
+
 func (a *Asset) IsValid() bool {
-	return true
+	return isAmountWithInRange(a.Amount) && a.Symbol.IsValid()
 }
 
 func (a *Asset) Pack() []byte {

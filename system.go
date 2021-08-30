@@ -17,6 +17,10 @@ import (
 	"unsafe"
 )
 
+func Check(b bool, msg string) {
+	EosioAssert(b, msg)
+}
+
 //Aborts processing of this action and unwinds all pending changes if the test condition is true
 func Assert(test bool, msg string) {
 	EosioAssert(test, msg)

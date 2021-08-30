@@ -2,6 +2,16 @@
     "version": "eosio::abi/1.1",
     "structs": [
         {
+            "name": "Account",
+            "base": "",
+            "fields": [
+                {
+                    "name": "Balance",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
             "name": "CurrencyStats",
             "base": "",
             "fields": [
@@ -16,16 +26,6 @@
                 {
                     "name": "Issuer",
                     "type": "name"
-                }
-            ]
-        },
-        {
-            "name": "Account",
-            "base": "",
-            "fields": [
-                {
-                    "name": "Balance",
-                    "type": "asset"
                 }
             ]
         },
