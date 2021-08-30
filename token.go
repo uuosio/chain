@@ -108,14 +108,6 @@ func (a *Asset) Sub(b *Asset) *Asset {
 	return a
 }
 
-// asset& operator*=( int64_t a ) {
-// 	int128_t tmp = (int128_t)amount * (int128_t)a;
-// 	eosio::check( tmp <= max_amount, "multiplication overflow" );
-// 	eosio::check( tmp >= -max_amount, "multiplication underflow" );
-// 	amount = (int64_t)tmp;
-// 	return *this;
-// }
-
 func (a *Asset) Mul(b *Asset) *Asset {
 	Check(a.Symbol == b.Symbol, "Asset.Mul:Symbol not the same")
 	_a := big.NewInt(a.Amount)
@@ -132,12 +124,6 @@ func (a *Asset) Mul(b *Asset) *Asset {
 	return a
 }
 
-// asset& operator/=( int64_t a ) {
-// 	eosio::check( a != 0, "divide by zero" );
-// 	eosio::check( !(amount == std::numeric_limits<int64_t>::min() && a == -1), "signed division overflow" );
-// 	amount /= a;
-// 	return *this;
-//  }
 func (a *Asset) Div(b *Asset) *Asset {
 	Check(a.Symbol == b.Symbol, "Asset.Mul:Symbol not the same")
 	Check(b.Amount != 0, "divide by zero")

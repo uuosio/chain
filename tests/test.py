@@ -67,6 +67,10 @@ class Test(object):
     def teardown_method(self, method):
         pass
 
+    def compile(cls, name, code):
+        replace = '/Users/newworld/dev/github/go-chain'
+        return wasmcompiler.compile_go_src(name, code, replace=replace)
+
     def test_hello(self):
         code = '''
 package main
@@ -75,7 +79,7 @@ func main() {
     logger.Println("Hello,world!")
 }
 '''
-        code, abi = wasmcompiler.compile_go_src('hello', code)
+        code, abi = self.compile('hello', code)
         assert code
         self.chain.deploy_contract('hello', code, b'', 0)
         r = self.chain.push_action('hello', 'sayhello', b'hello,world')
@@ -84,7 +88,7 @@ func main() {
     def test_pack_size(self):
         with open('testpacksize.go', 'r') as f:
             code = f.read()
-        code, abi = wasmcompiler.compile_go_src('hello', code)
+        code, abi = self.compile('hello', code)
         assert code
         self.chain.deploy_contract('hello', code, b'', 0)
         r = self.chain.push_action('hello', 'sayhello', b'hello,world')
@@ -93,7 +97,7 @@ func main() {
     def test_action(self):
         with open('testaction.go', 'r') as f:
             code = f.read()
-        code, abi = wasmcompiler.compile_go_src('hello', code)
+        code, abi = self.compile('hello', code)
         assert code
         self.chain.deploy_contract('hello', code, b'', 0)
         try:
@@ -108,7 +112,7 @@ func main() {
     def test_crypto(self):
         with open('testcrypto.go', 'r') as f:
             code = f.read()
-        code, abi = wasmcompiler.compile_go_src('hello', code)
+        code, abi = self.compile('hello', code)
         assert code
         self.chain.deploy_contract('hello', code, b'', 0)
         r = self.chain.push_action('hello', 'sayhello', b'hello,world')
@@ -117,7 +121,7 @@ func main() {
     def test_mi(self):
         with open('testmi.go', 'r') as f:
             code = f.read()
-        code, abi = wasmcompiler.compile_go_src('testmi', code)
+        code, abi = self.compile('testmi', code)
         logger.info("++++++++++code size %f", len(code)/1024)
         assert code
         self.chain.deploy_contract('hello', code, b'', 0)
@@ -131,7 +135,7 @@ func main() {
     def test_print(self):
         with open('testprint.go', 'r') as f:
             code = f.read()
-        code, abi = wasmcompiler.compile_go_src('hello', code)
+        code, abi = self.compile('hello', code)
         assert code
         self.chain.deploy_contract('hello', code, b'', 0)
         r = self.chain.push_action('hello', 'sayhello', b'hello,world')
@@ -140,7 +144,7 @@ func main() {
     def test_privileged(self):
         with open('testprivileged.go', 'r') as f:
             code = f.read()
-        code, abi = wasmcompiler.compile_go_src('hello', code)
+        code, abi = self.compile('hello', code)
         assert code
         self.chain.deploy_contract('hello', code, b'', 0)
         r = self.chain.push_action('hello', 'sayhello', b'hello,world')
@@ -149,7 +153,7 @@ func main() {
     def test_deffered_tx(self):
         with open('testtransaction.go', 'r') as f:
             code = f.read()
-        code, abi = wasmcompiler.compile_go_src('testtransaction', code)
+        code, abi = self.compile('testtransaction', code)
         assert code
         self.chain.deploy_contract('hello', code, b'', 0)
         r = self.chain.push_action('hello', 'sayhello1', b'hello,world')
@@ -165,7 +169,7 @@ func main() {
     def test_db(self):
         with open('testdb.go', 'r') as f:
             code = f.read()
-        code, abi = wasmcompiler.compile_go_src('testdb', code)
+        code, abi = self.compile('testdb', code)
         assert code
         self.chain.deploy_contract('hello', code, b'', 0)
         r = self.chain.push_action('hello', 'sayhello', b'hello,world')
@@ -174,7 +178,7 @@ func main() {
     def test_token(self):
         with open('testtoken.go', 'r') as f:
             code = f.read()
-        code, abi = wasmcompiler.compile_go_src('testtoken', code)
+        code, abi = self.compile('testtoken', code)
         assert code
         self.chain.deploy_contract('hello', code, b'', 0)
         r = self.chain.push_action('hello', 'sayhello', b'hello,world')
@@ -183,7 +187,7 @@ func main() {
     def test_singleton(self):
         with open('testsingleton.go', 'r') as f:
             code = f.read()
-        code, abi = wasmcompiler.compile_go_src('testsingleton', code)
+        code, abi = self.compile('testsingleton', code)
         assert code
         self.chain.deploy_contract('hello', code, b'', 0)
 
@@ -195,7 +199,7 @@ func main() {
     def test_asset(self):
         with open('testasset.go', 'r') as f:
             code = f.read()
-        code, abi = wasmcompiler.compile_go_src('testasset', code)
+        code, abi = self.compile('testasset', code)
         assert code
         self.chain.deploy_contract('hello', code, b'', 0)
 
