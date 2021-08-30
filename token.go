@@ -21,7 +21,7 @@ func (a *Symbol) Code() uint64 {
 }
 
 func (a *Symbol) IsValid() bool {
-	sym := a.Value
+	sym := a.Code()
 	for i := 0; i < 7; i++ {
 		c := byte(sym & 0xFF)
 		if !('A' <= c && c <= 'Z') {
