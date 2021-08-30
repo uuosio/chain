@@ -69,5 +69,3 @@ type DBValue interface {
 	Pack() []byte
 	Unpack(data []byte) (int, error)
 }
-
-type Unpacker func([]byte) (DBValue, error)

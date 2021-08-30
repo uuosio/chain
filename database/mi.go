@@ -49,6 +49,8 @@ type MultiIndexValue interface {
 	SetSecondaryValue(index int, v interface{})
 }
 
+type Unpacker func([]byte) (MultiIndexValue, error)
+
 var (
 	ErrNotMultiIndexValue = errors.New("not a MultiIndexValue type")
 )
@@ -133,11 +135,7 @@ func (mi *MultiIndex) GetByIterator(it Iterator) (MultiIndexValue, error) {
 	}
 	vv, err := mi.unpacker(v)
 	chain.Check(err == nil, "mi.GetByIterator: Unpack error")
-	_v, ok := vv.(MultiIndexValue)
-	if !ok {
-		return nil, ErrNotMultiIndexValue
-	}
-	return _v, nil
+	return vv, nil
 }
 
 func IsEqual(indexType int, a, b interface{}) bool {
@@ -250,15 +248,13 @@ func (mi *MultiIndex) UpdateSecondaryValue(idxDB SecondaryDB, primary uint64, se
 	chain.Check(err == nil, "get primary value error!")
 	_v, err := mi.unpacker(v)
 	chain.Check(err == nil, "mi.UpdateSecondaryValue: unpack error!")
-	__v, ok := _v.(MultiIndexValue)
-	chain.Check(ok, "mi.UpdateSecondaryValue: not a MultiIndexValue type!")
 
-	newSecondary := __v.GetSecondaryValue(idxDB.GetIndex())
+	newSecondary := _v.GetSecondaryValue(idxDB.GetIndex())
 	if IsEqual(mi.IndexTypes[idxDB.GetIndex()], newSecondary, secondary) {
 		return
 	}
-	__v.SetSecondaryValue(idxDB.GetIndex(), secondary)
-	mi.DB.Update(itPrimary, __v.Pack(), payer)
+	_v.SetSecondaryValue(idxDB.GetIndex(), secondary)
+	mi.DB.Update(itPrimary, _v.Pack(), payer)
 }
 
 func (mi *MultiIndex) IdxFindByName(idxDBName string, secondary interface{}) SecondaryIterator {
@@ -276,16 +272,12 @@ func (mi *MultiIndex) IdxUpdate(it SecondaryIterator, secondary interface{}, pay
 	chain.Check(err == nil, "get primary value error!")
 	_v, err := mi.unpacker(v)
 	chain.Check(err == nil, "mi.IdxUpdate: unpack error!")
-	__v, ok := _v.(MultiIndexValue)
-	if !ok {
-		panic("IdxUpdate: Not a MultiIndexValue type")
-	}
-	newSecondary := __v.GetSecondaryValue(idxDB.GetIndex())
+	newSecondary := _v.GetSecondaryValue(idxDB.GetIndex())
 	if IsEqual(mi.IndexTypes[idxDB.GetIndex()], newSecondary, secondary) {
 		return
 	}
-	__v.SetSecondaryValue(idxDB.GetIndex(), secondary)
-	mi.DB.Update(itPrimary, __v.Pack(), payer)
+	_v.SetSecondaryValue(idxDB.GetIndex(), secondary)
+	mi.DB.Update(itPrimary, _v.Pack(), payer)
 	idxDB.Update(it, secondary, payer.N)
 }
 
