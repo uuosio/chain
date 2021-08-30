@@ -2,16 +2,6 @@
     "version": "eosio::abi/1.1",
     "structs": [
         {
-            "name": "Account",
-            "base": "",
-            "fields": [
-                {
-                    "name": "Balance",
-                    "type": "asset"
-                }
-            ]
-        },
-        {
             "name": "CurrencyStats",
             "base": "",
             "fields": [
@@ -30,6 +20,16 @@
             ]
         },
         {
+            "name": "Account",
+            "base": "",
+            "fields": [
+                {
+                    "name": "Balance",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
             "name": "create",
             "base": "",
             "fields": [
@@ -38,7 +38,7 @@
                     "type": "name"
                 },
                 {
-                    "name": "maximumSupply",
+                    "name": "maximum_supply",
                     "type": "asset"
                 }
             ]
@@ -110,7 +110,7 @@
                     "type": "symbol"
                 },
                 {
-                    "name": "ramPayer",
+                    "name": "ram_payer",
                     "type": "name"
                 }
             ]
