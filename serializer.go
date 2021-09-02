@@ -2,8 +2,58 @@ package chain
 
 import (
 	"encoding/binary"
+	"errors"
 	"unsafe"
 )
+
+func PackUint32(val uint32) []byte {
+	result := make([]byte, 0, 5)
+	for {
+		b := byte(val & 0x7f)
+		val >>= 7
+		if val > 0 {
+			b |= byte(1 << 7)
+		}
+		result = append(result, b)
+		if val <= 0 {
+			break
+		}
+	}
+	return result
+}
+
+func UnpackUint32(val []byte) (n int, v uint32) {
+	var by int = 0
+	// if len(val) > 5 {
+	// 	val = val[:5]
+	// }
+	n = 0
+	for _, b := range val {
+		v |= uint32(b&0x7f) << by
+		by += 7
+		n += 1
+		if b&0x80 == 0 {
+			break
+		}
+	}
+	return
+}
+
+func PackedVarUint32Length(val uint32) int {
+	n := 0
+	for {
+		b := byte(val & 0x7f)
+		val >>= 7
+		if val > 0 {
+			b |= byte(1 << 7)
+		}
+		n += 1
+		if val <= 0 {
+			break
+		}
+	}
+	return n
+}
 
 type Serializer interface {
 	Pack() []byte
@@ -19,7 +69,7 @@ type Unpacker interface {
 	Unpack(data []byte) (int, error)
 }
 
-type StructSize interface {
+type PackedSize interface {
 	Size() int
 }
 
@@ -479,4 +529,45 @@ func (enc *Encoder) WriteUint64(d uint64) {
 
 func (enc *Encoder) GetBytes() []byte {
 	return enc.buf
+}
+
+func CalcPackedSize(i interface{}) (int, error) {
+	switch v := i.(type) {
+	case PackedSize:
+		return v.Size(), nil
+	case string:
+		return PackedVarUint32Length(uint32(len(v))) + len(v), nil
+	case []byte:
+		return PackedVarUint32Length(uint32(len(v))) + len(v), nil
+	case bool:
+		return 1, nil
+	case uint8:
+		return 1, nil
+	case int16:
+		return 2, nil
+	case uint16:
+		return 2, nil
+	case int32:
+		return 4, nil
+	case uint32:
+		return 4, nil
+	case int64:
+		return 8, nil
+	case uint64:
+		return 8, nil
+	case Uint128:
+		return 16, nil
+	case Float128:
+		return 16, nil
+	case Uint256:
+		return 32, nil
+	case float32:
+		return 4, nil
+	case float64:
+		return 8, nil
+	case Name:
+		return 8, nil
+	default:
+		return 0, errors.New("Unknow pack type")
+	}
 }

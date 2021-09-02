@@ -107,7 +107,7 @@ func (t *Signature) Unpack(data []byte) (int, error) {
 }
 
 func (t *Signature) Size() int {
-	return PackedSizeLength(uint32(len(t.Data))) + len(t.Data)
+	return PackedVarUint32Length(uint32(len(t.Data))) + len(t.Data)
 }
 
 type PublicKey struct {

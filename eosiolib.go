@@ -80,55 +80,6 @@ func N(s string) uint64 {
 	return string_to_name(s)
 }
 
-func PackUint32(val uint32) []byte {
-	result := make([]byte, 0, 5)
-	for {
-		b := byte(val & 0x7f)
-		val >>= 7
-		if val > 0 {
-			b |= byte(1 << 7)
-		}
-		result = append(result, b)
-		if val <= 0 {
-			break
-		}
-	}
-	return result
-}
-
-func UnpackUint32(val []byte) (n int, v uint32) {
-	var by int = 0
-	// if len(val) > 5 {
-	// 	val = val[:5]
-	// }
-	n = 0
-	for _, b := range val {
-		v |= uint32(b&0x7f) << by
-		by += 7
-		n += 1
-		if b&0x80 == 0 {
-			break
-		}
-	}
-	return
-}
-
-func PackedSizeLength(val uint32) int {
-	n := 0
-	for {
-		b := byte(val & 0x7f)
-		val >>= 7
-		if val > 0 {
-			b |= byte(1 << 7)
-		}
-		n += 1
-		if val <= 0 {
-			break
-		}
-	}
-	return n
-}
-
 type SliceHeader struct {
 	Data uintptr
 	Len  int

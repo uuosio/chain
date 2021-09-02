@@ -83,7 +83,7 @@ func (t *BlockSigningAuthorityV0) Unpack(data []byte) (int, error) {
 func (t *BlockSigningAuthorityV0) Size() int {
 	size := 0
 	size += 4
-	size += PackedSizeLength(uint32(len(t.Keys)))
+	size += PackedVarUint32Length(uint32(len(t.Keys)))
 
 	for i := range t.Keys {
 		size += t.Keys[i].Size()
