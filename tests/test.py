@@ -105,9 +105,12 @@ func main() {
             print_console(r)
         except Exception as e:
             print_except(e.args[0])
-            # logger.info(json.dumps(e.args[0], indent=4))
-            # error = e.args[0]['except']
-            # logger.info('error:', error)
+
+        try:
+            r = self.chain.push_action('hello', 'sayhello3', b'hello,world')
+            print_console(r)
+        except Exception as e:
+            print_except(e.args[0])
 
     def test_crypto(self):
         with open('testcrypto.go', 'r') as f:

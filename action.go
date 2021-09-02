@@ -116,10 +116,31 @@ type Action struct {
 	Data          []byte
 }
 
-func NewAction(account Name, name Name) *Action {
+func NewAction(account Name, name Name, args ...interface{}) *Action {
 	a := &Action{}
 	a.Account = account
 	a.Name = name
+
+	if len(args) > 0 {
+		a.Authorization = args[0].([]PermissionLevel)
+	}
+
+	args = args[1:]
+	if len(args) > 0 {
+		size := 0
+		for _, v := range args {
+			n, err := CalcPackedSize(v)
+			if err != nil {
+				panic(err.Error())
+			}
+			size += n
+		}
+		enc := NewEncoder(size)
+		for _, arg := range args {
+			enc.Pack(arg)
+		}
+		a.Data = enc.GetBytes()
+	}
 	return a
 }
 
