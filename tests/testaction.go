@@ -35,47 +35,45 @@ func IsEqual(a, b []byte) bool {
 	return true
 }
 
-func main() {
-	// for i := 0; i < 10; i++ {
-	// 	fmt.Printf("hello,world! %d\n", i*i)
-	// }
-	// return
+//contract test
+type ActionTest struct {
+	self   chain.Name
+	code   chain.Name
+	action chain.Name
+}
 
-	{
-		// n := gContractName
-		// chain.Prints(chain.N2S(n))
+func NewContract(receiver, firstReceiver, action chain.Name) *ActionTest {
+	return &ActionTest{
+		self:   receiver,
+		code:   firstReceiver,
+		action: action,
 	}
-	// a := ReadActionData()
-	// prints(string(a))
+}
 
-	_, _, action := chain.GetApplyArgs()
-	if action == gActionName {
-		a := chain.ReadActionData()
-		chain.Println("sayhello2 received:", string(a))
-		return
-	} else {
-		chain.Prints("hello,world\n")
+//action sayhello
+func (c *ActionTest) SayHello() {
+	a := chain.Action{
+		chain.NewName("hello"), //gContractName,
+		gActionName,
+		[]chain.PermissionLevel{{gContractName, chain.ActiveName}},
+		[]byte("hello,world"),
 	}
+	a.Send()
+}
 
-	{
-		a := chain.Action{
-			chain.NewName("hello"), //gContractName,
-			gActionName,
-			[]chain.PermissionLevel{{gContractName, chain.ActiveName}},
-			[]byte("hello,world"),
-		}
-		a.Send()
-	}
+//action sayhello2
+func (c *ActionTest) SayHello2() {
+	chain.Println(chain.ReadActionData())
+}
 
-	{
-		a := chain.Action{}
-		a.Account = gContractName
-		a.Name = gActionName
-		a.AddPermission(gContractName, chain.ActiveName)
-		a.Data = []byte("hello,worldddd")
-		a.Send()
-	}
-	// n := chain.Name{}
-	// b := n.Unpack([]byte{})
-	//	C.printui(b.N)
+//action sayhello3
+func (c *ActionTest) SayHello3() {
+	a := chain.NewAction(
+		chain.NewName("hello"), //gContractName,
+		gActionName,
+		[]chain.PermissionLevel{{gContractName, chain.ActiveName}},
+		uint32(1),
+		[]byte("hello,world"),
+	)
+	a.Send()
 }
