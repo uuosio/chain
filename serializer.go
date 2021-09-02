@@ -5,6 +5,11 @@ import (
 	"unsafe"
 )
 
+type Serializer interface {
+	Pack() []byte
+	Unpack([]byte) (int, uint64)
+}
+
 type Decoder struct {
 	buf []byte
 	pos int
@@ -188,7 +193,7 @@ func (dec *Decoder) UnpackAction() (*Action, error) {
 }
 
 // Unpack supported type:
-// Unpacker interface,
+// Unpacker, interface,
 // *string, *[]byte,
 // *uint8, *int16, *uint16, *int32, *uint32, *int64, *uint64, *bool
 // *float64
@@ -349,7 +354,7 @@ func (enc *Encoder) Pack(i interface{}) error {
 		// if DEBUG {
 		// 	panic(fmt.Sprintf("Unknow Pack type <%v>", i))
 		// }
-		panic("Unknow Pack type")
+		panic("Unknown Pack type")
 		//		return errors.New("Unknow Pack type")
 	}
 	return nil

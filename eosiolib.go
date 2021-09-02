@@ -144,11 +144,6 @@ func Printui(n uint64) {
 	C.printui(n)
 }
 
-type Serializer interface {
-	Pack() []byte
-	Unpack([]byte) (int, uint64)
-}
-
 type T struct {
 	a int
 	b int

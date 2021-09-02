@@ -127,7 +127,7 @@ func (a *Asset) Mul(b *Asset) *Asset {
 func (a *Asset) Div(b *Asset) *Asset {
 	Check(a.Symbol == b.Symbol, "Asset.Mul:Symbol not the same")
 	Check(b.Amount != 0, "divide by zero")
-	Check(!(b.Amount == int64(-9223372036854775808) && b.Amount == -1), "signed division overflow")
+	Check(!(a.Amount == int64(-9223372036854775808) && b.Amount == -1), "signed division overflow")
 	a.Amount /= b.Amount
 	return a
 }
@@ -152,6 +152,33 @@ func (a *Asset) Unpack(data []byte) (int, error) {
 
 func (t *Asset) Size() int {
 	return 16
+}
+
+type ExtendedAsset struct {
+	Quantity Asset
+	Contract Name
+}
+
+func NewExtendedAsset(quantity Asset, contract Name) *ExtendedAsset {
+	return &ExtendedAsset{quantity, contract}
+}
+
+func (t *ExtendedAsset) Pack() []byte {
+	enc := NewEncoder(16 + 8)
+	enc.Pack(&t.Quantity)
+	enc.PackName(t.Contract)
+	return enc.GetBytes()
+}
+
+func (t *ExtendedAsset) Unpack(data []byte) (int, error) {
+	dec := NewDecoder(data)
+	dec.Unpack(&t.Quantity)
+	dec.Unpack(&t.Contract)
+	return dec.Pos(), nil
+}
+
+func (t *ExtendedAsset) Size() int {
+	return 16 + 8
 }
 
 type Transfer struct {

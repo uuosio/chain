@@ -20,6 +20,7 @@ type MultiIndex struct {
 
 type MultiIndexInterface interface {
 	Store(v MultiIndexValue, payer chain.Name)
+	Set(primary uint64, v MultiIndexValue, payer chain.Name)
 	Get(id uint64) (Iterator, MultiIndexValue)
 	GetByIterator(it Iterator) (MultiIndexValue, error)
 	Update(it Iterator, v MultiIndexValue, payer chain.Name)
@@ -105,6 +106,19 @@ func (mi *MultiIndex) Store(v MultiIndexValue, payer chain.Name) {
 	primary := v.GetPrimary()
 	for i, db := range mi.IDXDBs {
 		db.Store(primary, v.GetSecondaryValue(i), payer.N)
+	}
+}
+
+func (mi *MultiIndex) Set(primary uint64, v MultiIndexValue, payer chain.Name) {
+	chain.Check(primary == v.GetPrimary(), "mi.Store: Invalid primary key")
+	it := mi.Find(primary)
+	if !it.IsOk() {
+		mi.DB.Store(primary, v.Pack(), payer)
+		for i, db := range mi.IDXDBs {
+			db.Store(primary, v.GetSecondaryValue(i), payer.N)
+		}
+	} else {
+		mi.Update(it, v, payer)
 	}
 }
 

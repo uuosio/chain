@@ -75,18 +75,18 @@ class Test(object):
         self.chain.deploy_contract('hello', code, abi, 0)
         create = {
             "issuer": "hello",
-            "maximum_supply": "100.0000 EEOS",
+            "maximum_supply": "100.0000 EOS",
         }
         r = self.chain.push_action('hello', 'create', create)
         print_console(r)
         logger.info('+++++++create elapsed: %s', r['elapsed'])
         self.chain.produce_block()
 
-        r = self.chain.get_table_rows(True, 'hello', 'EEOS', 'stat', "", "")
+        r = self.chain.get_table_rows(True, 'hello', 'EOS', 'stat', "", "")
         logger.info(r)
         assert r['rows'][0]['Issuer'] == 'hello'
-        assert r['rows'][0]['MaxSupply'] == '100.0000 EEOS'
-        assert r['rows'][0]['Supply'] == '0.0000 EEOS'
+        assert r['rows'][0]['MaxSupply'] == '100.0000 EOS'
+        assert r['rows'][0]['Supply'] == '0.0000 EOS'
 
         try:
             r = self.chain.push_action('hello', 'create', create)
@@ -97,30 +97,30 @@ class Test(object):
 
         #test issue
 
-        issue = {'to': 'hello', 'quantity': '1.0000 EEOS', 'memo': 'issue to alice'}
+        issue = {'to': 'hello', 'quantity': '1.0000 EOS', 'memo': 'issue to alice'}
         r = self.chain.push_action('hello', 'issue', issue)
         logger.info('+++++++issue elapsed: %s', r['elapsed'])
         self.chain.produce_block()
 
-        r = self.chain.get_table_rows(True, 'hello', 'EEOS', 'stat', "", "")
+        r = self.chain.get_table_rows(True, 'hello', 'EOS', 'stat', "", "")
         logger.info(r)
         assert r['rows'][0]['Issuer'] == 'hello'
-        assert r['rows'][0]['MaxSupply'] == '100.0000 EEOS'
-        assert r['rows'][0]['Supply'] == '1.0000 EEOS'
+        assert r['rows'][0]['MaxSupply'] == '100.0000 EOS'
+        assert r['rows'][0]['Supply'] == '1.0000 EOS'
 
         r = self.chain.get_table_rows(True, 'hello', 'hello', 'accounts', "", "")
         logger.info(r)
-        assert r['rows'][0]['Balance'] == '1.0000 EEOS'
+        assert r['rows'][0]['Balance'] == '1.0000 EOS'
 
         try:
-            issue = {'to': 'eosio', 'quantity': '1.0000 EEOS', 'memo': 'issue to alice'}
+            issue = {'to': 'eosio', 'quantity': '1.0000 EOS', 'memo': 'issue to alice'}
             self.chain.push_action('hello', 'issue', issue)
         except Exception as e:
             error_msg = e.args[0]['action_traces'][0]['except']['stack'][0]['data']['s']
             assert error_msg == 'tokens can only be issued to issuer account'
 
         #test transfer
-        transfer = {'from': 'hello', 'to': 'alice', 'quantity': '1.0000 EEOS', 'memo': 'transfer from alice'}
+        transfer = {'from': 'hello', 'to': 'alice', 'quantity': '1.0000 EOS', 'memo': 'transfer from alice'}
         r = self.chain.push_action('hello', 'transfer', transfer)
         logger.info('+++++++transfer elapsed: %s', r['elapsed'])
 
@@ -128,29 +128,29 @@ class Test(object):
 
         r = self.chain.get_table_rows(True, 'hello', 'hello', 'accounts', "", "")
         logger.info(r)
-        assert r['rows'][0]['Balance'] == '0.0000 EEOS'
+        assert r['rows'][0]['Balance'] == '0.0000 EOS'
 
         r = self.chain.get_table_rows(True, 'hello', 'alice', 'accounts', "", "")
         logger.info(r)
-        assert r['rows'][0]['Balance'] == '1.0000 EEOS'
+        assert r['rows'][0]['Balance'] == '1.0000 EOS'
 
         # transfer back
-        transfer = {'from': 'alice', 'to': 'hello', 'quantity': '1.0000 EEOS', 'memo': 'transfer back'}
+        transfer = {'from': 'alice', 'to': 'hello', 'quantity': '1.0000 EOS', 'memo': 'transfer back'}
         r = self.chain.push_action('hello', 'transfer', transfer, {'alice': 'active'})
         logger.info('+++++++transfer elapsed: %s', r['elapsed'])
         self.chain.produce_block()
 
         #quantity chain.Asset, memo
-        retire = {'quantity': '1.0000 EEOS', 'memo': 'retire 1.0000 EEOS'}
+        retire = {'quantity': '1.0000 EOS', 'memo': 'retire 1.0000 EOS'}
         r = self.chain.push_action('hello', 'retire', retire)
         logger.info('+++++++retire elapsed: %s', r['elapsed'])
 
         r = self.chain.get_table_rows(True, 'hello', 'hello', 'accounts', "", "")
-        assert r['rows'][0]['Balance'] == '0.0000 EEOS'
+        assert r['rows'][0]['Balance'] == '0.0000 EOS'
 
-        r = self.chain.get_table_rows(True, 'hello', 'EEOS', 'stat', "", "")
+        r = self.chain.get_table_rows(True, 'hello', 'EOS', 'stat', "", "")
         logger.info(r)
-        assert r['rows'][0]['Supply'] == '0.0000 EEOS'
+        assert r['rows'][0]['Supply'] == '0.0000 EOS'
 
 
         r = self.chain.get_table_rows(True, 'hello', 'helloworld11', 'accounts', "", "")
@@ -158,15 +158,15 @@ class Test(object):
 
         #owner chain.Name, symbol chain.Symbol, ram_payer chain.Name
         #test open
-        open_action = {'owner': 'helloworld11', 'symbol': '4,EEOS', 'ram_payer': 'hello'}
+        open_action = {'owner': 'helloworld11', 'symbol': '4,EOS', 'ram_payer': 'hello'}
         r = self.chain.push_action('hello', 'open', open_action)
         logger.info('+++++++open elapsed: %s', r['elapsed'])
 
         r = self.chain.get_table_rows(True, 'hello', 'helloworld11', 'accounts', "", "")
-        assert r['rows'][0]['Balance'] == '0.0000 EEOS'
+        assert r['rows'][0]['Balance'] == '0.0000 EOS'
 
         #test close
-        close_action = {'owner': 'helloworld11', 'symbol': '4,EEOS'}
+        close_action = {'owner': 'helloworld11', 'symbol': '4,EOS'}
         r = self.chain.push_action('hello', 'close', close_action, {'helloworld11': 'active'})
         logger.info('+++++++close elapsed: %s', r['elapsed'])
         self.chain.produce_block()

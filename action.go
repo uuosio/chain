@@ -138,12 +138,12 @@ func PackArray(a []Serializer) []byte {
 	return buf
 }
 
-func (a *Action) EstimatePackedSize() int {
+func (a *Action) Size() int {
 	return 8 + 8 + 5 + len(a.Authorization)*8 + 5 + len(a.Data)
 }
 
 func (a *Action) Pack() []byte {
-	enc := NewEncoder(8 + 8 + 5 + len(a.Authorization)*8 + 5 + len(a.Data))
+	enc := NewEncoder(a.Size())
 	enc.PackName(a.Account)
 	enc.PackName(a.Name)
 	enc.PackLength(len(a.Authorization))

@@ -43,9 +43,9 @@ func (token *Token) Create(issuer chain.Name, maximum_supply chain.Asset) {
 	check(!itr.IsOk(), "token with symbol already exists")
 
 	stats := &CurrencyStats{}
-	stats.Issuer = issuer
-	stats.MaxSupply = maximum_supply
 	stats.Supply.Symbol = maximum_supply.Symbol
+	stats.MaxSupply = maximum_supply
+	stats.Issuer = issuer
 	db.Store(stats, issuer)
 }
 

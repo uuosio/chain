@@ -90,7 +90,7 @@ type TransactionExtension struct {
 	Data []byte
 }
 
-func (a *TransactionExtension) EstimatePackedSize() int {
+func (a *TransactionExtension) Size() int {
 	return 2 + 5 + len(a.Data)
 }
 
@@ -164,17 +164,17 @@ func (t *Transaction) Pack() []byte {
 
 	initSize += 5 // Max varint size
 	for _, action := range t.ContextFreeActions {
-		initSize += action.EstimatePackedSize()
+		initSize += action.Size()
 	}
 
 	initSize += 5 // Max varint size
 	for _, action := range t.Actions {
-		initSize += action.EstimatePackedSize()
+		initSize += action.Size()
 	}
 
 	initSize += 5 // Max varint size
 	for _, extention := range t.Extention {
-		initSize += extention.EstimatePackedSize()
+		initSize += extention.Size()
 	}
 	enc := NewEncoder(initSize)
 	enc.Pack(t.Expiration)
