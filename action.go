@@ -122,7 +122,11 @@ func NewAction(account Name, name Name, args ...interface{}) *Action {
 	a.Name = name
 
 	if len(args) > 0 {
-		a.Authorization = args[0].([]PermissionLevel)
+		if perm, ok := args[0].([]PermissionLevel); ok {
+			a.Authorization = perm
+		} else {
+			panic("third argument not a []PermissionLevel type")
+		}
 	}
 
 	args = args[1:]
