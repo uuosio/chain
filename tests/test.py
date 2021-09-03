@@ -338,3 +338,9 @@ func main() {
         )
         r = self.chain.push_action('hello', 'test', args)
 
+        args = dict(
+            a1 = -1,
+            a2 = 0x7fffffff
+        )
+        r = self.chain.push_action('hello', 'testvarint', args)
+        print_console(r)

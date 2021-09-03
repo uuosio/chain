@@ -4,14 +4,14 @@ import (
 	"encoding/binary"
 )
 
-type VarInt32 uint32
+type VarInt32 int32
 
 func (t *VarInt32) Pack() []byte {
-	return PackVarUint32(uint32(*t))
+	return PackVarInt32(int32(*t))
 }
 
 func (t *VarInt32) Unpack(data []byte) (int, error) {
-	v, n := UnpackVarUint32(data)
+	v, n := UnpackVarInt32(data)
 	*t = VarInt32(v)
 	return n, nil
 }

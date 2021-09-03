@@ -82,7 +82,7 @@ func (c *SerializerTest) test(
 	for i := range a10 {
 		check(a10[i] == byte(0xff), "a10")
 	}
-	check(a11 == chain.VarInt32(0x01), "a11")
+	check(a11 == chain.VarInt32(int32(-1)), "a11")
 	check(a12 == chain.VarUint32(0xffffffff), "a12")
 	check(a13 == 11.2233, "a13")
 	check(a14 == 11.2233, "a14")
@@ -117,9 +117,9 @@ func (c *SerializerTest) test(
 	check(a30 == *chain.NewExtendedAsset(*chain.NewAsset(10000, chain.NewSymbol("EOS", 4)), chain.NewName("eosio.token")), "a30")
 }
 
-//action test2
-func (c *SerializerTest) test2(
-	a18 chain.BlockTimestampType, //block_timestamp_type,
-) {
-
+//action testvarint
+func (c *SerializerTest) testvarint(a1 chain.VarInt32, a2 chain.VarInt32) {
+	chain.Println(int32(a1), int32(a2))
+	check(a1 == chain.VarInt32(-1), "a1")
+	check(a2 == chain.VarInt32(0x7fffffff), "a2")
 }
