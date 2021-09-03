@@ -7,7 +7,26 @@ import (
 	"github.com/uuosio/chain/logger"
 )
 
-func main() {
+var gContractName = chain.NewName("hello")
+var gActionName = chain.NewName("sayhello2")
+
+//contract test
+type CryptoTest struct {
+	self   chain.Name
+	code   chain.Name
+	action chain.Name
+}
+
+func NewContract(receiver, firstReceiver, action chain.Name) *CryptoTest {
+	return &CryptoTest{
+		self:   receiver,
+		code:   firstReceiver,
+		action: action,
+	}
+}
+
+//action testhash
+func (c *CryptoTest) TestHash() {
 	producers := chain.GetActiveProducers()
 	logger.Println(producers)
 	hash := chain.Sha1([]byte("hello"))
@@ -33,11 +52,11 @@ func main() {
 		hash := chain.Ripemd160(helloworld)
 		chain.AssertRipemd160(helloworld, hash)
 	}
+}
 
-	{
-		signature := []byte("\x00\x1f*\x9ef\xe8\xfb\xbf\xf1\x1c_\x88\xa5\xa5\xcb\xacz\x07\x90xk\x06\xbd?\xb2\\\xa6g\xcc,*\xe5G\x01\x04[g6o\x1e\xdefuU\xb4\xf2\xeaJ\xab\x01\x08\t\x0e={~\x81\xed\x1b\x0b\x06\xf5o\xa6\x19\xeb")
-		hash := chain.Sha256([]byte("hello,world"))
-		pub := chain.RecoverKey(hash, signature)
-		logger.Println(hex.EncodeToString(pub))
-	}
+//action testrecover
+func (c *CryptoTest) TestRecover(data []byte, sig chain.Signature, pub chain.PublicKey) {
+	hash := chain.Sha256([]byte("hello,world"))
+	pub2 := chain.RecoverKey(hash, sig)
+	chain.Check(pub == *pub2, "bad recovery")
 }

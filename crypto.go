@@ -76,38 +76,49 @@ func Ripemd160(data []byte) Checksum160 {
 }
 
 //Recover the public key from digest and signature
-func RecoverKey(digest Checksum256, sig []byte) []byte {
+func RecoverKey(digest Checksum256, sig Signature) *PublicKey {
 	//TODO: handle webauth signature
 	var pub [128]byte //34
-	ret := C.recover_key((*C.uint8_t)(unsafe.Pointer(&digest)), (*C.char)(unsafe.Pointer(&sig[0])), C.size_t(len(sig)), (*C.char)(unsafe.Pointer(&pub[0])), C.size_t(len(pub)))
-	return pub[:int(ret)]
+	_sig := sig.Pack()
+	ret := C.recover_key((*C.uint8_t)(unsafe.Pointer(&digest)), (*C.char)(unsafe.Pointer(&_sig[0])), C.size_t(len(_sig)), (*C.char)(unsafe.Pointer(&pub[0])), C.size_t(len(pub)))
+	_pub := &PublicKey{}
+	_pub.Unpack(pub[:int(ret)])
+	return _pub
 }
 
 //Tests a given public key with the generated key from digest and the signature
-func AssertRecoverKey(digest Checksum256, sig []byte, pub []byte) {
-	C.assert_recover_key((*C.uint8_t)(unsafe.Pointer(&digest)), (*C.char)(unsafe.Pointer(&sig[0])), C.size_t(len(sig)), (*C.char)(unsafe.Pointer(&pub[0])), C.size_t(len(pub)))
+func AssertRecoverKey(digest Checksum256, sig Signature, pub PublicKey) {
+	_sig := sig.Pack()
+	_pub := pub.Pack()
+	C.assert_recover_key((*C.uint8_t)(unsafe.Pointer(&digest)), (*C.char)(unsafe.Pointer(&_sig[0])), C.size_t(len(_sig)), (*C.char)(unsafe.Pointer(&_pub[0])), C.size_t(len(_pub)))
 }
 
 //TODO: implement Signature&PublicKey struct
 type Signature struct {
 	Type int // Signature type
-	Data []byte
+	Data [65]byte
 }
 
 func (t *Signature) Pack() []byte {
-	enc := NewEncoder(5 + len(t.Data))
+	enc := NewEncoder(1 + len(t.Data))
+	enc.WriteUint8(uint8(t.Type))
 	enc.WriteBytes(t.Data[:])
 	return enc.GetBytes()
 }
 
 func (t *Signature) Unpack(data []byte) (int, error) {
 	dec := NewDecoder(data)
+	n, err := dec.ReadUint8()
+	if err != nil {
+		return 0, err
+	}
+	t.Type = int(n)
 	dec.Read(t.Data[:])
 	return dec.Pos(), nil
 }
 
 func (t *Signature) Size() int {
-	return PackedVarUint32Length(uint32(len(t.Data))) + len(t.Data)
+	return 1 + len(t.Data)
 }
 
 type PublicKey struct {

@@ -133,8 +133,20 @@ func main() {
             code = f.read()
         code, abi = self.compile('hello', code)
         assert code
-        self.chain.deploy_contract('hello', code, b'', 0)
-        r = self.chain.push_action('hello', 'sayhello', b'hello,world')
+        self.chain.deploy_contract('hello', code, abi, 0)
+
+        r = self.chain.push_action('hello', 'testhash', '')
+        self.chain.produce_block()
+
+        sig = 'SIG_K1_KiXXExwMGG5NvAngS3X58fXVVcnmPc7fxgwLQAbbkSDj9gwcxWHxHwgpUegSCfgp4nFMMgjLDAKSQWZ2NLEmcJJn1m2UUg'
+        pub = 'EOS7wy4M8ZTYqtoghhDRtE37yRoSNGc6zC2zFgdVmaQnKV5ZXe4kV'
+        data = b'hello,world'
+        args = {
+            'data': data.hex(),
+            'sig': sig,
+            'pub': pub,
+        }
+        r = self.chain.push_action('hello', 'testrecover', args)
         print_console(r)
 
     def test_mi(self):
