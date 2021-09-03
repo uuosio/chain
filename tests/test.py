@@ -294,3 +294,47 @@ func main() {
             error_msg = e.args[0]['action_traces'][0]['except']['stack'][0]['data']['s']
             assert error_msg == 'multiplication underflow'
         self.chain.produce_block()
+
+    def test_serializer(self):
+        with open('testserializer.go', 'r') as f:
+            code = f.read()
+        code, abi = self.compile('testserializer', code)
+        # logger.info(abi)
+        assert code
+        self.chain.deploy_contract('hello', code, abi, 0)
+
+        args = dict(
+            a0 = True, # a0 bool,
+            a1 = 0xff, # a1 int8,
+            a2 = 0xff, # a2 uint8,
+            a3 = 0xffff, # a3 int16,
+            a4 = 0xffff, # a4 uint16,
+            a5 = 0xffffffff, # a5 int32,
+            a6 = 0xffffffff, # a6 uint32,
+            a7 = 0xffffffffffffffff, # a7 int64,
+            a8 = 0xffffffffffffffff, # a8 uint64,
+            a9 = '0x7fffffffffffffffffffffffffffffff', # // a9 int128,
+            a10 = '0xffffffffffffffffffffffffffffffff', # a10 chain.Uint128,
+            a11 = 0xffffffff, # // a11 varint32,
+            a12 = 0xffffffff, # // a12 varuint32,
+            a13 = 11.2233, # a13 float32,
+            a14 = 11.2233, # a14 float64,
+        	a15 = '0x7fffffffffffffffffffffffffffffff', #  a15 chain.Float128,
+	        a16 = '2021-09-03T04:13:21', #  a16 chain.TimePoint,
+        	a17 = '2021-09-03T04:13:21', # a17 chain.TimePointSec,
+            a18 = {'slot': 193723200}, #a18 chain.BlockTimeStamp, //block_timestamp_type,
+            a19 = 'helloworld', # a19 chain.Name,
+            a20 = b'hello,world'.hex(), # a20 []byte, //bytes,
+            a21 = 'hello,world', # a21 string,
+            a22 = 'aa'*20, # a22 chain.Checksum160, //checksum160,
+            a23 = 'aa'*32, # a23 chain.Checksum256, //checksum256,
+            a24 = 'aa'*64, # a24 chain.Checksum512, //checksum512,
+            a25 = 'EOS5HoPaVaPivnVHsCvpoKZMmB6gcWGV5b3vF7S6pfsgFACzufMDy', # a25 chain.PublicKey, //public_key,
+            a26 = 'SIG_K1_KbSF8BCNVA95KzR1qLmdn4VnxRoLVFQ1fZ8VV5gVdW1hLfGBdcwEc93hF7FBkWZip1tq2Ps27UZxceaR3hYwAjKL7j59q8', # a26 chain.Signature, //signature,
+            a27 = '4,EOS',# a27 chain.Symbol, //symbol,
+            a28 = 'EOS', # a28 chain.SymbolCode, //symbol_code,
+            a29 = '1.0000 EOS', # a29 chain.Asset,
+            a30 = {'quantity': '1.0000 EOS', 'contract': 'eosio.token'}
+        )
+        r = self.chain.push_action('hello', 'test', args)
+

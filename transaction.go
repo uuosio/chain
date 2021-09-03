@@ -220,7 +220,7 @@ func (t *Transaction) Unpack(data []byte) (int, error) {
 		return 0, err
 	}
 
-	t.MaxNetUsageWords, err = dec.UnpackVarInt()
+	t.MaxNetUsageWords, err = dec.UnpackVarUint32()
 	if err != nil {
 		return 0, err
 	}
@@ -230,12 +230,12 @@ func (t *Transaction) Unpack(data []byte) (int, error) {
 		return 0, err
 	}
 
-	t.DelaySec, err = dec.UnpackVarInt()
+	t.DelaySec, err = dec.UnpackVarUint32()
 	if err != nil {
 		return 0, err
 	}
 
-	contextFreeActionLength, err := dec.UnpackVarInt()
+	contextFreeActionLength, err := dec.UnpackVarUint32()
 	if err != nil {
 		return 0, err
 	}
@@ -248,7 +248,7 @@ func (t *Transaction) Unpack(data []byte) (int, error) {
 		}
 	}
 
-	actionLength, err := dec.UnpackVarInt()
+	actionLength, err := dec.UnpackVarUint32()
 	if err != nil {
 		return 0, err
 	}
@@ -261,7 +261,7 @@ func (t *Transaction) Unpack(data []byte) (int, error) {
 		}
 	}
 
-	extentionLength, err := dec.UnpackVarInt()
+	extentionLength, err := dec.UnpackVarUint32()
 	if err != nil {
 		return 0, err
 	}

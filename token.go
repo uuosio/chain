@@ -4,6 +4,56 @@ import "math/big"
 
 const MAX_AMOUNT = (1 << 62) - 1
 
+type SymbolCode struct {
+	Value uint64
+}
+
+func NewSymbolCode(sym string) SymbolCode {
+	n := SymbolCode{}
+	for i := range sym {
+		n.Value <<= 8
+		n.Value |= uint64(sym[len(sym)-i-1])
+	}
+	return n
+}
+
+func (a *SymbolCode) IsValid() bool {
+	sym := a.Value
+	for i := 0; i < 7; i++ {
+		c := byte(sym & 0xFF)
+		if !('A' <= c && c <= 'Z') {
+			return false
+		}
+		sym >>= 8
+		if sym&0xFF != 0 {
+			continue
+		}
+		for ; i < 7; i++ {
+			sym >>= 8
+			if sym&0xFF != 0 {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+func (a *SymbolCode) Pack() []byte {
+	enc := NewEncoder(8)
+	enc.Pack(a.Value)
+	return enc.GetBytes()
+}
+
+func (a *SymbolCode) Unpack(data []byte) (int, error) {
+	dec := NewDecoder(data)
+	dec.Unpack(&a.Value)
+	return dec.Pos(), nil
+}
+
+func (t *SymbolCode) Size() int {
+	return 8
+}
+
 type Symbol struct {
 	Value uint64
 }
@@ -59,6 +109,10 @@ func (a *Symbol) Unpack(data []byte) (int, error) {
 	dec := NewDecoder(data)
 	dec.Unpack(&a.Value)
 	return dec.Pos(), nil
+}
+
+func (t *Symbol) Size() int {
+	return 8
 }
 
 func (a *Symbol) Print() {

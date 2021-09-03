@@ -24,8 +24,52 @@ import "C"
 import "unsafe"
 
 type Checksum160 [20]byte
+
+func (t *Checksum160) Pack() []byte {
+	return t[:]
+}
+
+func (t *Checksum160) Unpack(data []byte) (int, error) {
+	Check(len(data) >= t.Size(), "Unpack data overflow")
+	copy(t[:], data)
+	return t.Size(), nil
+}
+
+func (t *Checksum160) Size() int {
+	return len(*t)
+}
+
 type Checksum256 [32]byte
+
+func (t *Checksum256) Pack() []byte {
+	return t[:]
+}
+
+func (t *Checksum256) Unpack(data []byte) (int, error) {
+	Check(len(data) >= t.Size(), "Unpack data overflow")
+	copy(t[:], data)
+	return t.Size(), nil
+}
+
+func (t *Checksum256) Size() int {
+	return len(*t)
+}
+
 type Checksum512 [64]byte
+
+func (t *Checksum512) Pack() []byte {
+	return t[:]
+}
+
+func (t *Checksum512) Unpack(data []byte) (int, error) {
+	Check(len(data) >= t.Size(), "Unpack data overflow")
+	copy(t[:], data)
+	return t.Size(), nil
+}
+
+func (t *Checksum512) Size() int {
+	return len(*t)
+}
 
 //Tests if the sha256 hash generated from data matches the provided checksum.
 func AssertSha256(data []byte, hash Checksum256) {
