@@ -4,7 +4,6 @@ import (
 	"encoding/binary"
 	"errors"
 	"math"
-	"unsafe"
 )
 
 func PackVarInt32(v int32) []byte {
@@ -205,7 +204,7 @@ func (dec *Decoder) ReadFloat32() (float32, error) {
 	if err != nil {
 		return 0, err
 	}
-	return *(*float32)(unsafe.Pointer(&n)), nil
+	return math.Float32frombits(n), nil
 }
 
 func (dec *Decoder) ReadFloat64() (float64, error) {
@@ -213,7 +212,7 @@ func (dec *Decoder) ReadFloat64() (float64, error) {
 	if err != nil {
 		return 0, err
 	}
-	return *(*float64)(unsafe.Pointer(&n)), nil
+	return math.Float64frombits(n), nil
 }
 
 func (dec *Decoder) ReadBool() (bool, error) {
@@ -557,12 +556,12 @@ func (enc *Encoder) Pack(i interface{}) error {
 }
 
 func (enc *Encoder) PackFloat32(f float32) {
-	n := *(*uint32)(unsafe.Pointer(&f))
+	n := math.Float32bits(f)
 	enc.WriteUint32(n)
 }
 
 func (enc *Encoder) PackFloat64(f float64) {
-	n := *(*uint64)(unsafe.Pointer(&f))
+	n := math.Float64bits(f)
 	enc.WriteUint64(n)
 }
 
