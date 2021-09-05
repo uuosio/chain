@@ -3,6 +3,7 @@ package chain
 import (
 	"encoding/binary"
 	"errors"
+	"math"
 	"unsafe"
 )
 
@@ -156,9 +157,9 @@ func (dec *Decoder) Read(b []byte) error {
 	return nil
 }
 
-func (dec *Decoder) ReadInt() (int, error) {
+func (dec *Decoder) ReadInt32() (int32, error) {
 	d, err := dec.ReadUint32()
-	return int(d), err
+	return int32(d), err
 }
 
 func (dec *Decoder) ReadUint32() (uint32, error) {
@@ -183,11 +184,6 @@ func (dec *Decoder) ReadUint16() (uint16, error) {
 	}
 	d := binary.LittleEndian.Uint16(b[:])
 	return d, nil
-}
-
-func (dec *Decoder) ReadInt32() (int32, error) {
-	n, err := dec.ReadUint32()
-	return int32(n), err
 }
 
 func (dec *Decoder) ReadInt64() (int64, error) {
@@ -226,6 +222,10 @@ func (dec *Decoder) ReadBool() (bool, error) {
 		return false, err
 	}
 	return b[0] == 1, nil
+}
+
+func (dec *Decoder) UnpackBool() (bool, error) {
+	return dec.ReadBool()
 }
 
 func (dec *Decoder) UnpackString() (string, error) {
@@ -274,8 +274,18 @@ func (dec *Decoder) UnpackVarUint32() (uint32, error) {
 	return v, nil
 }
 
+func (dec *Decoder) UnpackInt16() (int16, error) {
+	v, err := dec.ReadInt16()
+	return v, err
+}
+
 func (dec *Decoder) UnpackUint16() (uint16, error) {
 	return dec.ReadUint16()
+}
+
+func (dec *Decoder) UnpackInt32() (int32, error) {
+	v, err := dec.ReadInt32()
+	return int32(v), err
 }
 
 func (dec *Decoder) UnpackUint32() (uint32, error) {
@@ -284,6 +294,21 @@ func (dec *Decoder) UnpackUint32() (uint32, error) {
 		return 0, err
 	}
 	return v, nil
+}
+
+func (dec *Decoder) UnpackFloat32() (float32, error) {
+	v, err := dec.ReadUint32()
+	return math.Float32frombits(v), err
+}
+
+func (dec *Decoder) UnpackFloat64() (float64, error) {
+	v, err := dec.ReadUint64()
+	return math.Float64frombits(v), err
+}
+
+func (dec *Decoder) UnpackInt64() (int64, error) {
+	v, err := dec.ReadInt64()
+	return v, err
 }
 
 func (dec *Decoder) UnpackUint64() (uint64, error) {
@@ -308,6 +333,10 @@ func (dec *Decoder) ReadUint8() (uint8, error) {
 		return 0, err
 	}
 	return b[0], nil
+}
+
+func (dec *Decoder) UnpackInt8() (int8, error) {
+	return dec.ReadInt8()
 }
 
 func (dec *Decoder) UnpackUint8() (uint8, error) {
@@ -456,6 +485,14 @@ func NewEncoder(initSize int) *Encoder {
 	return ret
 }
 
+func (enc *Encoder) Reset() {
+	enc.buf = enc.buf[:0]
+}
+
+func (enc *Encoder) Bytes() []byte {
+	return enc.buf
+}
+
 func (enc *Encoder) Write(b []byte) {
 	enc.buf = append(enc.buf, b...)
 }
@@ -465,7 +502,7 @@ func (enc *Encoder) WriteByte(b byte) {
 }
 
 // Pack supported types:
-// Packer interface
+// Packer, interface
 // string, bytes
 // byte, uint16, int32, uint32, int64, uint64, float64
 // Name
@@ -547,6 +584,10 @@ func (enc *Encoder) PackBool(b bool) {
 	} else {
 		enc.WriteByte(byte(0))
 	}
+}
+
+func (enc *Encoder) PackInt8(d int8) {
+	enc.WriteByte(byte(d))
 }
 
 func (enc *Encoder) PackUint8(d uint8) {
