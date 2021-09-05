@@ -537,6 +537,10 @@ func (enc *Encoder) PackLength(n int) {
 	enc.Write(PackVarUint32(uint32(n)))
 }
 
+func (enc *Encoder) PackVarUint32(n uint32) {
+	enc.Write(PackVarUint32(uint32(n)))
+}
+
 func (enc *Encoder) PackBool(b bool) {
 	if b {
 		enc.WriteByte(byte(1))
@@ -577,7 +581,7 @@ func (enc *Encoder) PackUint64(d uint64) {
 	enc.Write(b[:])
 }
 
-func (enc *Encoder) PackVarInt(n uint32) {
+func (enc *Encoder) PackVarInt32(n int32) {
 	enc.Write(PackVarInt32(int32(n)))
 }
 

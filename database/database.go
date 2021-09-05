@@ -1,5 +1,7 @@
 package database
 
+import "errors"
+
 const (
 	IDX64       = iota
 	IDX128      = iota
@@ -7,6 +9,8 @@ const (
 	IDXFloat64  = iota
 	IDXFloat128 = iota
 )
+
+var ErrInvalidIterator = errors.New("Invalid iterator")
 
 type Iterator struct {
 	I int32

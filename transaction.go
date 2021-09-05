@@ -180,9 +180,9 @@ func (t *Transaction) Pack() []byte {
 	enc.Pack(t.Expiration)
 	enc.Pack(t.RefBlockNum)
 	enc.Pack(t.RefBlockPrefix)
-	enc.PackVarInt(t.MaxNetUsageWords)
+	enc.PackVarUint32(t.MaxNetUsageWords)
 	enc.PackUint8(t.MaxCpuUsageMs)
-	enc.PackVarInt(t.DelaySec)
+	enc.PackVarUint32(t.DelaySec)
 
 	enc.PackLength(len(t.ContextFreeActions))
 	for _, action := range t.ContextFreeActions {

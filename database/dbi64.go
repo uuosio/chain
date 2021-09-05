@@ -62,6 +62,9 @@ func (db *DBI64) Get(id uint64) (Iterator, []byte) {
 }
 
 func (db *DBI64) GetByIterator(it Iterator) ([]byte, error) {
+	if !it.IsOk() {
+		return nil, ErrInvalidIterator
+	}
 	raw := db.getI64(it)
 	return raw, nil
 }

@@ -93,8 +93,8 @@ var (
 	ExtendedPrint ExtendedPrintFunc
 )
 
-func PrintVariant(v interface{}) {
-	switch v := v.(type) {
+func PrintVariant(variant interface{}) {
+	switch v := variant.(type) {
 	case nil:
 		Prints("nil")
 	case Printable:
