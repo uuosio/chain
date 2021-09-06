@@ -132,9 +132,9 @@ type Transaction struct {
 	RefBlockPrefix uint32
 	//[VLQ or Base-128 encoding](https://en.wikipedia.org/wiki/Variable-length_quantity)
 	//unsigned_int vaint (eosio.cdt/libraries/eosiolib/core/eosio/varint.hpp)
-	MaxNetUsageWords   uint32
+	MaxNetUsageWords   VarUint32
 	MaxCpuUsageMs      uint8
-	DelaySec           uint32 //unsigned_int
+	DelaySec           VarUint32 //unsigned_int
 	ContextFreeActions []Action
 	Actions            []Action
 	Extention          []TransactionExtension
@@ -145,9 +145,9 @@ func NewTransaction(delaySec int) *Transaction {
 	t.Expiration = CurrentTimeSeconds() + uint32(60*60)
 	t.RefBlockNum = uint16(TaposBlockNum())
 	t.RefBlockPrefix = uint32(TaposBlockPrefix())
-	t.MaxNetUsageWords = uint32(0)
+	t.MaxNetUsageWords = VarUint32(0)
 	t.MaxCpuUsageMs = uint8(0)
-	t.DelaySec = uint32(delaySec)
+	t.DelaySec = VarUint32(delaySec)
 	return t
 }
 
@@ -180,9 +180,9 @@ func (t *Transaction) Pack() []byte {
 	enc.Pack(t.Expiration)
 	enc.Pack(t.RefBlockNum)
 	enc.Pack(t.RefBlockPrefix)
-	enc.PackVarUint32(t.MaxNetUsageWords)
+	enc.WriteBytes(t.MaxNetUsageWords.Pack())
 	enc.PackUint8(t.MaxCpuUsageMs)
-	enc.PackVarUint32(t.DelaySec)
+	enc.WriteBytes(t.DelaySec.Pack())
 
 	enc.PackLength(len(t.ContextFreeActions))
 	for _, action := range t.ContextFreeActions {
@@ -220,7 +220,7 @@ func (t *Transaction) Unpack(data []byte) (int, error) {
 		return 0, err
 	}
 
-	t.MaxNetUsageWords, err = dec.UnpackVarUint32()
+	_, err = dec.Unpack(&t.MaxNetUsageWords)
 	if err != nil {
 		return 0, err
 	}
@@ -230,7 +230,7 @@ func (t *Transaction) Unpack(data []byte) (int, error) {
 		return 0, err
 	}
 
-	t.DelaySec, err = dec.UnpackVarUint32()
+	_, err = dec.Unpack(&t.DelaySec)
 	if err != nil {
 		return 0, err
 	}
