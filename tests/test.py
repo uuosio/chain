@@ -344,3 +344,22 @@ func main() {
         )
         r = self.chain.push_action('hello', 'testvarint', args)
         print_console(r)
+
+    def test_kv(self):
+        import uuosio
+        test_dir = os.path.dirname(uuosio.__file__)
+        test_dir = os.path.join(test_dir, "tests/activate_kv.wasm")
+        with open(os.path.join(test_dir), 'rb') as f:
+            code = f.read()
+            self.chain.deploy_contract('alice', code, b'')
+        self.chain.push_action('eosio', 'setpriv', {'account':'alice', 'is_priv':True})
+        self.chain.push_action('alice', 'setkvparams', b'')
+        self.chain.push_action('eosio', 'setpriv', {'account':'alice', 'is_priv':False})
+
+        with open('testkv.go', 'r') as f:
+            code = f.read()
+        code, abi = self.compile('testkv', code)
+        assert code
+        self.chain.deploy_contract('hello', code, abi, 0)
+
+        self.chain.push_action('hello', 'testkv', b'')
