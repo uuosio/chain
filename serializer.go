@@ -352,6 +352,15 @@ func (dec *Decoder) UnpackAction() (*Action, error) {
 	return a, nil
 }
 
+func (dec *Decoder) UnpackI(unpacker Unpacker) error {
+	n, err := unpacker.Unpack(dec.buf[dec.pos:])
+	if err != nil {
+		return err
+	}
+	dec.incPos(n)
+	return err
+}
+
 // Unpack supported type:
 // Unpacker, interface,
 // *string, *[]byte,
