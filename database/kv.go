@@ -37,25 +37,15 @@ import (
 	"github.com/uuosio/chain"
 )
 
-type KV struct {
-	Contract chain.Name
-}
-
-type KVIterator struct {
-	Prefix        []byte
-	Handle        uint32
-	CurrentStatus int32
-}
-
-type KVIteratorStatus struct {
-	Status int32
-}
-
 const (
 	ITER_OK     = 0  // Iterator is positioned at a key-value pair
 	ITER_ERASED = -1 // The key-value pair that the iterator used to be positioned at was erased
 	ITER_END    = -2 // Iterator is out-of-bounds
 )
+
+type KVIteratorStatus struct {
+	Status int32
+}
 
 func (t *KVIteratorStatus) IsOk() bool {
 	return t.Status == ITER_OK
@@ -71,6 +61,16 @@ func (t *KVIteratorStatus) IsEnd() bool {
 
 func (t *KVIteratorStatus) Print() {
 	chain.Print(t.Status)
+}
+
+type KVIterator struct {
+	Prefix        []byte
+	Handle        uint32
+	CurrentStatus KVIteratorStatus
+}
+
+type KV struct {
+	Contract chain.Name
 }
 
 func NewKV(contract chain.Name) *KV {
