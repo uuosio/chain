@@ -33,7 +33,7 @@ func main() {
 	a.g = B{}
 	a.h = []B{B{}}
 
-	size := 4                 //a.a int
+	size := 4                 //a.a uint32
 	size += 2 + len(a.b)      //a.b string
 	size += 2 + len(a.c)      //a.c []byte
 	size += 1 + 2 + len(text) //a.d [][]byte

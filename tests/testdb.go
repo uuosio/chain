@@ -54,7 +54,10 @@ func NewMyDB(code, scope, table chain.Name) *MyDB {
 }
 
 func (db *MyDB) Get(it database.Iterator) *MyData {
-	data := db.GetRawByIterator(it)
+	data, err := db.GetByIterator(it)
+	if err != nil {
+		return nil
+	}
 	if len(data) <= 0 {
 		return nil
 	}
@@ -70,7 +73,10 @@ func (db *MyDB) TryGet(primary uint64) (itr database.Iterator, data *MyData) {
 		return itr, nil
 	}
 
-	rawData := db.GetRawByIterator(itr)
+	rawData, err := db.GetByIterator(itr)
+	if err != nil {
+		return itr, nil
+	}
 	data = &MyData{}
 	data.Unpack(rawData)
 	return
@@ -104,7 +110,7 @@ func main() {
 
 		payer := code
 		if itr.IsOk() {
-			db.Store(&data, payer)
+			db.Store(data.primary, data.Pack(), payer)
 		} else {
 			_data := db.Get(itr)
 			logger.Println(_data.primary, _data.n)

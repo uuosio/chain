@@ -4,7 +4,7 @@ import (
 	"github.com/uuosio/chain"
 )
 
-//table mydata singleton
+//table mydata2 singleton
 type MySingleton struct {
 	a1 uint64
 }
@@ -26,13 +26,12 @@ func (t *MyContract) SayHello() {
 	payer := t.Receiver
 	db := NewMySingletonDB(code, code)
 
-	data, err := db.Get()
-	if err == nil {
+	data := db.Get()
+	if data != nil {
 		println("+++a1:", data.a1)
 		data.a1 += 1
 		db.Set(data, payer)
 	} else {
-		chain.Println("+++err:", err)
 		s := MySingleton{}
 		db.Set(&s, payer)
 	}

@@ -59,16 +59,12 @@ func main() {
 		t.Send(1, false, payer)
 		logger.Println("send done!")
 	} else if action == chain.NewName("sayhello2") {
-		db := database.NewDBI64(code, scope, table, nil)
+		db := database.NewDBI64(code, scope, table)
 		it := db.Find(id)
 		if it.IsOk() {
-			_data, err := db.GetByIterator(it)
+			data, err := db.GetByIterator(it)
 			if err != nil {
 				logger.Fatal(err)
-			}
-			data, ok := _data.([]byte)
-			if !ok {
-				logger.Fatal("data is not []byte")
 			}
 
 			if len(data) != 8 {
@@ -88,10 +84,13 @@ func main() {
 			logger.Println("+++++Set")
 		}
 	} else if action == chain.NewName("sayhello3") {
-		db := database.NewDBI64(code, scope, table, nil)
+		db := database.NewDBI64(code, scope, table)
 		it := db.Find(id)
 		if it.IsOk() {
-			value := db.GetRawByIterator(it)
+			value, err := db.GetByIterator(it)
+			if err != nil {
+				logger.Fatal(err)
+			}
 			n := binary.LittleEndian.Uint64(value)
 			logger.Println(len(value), n, string(value))
 		} else {

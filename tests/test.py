@@ -78,7 +78,7 @@ class Test(object):
         pass
 
     def teardown_method(self, method):
-        pass
+        self.chain.produce_block()
 
     def compile(cls, name, code):
         replace = '/Users/newworld/dev/github/go-chain'
@@ -87,7 +87,7 @@ class Test(object):
     def test_hello(self):
         code = '''
 package main
-import "chain/logger"
+import "github.com/uuosio/chain/logger"
 func main() {
     logger.Println("Hello,world!")
 }
@@ -222,10 +222,10 @@ func main() {
         assert code
         self.chain.deploy_contract('hello', code, b'', 0)
 
-        for i in range(4):
-            r = self.chain.push_action('hello', 'sayhello', b'hello,world')
-            print_console(r)
-            self.chain.produce_block()
+        # for i in range(4):
+        #     r = self.chain.push_action('hello', 'sayhello', b'hello,world')
+        #     print_console(r)
+        #     self.chain.produce_block()
 
     def test_asset(self):
         with open('testasset.go', 'r') as f:

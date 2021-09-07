@@ -1,0 +1,41 @@
+{
+    "version": "eosio::abi/1.1",
+    "structs": [
+        {
+            "name": "MySingleton",
+            "base": "",
+            "fields": [
+                {
+                    "name": "a1",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "sayhello",
+            "base": "",
+            "fields": []
+        }
+    ],
+    "types": [],
+    "actions": [
+        {
+            "name": "sayhello",
+            "type": "sayhello",
+            "ricardian_contract": ""
+        }
+    ],
+    "tables": [
+        {
+            "name": "mydata2",
+            "type": "MySingleton",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        }
+    ],
+    "ricardian_clauses": [],
+    "variants": [],
+    "abi_extensions": [],
+    "error_messages": []
+}

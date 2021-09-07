@@ -55,7 +55,7 @@ func (token *Token) Issue(to chain.Name, quantity chain.Asset, memo string) {
 	chain.Check(quantity.IsValid(), "invalid quantity")
 	chain.Check(quantity.Amount > 0, "must issue positive quantity")
 
-	item.Supply.Add(quantity)
+	item.Supply.Add(&quantity)
 	db.Store(item, chain.Name{0})
 	// _data := t.Pack()
 	// chain.Assert(Equal(_data, data), "bad issue")
