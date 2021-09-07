@@ -55,8 +55,8 @@ func (c *CryptoTest) TestHash() {
 }
 
 //action testrecover
-func (c *CryptoTest) TestRecover(data []byte, sig chain.Signature, pub chain.PublicKey) {
+func (c *CryptoTest) TestRecover(data []byte, sig *chain.Signature, pub *chain.PublicKey) {
 	hash := chain.Sha256([]byte("hello,world"))
 	pub2 := chain.RecoverKey(hash, sig)
-	chain.Check(pub == *pub2, "bad recovery")
+	chain.Check(*pub == *pub2, "bad recovery")
 }
