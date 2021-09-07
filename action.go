@@ -129,8 +129,8 @@ func NewAction(account Name, name Name, args ...interface{}) *Action {
 		}
 	}
 
-	args = args[1:]
-	if len(args) > 0 {
+	if len(args) >= 2 {
+		args = args[1:]
 		size := 0
 		for _, v := range args {
 			n, err := CalcPackedSize(v)
