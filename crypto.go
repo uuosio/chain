@@ -120,7 +120,7 @@ func Ripemd160(data []byte) Checksum160 {
 }
 
 //Recover the public key from digest and signature
-func RecoverKey(digest Checksum256, sig Signature) *PublicKey {
+func RecoverKey(digest Checksum256, sig *Signature) *PublicKey {
 	//TODO: handle webauth signature
 	var pub [128]byte //34
 	_sig := sig.Pack()
