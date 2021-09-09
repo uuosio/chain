@@ -4,6 +4,11 @@ type Name struct {
 	N uint64
 }
 
+//called in compiler
+func newname(n uint64) Name {
+	return Name{N: uint64(n)}
+}
+
 func NewName(s string) Name {
 	return Name{N: S2N(s)}
 }
