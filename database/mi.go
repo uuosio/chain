@@ -324,3 +324,7 @@ func (mi *MultiIndex) GetIdxDB(idxDBName string) SecondaryDB {
 	index := mi.idxDBNameToIndex(idxDBName)
 	return mi.IDXDBs[index]
 }
+
+func (mi *MultiIndex) GetIdxDBByA1() IdxDB64I {
+	return IdxDB64I{mi.IDXDBs[0], mi.IDXDBs[0].(*IdxDB64)}
+}

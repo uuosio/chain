@@ -97,6 +97,20 @@ func (t *TestMI) test1() {
 			mi.IdxUpdate(it, secondary, payer)
 		}
 	}
+
+	{
+		idxDB := mi.GetIdxDBbya1()
+		secondary := uint64(1001)
+		it := idxDB.Find(secondary)
+		chain.Check(it.IsOk(), "Invalid secondary iterator")
+		// it, _secondary := idxDB.Lowerbound(uint64(0))
+		secondary += 1
+		logger.Println(idxDB.GetIndex(), it.I, it.Primary, secondary)
+		if it.IsOk() {
+			mi.IdxUpdate(it, secondary, payer)
+		}
+	}
+
 	{
 		idxDB := mi.GetIdxDB("bya2")
 		it, _secondary := idxDB.FindByPrimary(primary)

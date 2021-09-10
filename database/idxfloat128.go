@@ -111,3 +111,27 @@ func (db *IdxDBFloat128) End() SecondaryIterator {
 	ret := C.db_idx_long_double_end(db.code, db.scope, db.table)
 	return SecondaryIterator{ret, 0, db.dbIndex}
 }
+
+type IdxDBFloat128I struct {
+	SecondaryDB
+	I *IdxDBFloat128
+}
+
+func (db *IdxDBFloat128I) FindByPrimary(primary uint64) (SecondaryIterator, chain.Float128) {
+	it, _secondary := db.I.FindByPrimary(primary)
+	return it, _secondary.(chain.Float128)
+}
+
+func (db *IdxDBFloat128I) Find(secondary chain.Float128) SecondaryIterator {
+	return db.I.Find(secondary)
+}
+
+func (db *IdxDBFloat128I) Lowerbound(secondary chain.Float128) (SecondaryIterator, chain.Float128) {
+	it, _secondary := db.I.Lowerbound(secondary)
+	return it, _secondary.(chain.Float128)
+}
+
+func (db *IdxDBFloat128I) Upperbound(secondary chain.Float128) (SecondaryIterator, chain.Float128) {
+	it, _secondary := db.I.Upperbound(secondary)
+	return it, _secondary.(chain.Float128)
+}

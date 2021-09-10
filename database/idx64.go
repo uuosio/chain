@@ -109,3 +109,27 @@ func (db *IdxDB64) End() SecondaryIterator {
 	ret := C.db_idx64_end(db.code, db.scope, db.table)
 	return SecondaryIterator{ret, 0, db.dbIndex}
 }
+
+type IdxDB64I struct {
+	SecondaryDB
+	I *IdxDB64
+}
+
+func (db *IdxDB64I) FindByPrimary(primary uint64) (SecondaryIterator, uint64) {
+	it, _secondary := db.I.FindByPrimary(primary)
+	return it, _secondary.(uint64)
+}
+
+func (db *IdxDB64I) Find(secondary uint64) SecondaryIterator {
+	return db.I.Find(secondary)
+}
+
+func (db *IdxDB64I) Lowerbound(secondary uint64) (SecondaryIterator, uint64) {
+	it, _secondary := db.I.Lowerbound(secondary)
+	return it, _secondary.(uint64)
+}
+
+func (db *IdxDB64I) Upperbound(secondary uint64) (SecondaryIterator, uint64) {
+	it, _secondary := db.I.Upperbound(secondary)
+	return it, _secondary.(uint64)
+}

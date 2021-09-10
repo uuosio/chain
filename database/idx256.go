@@ -122,3 +122,27 @@ func (db *IdxDB256) End() SecondaryIterator {
 	ret := C.db_idx256_end(db.code, db.scope, db.table)
 	return SecondaryIterator{ret, 0, db.dbIndex}
 }
+
+type IdxDB256I struct {
+	SecondaryDB
+	I *IdxDB256
+}
+
+func (db *IdxDB256I) FindByPrimary(primary uint64) (SecondaryIterator, chain.Uint256) {
+	it, _secondary := db.I.FindByPrimary(primary)
+	return it, _secondary.(chain.Uint256)
+}
+
+func (db *IdxDB256I) Find(secondary chain.Uint256) SecondaryIterator {
+	return db.I.Find(secondary)
+}
+
+func (db *IdxDB256I) Lowerbound(secondary chain.Uint256) (SecondaryIterator, chain.Uint256) {
+	it, _secondary := db.I.Lowerbound(secondary)
+	return it, _secondary.(chain.Uint256)
+}
+
+func (db *IdxDB256I) Upperbound(secondary chain.Uint256) (SecondaryIterator, chain.Uint256) {
+	it, _secondary := db.I.Upperbound(secondary)
+	return it, _secondary.(chain.Uint256)
+}
