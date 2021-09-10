@@ -85,7 +85,7 @@ class Test(object):
         return wasmcompiler.compile_go_src(name, code, replace=replace)
 
 
-    def test_singleton(self):
+    def test_hello(self):
         with open('test.wasm', 'rb') as f:
             code = f.read()
         with open('test.abi', 'r') as f:

@@ -2,4 +2,4 @@ __pycache__
 generated.abi
 generated.go
 *.wasm
-
+*.wast
