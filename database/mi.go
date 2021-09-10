@@ -198,6 +198,12 @@ func IsEqual(indexType int, a, b interface{}) bool {
 }
 
 func (mi *MultiIndex) Update(it Iterator, v MultiIndexValue, payer chain.Name) {
+	oldValue, err := mi.GetByIterator(it)
+	if err != nil {
+		panic(err)
+	}
+	chain.Check(oldValue.GetPrimary() == v.GetPrimary(), "mi.Update: Can not change primary key duration update")
+
 	mi.DB.Update(it, v.Pack(), payer)
 	primary := v.GetPrimary()
 	for i, db := range mi.IDXDBs {
@@ -325,6 +331,6 @@ func (mi *MultiIndex) GetIdxDB(idxDBName string) SecondaryDB {
 	return mi.IDXDBs[index]
 }
 
-func (mi *MultiIndex) GetIdxDBByA1() IdxDB64I {
-	return IdxDB64I{mi.IDXDBs[0], mi.IDXDBs[0].(*IdxDB64)}
-}
+// func (mi *MultiIndex) GetIdxDBByA1() IdxDB64I {
+// 	return IdxDB64I{mi.IDXDBs[0], mi.IDXDBs[0].(*IdxDB64)}
+// }

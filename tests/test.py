@@ -363,3 +363,19 @@ func main() {
         self.chain.deploy_contract('hello', code, abi, 0)
 
         self.chain.push_action('hello', 'testkv', b'')
+
+    def test_primarykey(self):
+        with open('testprimarykey.go', 'r') as f:
+            code = f.read()
+        code, abi = self.compile('testprimarykey', code)
+        assert code
+        self.chain.deploy_contract('hello', code, abi, 0)
+        self.chain.push_action('hello', 'sayhello', b'')
+        self.chain.produce_block()
+
+        try:
+            self.chain.push_action('hello', 'sayhello', b'')
+        except Exception as e:
+            error_msg = e.args[0]['action_traces'][0]['except']['stack'][0]['data']['s']
+            assert error_msg == 'mi.Update: Can not change primary key duration update'
+        self.chain.produce_block()
