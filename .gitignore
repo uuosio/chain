@@ -3,3 +3,5 @@ generated.abi
 generated.go
 *.wasm
 *.wast
+*.abi
+
