@@ -248,10 +248,8 @@ func (dec *Decoder) UnpackBytes() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	dec.checkPos(length)
 	buf := make([]byte, length)
-	copy(buf, dec.buf[dec.pos:dec.pos+length])
-	dec.incPos(length)
+	dec.Read(buf)
 	return buf, nil
 }
 
