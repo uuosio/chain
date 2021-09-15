@@ -31,8 +31,7 @@ func (t *SingletonDB) Get() interface{} {
 	}
 
 	if t.unpacker != nil {
-		value, err := t.unpacker(data)
-		chain.Check(err == nil, "SingletonDB.Get: unpacker error")
+		value := t.unpacker(data)
 		return value
 	} else {
 		return data

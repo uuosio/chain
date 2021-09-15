@@ -10,10 +10,10 @@ func (t *VarInt32) Pack() []byte {
 	return PackVarInt32(int32(*t))
 }
 
-func (t *VarInt32) Unpack(data []byte) (int, error) {
+func (t *VarInt32) Unpack(data []byte) int {
 	v, n := UnpackVarInt32(data)
 	*t = VarInt32(v)
-	return n, nil
+	return n
 }
 
 func (t *VarInt32) Size() int {
@@ -26,10 +26,10 @@ func (t *VarUint32) Pack() []byte {
 	return PackVarUint32(uint32(*t))
 }
 
-func (t *VarUint32) Unpack(data []byte) (int, error) {
+func (t *VarUint32) Unpack(data []byte) int {
 	v, n := UnpackVarUint32(data)
 	*t = VarUint32(v)
-	return n, nil
+	return n
 }
 
 func (t *VarUint32) Size() int {
@@ -42,12 +42,10 @@ func (n *Int128) Pack() []byte {
 	return n[:]
 }
 
-func (n *Int128) Unpack(data []byte) (int, error) {
+func (n *Int128) Unpack(data []byte) int {
 	dec := NewDecoder(data)
-	if err := dec.Read(n[:]); err != nil {
-		return 0, err
-	}
-	return 16, nil
+	dec.Read(n[:])
+	return 16
 }
 
 func (t *Int128) Size() int {
@@ -60,12 +58,10 @@ func (n *Uint128) Pack() []byte {
 	return n[:]
 }
 
-func (n *Uint128) Unpack(data []byte) (int, error) {
+func (n *Uint128) Unpack(data []byte) int {
 	dec := NewDecoder(data)
-	if err := dec.Read(n[:]); err != nil {
-		return 0, err
-	}
-	return 16, nil
+	dec.Read(n[:])
+	return 16
 }
 
 func (t *Uint128) Size() int {
@@ -88,12 +84,10 @@ func (n *Uint256) Pack() []byte {
 	return n[:]
 }
 
-func (n *Uint256) Unpack(data []byte) (int, error) {
+func (n *Uint256) Unpack(data []byte) int {
 	dec := NewDecoder(data)
-	if err := dec.Read(n[:]); err != nil {
-		return 0, err
-	}
-	return 32, nil
+	dec.Read(n[:])
+	return 32
 }
 
 func (t *Uint256) Size() int {
@@ -116,12 +110,10 @@ func (n *Float128) Pack() []byte {
 	return n[:]
 }
 
-func (n *Float128) Unpack(data []byte) (int, error) {
+func (n *Float128) Unpack(data []byte) int {
 	dec := NewDecoder(data)
-	if err := dec.Read(n[:]); err != nil {
-		return 0, err
-	}
-	return 16, nil
+	dec.Read(n[:])
+	return 16
 }
 
 func (t *Float128) Size() int {
@@ -138,10 +130,10 @@ func (t *TimePoint) Pack() []byte {
 	return enc.GetBytes()
 }
 
-func (t *TimePoint) Unpack(data []byte) (int, error) {
+func (t *TimePoint) Unpack(data []byte) int {
 	dec := NewDecoder(data)
 	dec.Unpack(&t.Elapsed)
-	return 8, nil
+	return 8
 }
 
 func (t *TimePoint) Size() int {
@@ -158,10 +150,10 @@ func (t *TimePointSec) Pack() []byte {
 	return enc.GetBytes()
 }
 
-func (t *TimePointSec) Unpack(data []byte) (int, error) {
+func (t *TimePointSec) Unpack(data []byte) int {
 	dec := NewDecoder(data)
 	dec.Unpack(&t.UTCSeconds)
-	return 4, nil
+	return 4
 }
 
 func (t *TimePointSec) Size() int {
@@ -178,10 +170,10 @@ func (t *BlockTimestampType) Pack() []byte {
 	return enc.GetBytes()
 }
 
-func (t *BlockTimestampType) Unpack(data []byte) (int, error) {
+func (t *BlockTimestampType) Unpack(data []byte) int {
 	dec := NewDecoder(data)
 	dec.Unpack(&t.Slot)
-	return 4, nil
+	return 4
 }
 
 func (t *BlockTimestampType) Size() int {

@@ -67,17 +67,17 @@ func (t *BlockSigningAuthorityV0) Pack() []byte {
 	return enc.GetBytes()
 }
 
-func (t *BlockSigningAuthorityV0) Unpack(data []byte) (int, error) {
+func (t *BlockSigningAuthorityV0) Unpack(data []byte) int {
 	dec := NewDecoder(data)
 	dec.Unpack(&t.Threshold)
 	{
-		length, _ := dec.UnpackLength()
+		length := dec.UnpackLength()
 		t.Keys = make([]KeyWeight, length)
 		for i := 0; i < length; i++ {
 			dec.Unpack(&t.Keys[i])
 		}
 	}
-	return dec.Pos(), nil
+	return dec.Pos()
 }
 
 func (t *BlockSigningAuthorityV0) Size() int {
@@ -99,14 +99,13 @@ func (t *ProducerAuthority) Pack() []byte {
 	return enc.GetBytes()
 }
 
-func (t *ProducerAuthority) Unpack(data []byte) (int, error) {
+func (t *ProducerAuthority) Unpack(data []byte) int {
 	dec := NewDecoder(data)
 	dec.Unpack(&t.ProducerName)
-	length, err := dec.UnpackLength()
-	Check(err == nil, err.Error())
+	length := dec.UnpackLength()
 	Check(length == 0, "bad variant index")
 	dec.Unpack(&t.Authority)
-	return dec.Pos(), nil
+	return dec.Pos()
 }
 
 func (t *ProducerAuthority) Size() int {

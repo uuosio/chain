@@ -19,14 +19,11 @@ func (a *Name) Pack() []byte {
 	return enc.GetBytes()
 }
 
-func (a *Name) Unpack(data []byte) (int, error) {
+func (a *Name) Unpack(data []byte) int {
 	dec := NewDecoder(data)
-	n, err := dec.UnpackUint64()
-	if err != nil {
-		return 0, err
-	}
+	n := dec.UnpackUint64()
 	a.N = n
-	return 8, nil
+	return 8
 }
 
 func (t *Name) Size() int {

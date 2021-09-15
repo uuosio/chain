@@ -50,7 +50,7 @@ type MultiIndexValue interface {
 	SetSecondaryValue(index int, v interface{})
 }
 
-type Unpacker func([]byte) (MultiIndexValue, error)
+type Unpacker func([]byte) MultiIndexValue
 
 var (
 	ErrNotMultiIndexValue = errors.New("not a MultiIndexValue type")
@@ -134,8 +134,7 @@ func (mi *MultiIndex) Get(id uint64) (Iterator, MultiIndexValue) {
 	if !it.IsOk() {
 		return it, nil
 	}
-	value, err := mi.unpacker(data)
-	chain.Check(err == nil, "mi.Get: Unpack error")
+	value := mi.unpacker(data)
 	_data, ok := value.(MultiIndexValue)
 	chain.Check(ok, "mi.Get: Not a MultiIndexValue type")
 	return it, _data
@@ -147,8 +146,7 @@ func (mi *MultiIndex) GetByIterator(it Iterator) (MultiIndexValue, error) {
 	if err != nil {
 		return nil, err
 	}
-	vv, err := mi.unpacker(v)
-	chain.Check(err == nil, "mi.GetByIterator: Unpack error")
+	vv := mi.unpacker(v)
 	return vv, nil
 }
 
@@ -266,8 +264,7 @@ func (mi *MultiIndex) UpdateSecondaryValue(idxDB SecondaryDB, primary uint64, se
 	chain.Check(itPrimary.IsOk(), "primary not found!")
 	v, err := mi.DB.GetByIterator(itPrimary)
 	chain.Check(err == nil, "get primary value error!")
-	_v, err := mi.unpacker(v)
-	chain.Check(err == nil, "mi.UpdateSecondaryValue: unpack error!")
+	_v := mi.unpacker(v)
 
 	newSecondary := _v.GetSecondaryValue(idxDB.GetIndex())
 	if IsEqual(mi.IndexTypes[idxDB.GetIndex()], newSecondary, secondary) {
@@ -290,8 +287,7 @@ func (mi *MultiIndex) IdxUpdate(it SecondaryIterator, secondary interface{}, pay
 	chain.Check(itPrimary.IsOk(), "primary not found!")
 	v, err := mi.DB.GetByIterator(itPrimary)
 	chain.Check(err == nil, "get primary value error!")
-	_v, err := mi.unpacker(v)
-	chain.Check(err == nil, "mi.IdxUpdate: unpack error!")
+	_v := mi.unpacker(v)
 	newSecondary := _v.GetSecondaryValue(idxDB.GetIndex())
 	if IsEqual(mi.IndexTypes[idxDB.GetIndex()], newSecondary, secondary) {
 		return

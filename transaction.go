@@ -101,19 +101,12 @@ func (t *TransactionExtension) Pack() []byte {
 	return enc.GetBytes()
 }
 
-func (t *TransactionExtension) Unpack(data []byte) (int, error) {
-	var err error
+func (t *TransactionExtension) Unpack(data []byte) int {
 	dec := NewDecoder(data)
-	t.Type, err = dec.UnpackUint16()
-	if err != nil {
-		return 0, err
-	}
+	t.Type = dec.UnpackUint16()
 
-	t.Data, err = dec.UnpackBytes()
-	if err != nil {
-		return 0, err
-	}
-	return dec.Pos(), nil
+	t.Data = dec.UnpackBytes()
+	return dec.Pos()
 }
 
 func (t *TransactionExtension) Print() {
@@ -201,83 +194,42 @@ func (t *Transaction) Pack() []byte {
 	return enc.GetBytes()
 }
 
-func (t *Transaction) Unpack(data []byte) (int, error) {
-	var err error
+func (t *Transaction) Unpack(data []byte) int {
 
 	dec := NewDecoder(data)
-	t.Expiration, err = dec.UnpackUint32()
-	if err != nil {
-		return 0, err
-	}
+	t.Expiration = dec.UnpackUint32()
 
-	t.RefBlockNum, err = dec.UnpackUint16()
-	if err != nil {
-		return 0, err
-	}
+	t.RefBlockNum = dec.UnpackUint16()
 
-	t.RefBlockPrefix, err = dec.UnpackUint32()
-	if err != nil {
-		return 0, err
-	}
+	t.RefBlockPrefix = dec.UnpackUint32()
 
-	_, err = dec.Unpack(&t.MaxNetUsageWords)
-	if err != nil {
-		return 0, err
-	}
+	dec.Unpack(&t.MaxNetUsageWords)
 
-	t.MaxCpuUsageMs, err = dec.UnpackUint8()
-	if err != nil {
-		return 0, err
-	}
+	t.MaxCpuUsageMs = dec.UnpackUint8()
 
-	_, err = dec.Unpack(&t.DelaySec)
-	if err != nil {
-		return 0, err
-	}
+	dec.Unpack(&t.DelaySec)
 
-	contextFreeActionLength, err := dec.UnpackVarUint32()
-	if err != nil {
-		return 0, err
-	}
+	contextFreeActionLength := dec.UnpackVarUint32()
 
 	t.ContextFreeActions = make([]Action, contextFreeActionLength)
 	for i := 0; i < int(contextFreeActionLength); i++ {
-		_, err := dec.Unpack(&t.ContextFreeActions[i])
-		if err != nil {
-			return 0, err
-		}
+		dec.Unpack(&t.ContextFreeActions[i])
 	}
 
-	actionLength, err := dec.UnpackVarUint32()
-	if err != nil {
-		return 0, err
-	}
+	actionLength := dec.UnpackVarUint32()
 
 	t.Actions = make([]Action, actionLength)
 	for i := 0; i < int(actionLength); i++ {
-		_, err := dec.Unpack(&t.Actions[i])
-		if err != nil {
-			return 0, err
-		}
+		dec.Unpack(&t.Actions[i])
 	}
 
-	extentionLength, err := dec.UnpackVarUint32()
-	if err != nil {
-		return 0, err
-	}
+	extentionLength := dec.UnpackVarUint32()
 	t.Extention = make([]TransactionExtension, extentionLength)
 	for i := 0; i < int(extentionLength); i++ {
-		t.Extention[i].Type, err = dec.UnpackUint16()
-		if err != nil {
-			return 0, err
-		}
-
-		t.Extention[i].Data, err = dec.UnpackBytes()
-		if err != nil {
-			return 0, err
-		}
+		t.Extention[i].Type = dec.UnpackUint16()
+		t.Extention[i].Data = dec.UnpackBytes()
 	}
-	return dec.Pos(), nil
+	return dec.Pos()
 }
 
 func (t *Transaction) Print() {

@@ -29,10 +29,10 @@ func (t *Checksum160) Pack() []byte {
 	return t[:]
 }
 
-func (t *Checksum160) Unpack(data []byte) (int, error) {
+func (t *Checksum160) Unpack(data []byte) int {
 	Check(len(data) >= t.Size(), "Unpack data overflow")
 	copy(t[:], data)
-	return t.Size(), nil
+	return t.Size()
 }
 
 func (t *Checksum160) Size() int {
@@ -45,10 +45,10 @@ func (t *Checksum256) Pack() []byte {
 	return t[:]
 }
 
-func (t *Checksum256) Unpack(data []byte) (int, error) {
+func (t *Checksum256) Unpack(data []byte) int {
 	Check(len(data) >= t.Size(), "Unpack data overflow")
 	copy(t[:], data)
-	return t.Size(), nil
+	return t.Size()
 }
 
 func (t *Checksum256) Size() int {
@@ -61,10 +61,10 @@ func (t *Checksum512) Pack() []byte {
 	return t[:]
 }
 
-func (t *Checksum512) Unpack(data []byte) (int, error) {
+func (t *Checksum512) Unpack(data []byte) int {
 	Check(len(data) >= t.Size(), "Unpack data overflow")
 	copy(t[:], data)
-	return t.Size(), nil
+	return t.Size()
 }
 
 func (t *Checksum512) Size() int {
@@ -150,15 +150,12 @@ func (t *Signature) Pack() []byte {
 	return enc.GetBytes()
 }
 
-func (t *Signature) Unpack(data []byte) (int, error) {
+func (t *Signature) Unpack(data []byte) int {
 	dec := NewDecoder(data)
-	n, err := dec.ReadUint8()
-	if err != nil {
-		return 0, err
-	}
+	n := dec.ReadUint8()
 	t.Type = int(n)
 	dec.Read(t.Data[:])
-	return dec.Pos(), nil
+	return dec.Pos()
 }
 
 func (t *Signature) Size() int {
@@ -177,17 +174,14 @@ func (t *PublicKey) Pack() []byte {
 	return enc.GetBytes()
 }
 
-func (t *PublicKey) Unpack(data []byte) (int, error) {
+func (t *PublicKey) Unpack(data []byte) int {
 	// var err error
 	dec := NewDecoder(data)
-	_type, err := dec.ReadUint8()
-	if err != nil {
-		return 0, err
-	}
+	_type := dec.ReadUint8()
 
 	t.Type = int(_type)
 	dec.Read(t.Data[:])
-	return dec.Pos(), nil
+	return dec.Pos()
 }
 
 func (t *PublicKey) Size() int {

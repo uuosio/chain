@@ -63,11 +63,11 @@ func (t *PermissionLevel) Pack() []byte {
 	return enc.GetBytes()
 }
 
-func (t *PermissionLevel) Unpack(data []byte) (int, error) {
+func (t *PermissionLevel) Unpack(data []byte) int {
 	dec := NewDecoder(data)
 	dec.Unpack(&t.Actor)
 	dec.Unpack(&t.Permission)
-	return dec.Pos(), nil
+	return dec.Pos()
 }
 
 func (t *PermissionLevel) Size() int {
@@ -86,11 +86,11 @@ func (t *PermissionLevelWeight) Pack() []byte {
 	return enc.GetBytes()
 }
 
-func (t *PermissionLevelWeight) Unpack(data []byte) (int, error) {
+func (t *PermissionLevelWeight) Unpack(data []byte) int {
 	dec := NewDecoder(data)
 	dec.Unpack(&t.Permission)
 	dec.Unpack(&t.Weight)
-	return dec.Pos(), nil
+	return dec.Pos()
 }
 
 type KeyWeight struct {
@@ -105,11 +105,11 @@ func (t *KeyWeight) Pack() []byte {
 	return enc.GetBytes()
 }
 
-func (t *KeyWeight) Unpack(data []byte) (int, error) {
+func (t *KeyWeight) Unpack(data []byte) int {
 	dec := NewDecoder(data)
 	dec.Unpack(&t.Key)
 	dec.Unpack(&t.Weight)
-	return dec.Pos(), nil
+	return dec.Pos()
 }
 
 func (t *KeyWeight) Size() int {
@@ -131,11 +131,11 @@ func (t *WaitWeight) Pack() []byte {
 	return enc.GetBytes()
 }
 
-func (t *WaitWeight) Unpack(data []byte) (int, error) {
+func (t *WaitWeight) Unpack(data []byte) int {
 	dec := NewDecoder(data)
 	dec.Unpack(&t.WaitSec)
 	dec.Unpack(&t.Weight)
-	return dec.Pos(), nil
+	return dec.Pos()
 }
 
 type Authority struct {
@@ -167,12 +167,12 @@ func (t *Authority) Pack() []byte {
 	return enc.GetBytes()
 }
 
-func (t *Authority) Unpack(data []byte) (int, error) {
+func (t *Authority) Unpack(data []byte) int {
 	dec := NewDecoder(data)
 
 	dec.Unpack(&t.Threshold)
 
-	length, _ := dec.UnpackLength()
+	length := dec.UnpackLength()
 	t.Keys = make([]KeyWeight, 0, length)
 	for i := 0; i < length; i++ {
 		v := KeyWeight{}
@@ -180,7 +180,7 @@ func (t *Authority) Unpack(data []byte) (int, error) {
 		t.Keys = append(t.Keys, v)
 	}
 
-	length, _ = dec.UnpackLength()
+	length = dec.UnpackLength()
 	t.Accounts = make([]PermissionLevelWeight, 0, length)
 	for i := 0; i < length; i++ {
 		v := PermissionLevelWeight{}
@@ -188,7 +188,7 @@ func (t *Authority) Unpack(data []byte) (int, error) {
 		t.Accounts = append(t.Accounts, v)
 	}
 
-	length, _ = dec.UnpackLength()
+	length = dec.UnpackLength()
 	t.Waits = make([]WaitWeight, 0, length)
 	for i := 0; i < length; i++ {
 		v := WaitWeight{}
@@ -196,7 +196,7 @@ func (t *Authority) Unpack(data []byte) (int, error) {
 		t.Waits = append(t.Waits, v)
 	}
 
-	return dec.Pos(), nil
+	return dec.Pos()
 }
 
 type NewAccount struct {
@@ -215,13 +215,13 @@ func (t *NewAccount) Pack() []byte {
 	return nil
 }
 
-func (t *NewAccount) Unpack(data []byte) (int, error) {
+func (t *NewAccount) Unpack(data []byte) int {
 	dec := NewDecoder(data)
 	dec.Unpack(&t.Creator)
 	dec.Unpack(&t.Name)
 	dec.Unpack(&t.Owner)
 	dec.Unpack(&t.Active)
-	return 0, nil
+	return 0
 }
 
 type UpdateAuth struct {
@@ -240,11 +240,11 @@ func (t *UpdateAuth) Pack() []byte {
 	return enc.GetBytes()
 }
 
-func (t *UpdateAuth) Unpack(data []byte) (int, error) {
+func (t *UpdateAuth) Unpack(data []byte) int {
 	dec := NewDecoder(data)
 	dec.Unpack(&t.Account)
 	dec.Unpack(&t.Permission)
 	dec.Unpack(&t.Parent)
 	dec.Unpack(&t.Auth)
-	return dec.Pos(), nil
+	return dec.Pos()
 }

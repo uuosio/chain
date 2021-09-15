@@ -2,7 +2,6 @@ package chain
 
 import (
 	"encoding/binary"
-	"errors"
 	"math"
 )
 
@@ -118,7 +117,7 @@ type Decoder struct {
 }
 
 type Unpacker interface {
-	Unpack(data []byte) (int, error)
+	Unpack(data []byte) int
 }
 
 type PackedSize interface {
@@ -149,214 +148,172 @@ func (dec *Decoder) incPos(n int) {
 	}
 }
 
-func (dec *Decoder) Read(b []byte) error {
+func (dec *Decoder) Read(b []byte) {
 	dec.checkPos(len(b))
 	copy(b[:], dec.buf[dec.pos:])
 	dec.incPos(len(b))
-	return nil
 }
 
-func (dec *Decoder) ReadInt32() (int32, error) {
-	d, err := dec.ReadUint32()
-	return int32(d), err
+func (dec *Decoder) ReadInt32() int32 {
+	d := dec.ReadUint32()
+	return int32(d)
 }
 
-func (dec *Decoder) ReadUint32() (uint32, error) {
+func (dec *Decoder) ReadUint32() uint32 {
 	var b [4]byte
-	err := dec.Read(b[:])
-	if err != nil {
-		return 0, err
-	}
+	dec.Read(b[:])
 	d := binary.LittleEndian.Uint32(b[:])
-	return d, nil
+	return d
 }
 
-func (dec *Decoder) ReadInt16() (int16, error) {
-	n, err := dec.ReadUint16()
-	return int16(n), err
+func (dec *Decoder) ReadInt16() int16 {
+	n := dec.ReadUint16()
+	return int16(n)
 }
 
-func (dec *Decoder) ReadUint16() (uint16, error) {
+func (dec *Decoder) ReadUint16() uint16 {
 	var b [2]byte
-	if err := dec.Read(b[:]); err != nil {
-		return 0, err
-	}
+	dec.Read(b[:])
 	d := binary.LittleEndian.Uint16(b[:])
-	return d, nil
+	return d
 }
 
-func (dec *Decoder) ReadInt64() (int64, error) {
-	n, err := dec.ReadUint64()
-	return int64(n), err
+func (dec *Decoder) ReadInt64() int64 {
+	n := dec.ReadUint64()
+	return int64(n)
 }
 
-func (dec *Decoder) ReadUint64() (uint64, error) {
+func (dec *Decoder) ReadUint64() uint64 {
 	var b [8]byte
-	if err := dec.Read(b[:]); err != nil {
-		return 0, err
-	}
+	dec.Read(b[:])
 	d := binary.LittleEndian.Uint64(b[:])
-	return d, nil
+	return d
 }
 
-func (dec *Decoder) ReadFloat32() (float32, error) {
-	n, err := dec.ReadUint32()
-	if err != nil {
-		return 0, err
-	}
-	return math.Float32frombits(n), nil
+func (dec *Decoder) ReadFloat32() float32 {
+	n := dec.ReadUint32()
+	return math.Float32frombits(n)
 }
 
-func (dec *Decoder) ReadFloat64() (float64, error) {
-	n, err := dec.ReadUint64()
-	if err != nil {
-		return 0, err
-	}
-	return math.Float64frombits(n), nil
+func (dec *Decoder) ReadFloat64() float64 {
+	n := dec.ReadUint64()
+	return math.Float64frombits(n)
 }
 
-func (dec *Decoder) ReadBool() (bool, error) {
+func (dec *Decoder) ReadBool() bool {
 	var b [1]byte
-	if err := dec.Read(b[:]); err != nil {
-		return false, err
-	}
-	return b[0] == 1, nil
+	dec.Read(b[:])
+	return b[0] == 1
 }
 
-func (dec *Decoder) UnpackBool() (bool, error) {
+func (dec *Decoder) UnpackBool() bool {
 	return dec.ReadBool()
 }
 
-func (dec *Decoder) UnpackString() (string, error) {
-	bb, err := dec.UnpackBytes()
-	if err != nil {
-		return "", err
-	}
-	return string(bb), nil
+func (dec *Decoder) UnpackString() string {
+	bb := dec.UnpackBytes()
+	return string(bb)
 }
 
-func (dec *Decoder) UnpackName() (Name, error) {
-	n, err := dec.UnpackUint64()
-	if err != nil {
-		return Name{}, err
-	}
-	return Name{n}, nil
+func (dec *Decoder) UnpackName() Name {
+	n := dec.UnpackUint64()
+	return Name{n}
 }
 
-func (dec *Decoder) UnpackBytes() ([]byte, error) {
-	length, err := dec.UnpackLength()
-	if err != nil {
-		return nil, err
-	}
+func (dec *Decoder) UnpackBytes() []byte {
+	length := dec.UnpackLength()
 	buf := make([]byte, length)
 	dec.Read(buf)
-	return buf, nil
+	return buf
 }
 
-func (dec *Decoder) UnpackLength() (int, error) {
+func (dec *Decoder) UnpackLength() int {
 	v, n := UnpackVarUint32(dec.buf[dec.pos:])
 	dec.incPos(n)
-	return int(v), nil
+	return int(v)
 }
 
-func (dec *Decoder) UnpackVarInt32() (int32, error) {
+func (dec *Decoder) UnpackVarInt32() int32 {
 	v, n := UnpackVarInt32(dec.buf[dec.pos:])
 	dec.incPos(n)
-	return v, nil
+	return v
 }
 
-func (dec *Decoder) UnpackVarUint32() (uint32, error) {
+func (dec *Decoder) UnpackVarUint32() uint32 {
 	v, n := UnpackVarUint32(dec.buf[dec.pos:])
 	dec.incPos(n)
-	return v, nil
+	return v
 }
 
-func (dec *Decoder) UnpackInt16() (int16, error) {
-	v, err := dec.ReadInt16()
-	return v, err
+func (dec *Decoder) UnpackInt16() int16 {
+	v := dec.ReadInt16()
+	return v
 }
 
-func (dec *Decoder) UnpackUint16() (uint16, error) {
+func (dec *Decoder) UnpackUint16() uint16 {
 	return dec.ReadUint16()
 }
 
-func (dec *Decoder) UnpackInt32() (int32, error) {
-	v, err := dec.ReadInt32()
-	return int32(v), err
+func (dec *Decoder) UnpackInt32() int32 {
+	v := dec.ReadInt32()
+	return int32(v)
 }
 
-func (dec *Decoder) UnpackUint32() (uint32, error) {
-	v, err := dec.ReadUint32()
-	if err != nil {
-		return 0, err
-	}
-	return v, nil
+func (dec *Decoder) UnpackUint32() uint32 {
+	v := dec.ReadUint32()
+	return v
 }
 
-func (dec *Decoder) UnpackFloat32() (float32, error) {
-	v, err := dec.ReadUint32()
-	return math.Float32frombits(v), err
+func (dec *Decoder) UnpackFloat32() float32 {
+	v := dec.ReadUint32()
+	return math.Float32frombits(v)
 }
 
-func (dec *Decoder) UnpackFloat64() (float64, error) {
-	v, err := dec.ReadUint64()
-	return math.Float64frombits(v), err
+func (dec *Decoder) UnpackFloat64() float64 {
+	v := dec.ReadUint64()
+	return math.Float64frombits(v)
 }
 
-func (dec *Decoder) UnpackInt64() (int64, error) {
-	v, err := dec.ReadInt64()
-	return v, err
+func (dec *Decoder) UnpackInt64() int64 {
+	v := dec.ReadInt64()
+	return v
 }
 
-func (dec *Decoder) UnpackUint64() (uint64, error) {
-	v, err := dec.ReadUint64()
-	if err != nil {
-		return 0, err
-	}
-	return v, nil
+func (dec *Decoder) UnpackUint64() uint64 {
+	v := dec.ReadUint64()
+	return v
 }
 
-func (dec *Decoder) ReadInt8() (int8, error) {
+func (dec *Decoder) ReadInt8() int8 {
 	var b [1]byte
-	if err := dec.Read(b[:]); err != nil {
-		return 0, err
-	}
-	return int8(b[0]), nil
+	dec.Read(b[:])
+	return int8(b[0])
 }
 
-func (dec *Decoder) ReadUint8() (uint8, error) {
+func (dec *Decoder) ReadUint8() uint8 {
 	var b [1]byte
-	if err := dec.Read(b[:]); err != nil {
-		return 0, err
-	}
-	return b[0], nil
+	dec.Read(b[:])
+	return b[0]
 }
 
-func (dec *Decoder) UnpackInt8() (int8, error) {
+func (dec *Decoder) UnpackInt8() int8 {
 	return dec.ReadInt8()
 }
 
-func (dec *Decoder) UnpackUint8() (uint8, error) {
+func (dec *Decoder) UnpackUint8() uint8 {
 	return dec.ReadUint8()
 }
 
-func (dec *Decoder) UnpackAction() (*Action, error) {
+func (dec *Decoder) UnpackAction() *Action {
 	a := &Action{}
-	n, err := a.Unpack(dec.buf[dec.pos:])
-	if err != nil {
-		return nil, err
-	}
+	n := a.Unpack(dec.buf[dec.pos:])
 	dec.incPos(n)
-	return a, nil
+	return a
 }
 
-func (dec *Decoder) UnpackI(unpacker Unpacker) error {
-	n, err := unpacker.Unpack(dec.buf[dec.pos:])
-	if err != nil {
-		return err
-	}
+func (dec *Decoder) UnpackI(unpacker Unpacker) {
+	n := unpacker.Unpack(dec.buf[dec.pos:])
 	dec.incPos(n)
-	return err
 }
 
 // Unpack supported type:
@@ -366,100 +323,64 @@ func (dec *Decoder) UnpackI(unpacker Unpacker) error {
 // *float64
 // *Name
 
-func (dec *Decoder) Unpack(i interface{}) (n int, err error) {
+func (dec *Decoder) Unpack(i interface{}) int {
 	switch v := i.(type) {
 	case Unpacker:
-		n, err := v.Unpack(dec.buf[dec.pos:])
-		if err != nil {
-			return 0, err
-		}
+		n := v.Unpack(dec.buf[dec.pos:])
 		dec.incPos(n)
-		return n, err
+		return n
 	case *string:
-		n = dec.Pos()
-		*v, err = dec.UnpackString()
-		return dec.Pos() - n, err
+		n := dec.Pos()
+		*v = dec.UnpackString()
+		return dec.Pos() - n
 	case *[]byte:
-		n = dec.Pos()
-		*v, err = dec.UnpackBytes()
-		return dec.Pos() - n, err
+		n := dec.Pos()
+		*v = dec.UnpackBytes()
+		return dec.Pos() - n
 	case *bool:
-		n, err := dec.ReadBool()
-		if err != nil {
-			return 0, err
-		}
+		n := dec.ReadBool()
 		*v = n
-		return 1, err
+		return 1
 	case *int8:
-		n, err := dec.ReadInt8()
-		if err != nil {
-			return 0, err
-		}
+		n := dec.ReadInt8()
 		*v = n
-		return 1, err
+		return 1
 	case *uint8:
-		n, err := dec.ReadUint8()
-		if err != nil {
-			return 0, err
-		}
+		n := dec.ReadUint8()
 		*v = n
-		return 1, err
+		return 1
 	case *int16:
-		n, err := dec.ReadInt16()
-		if err != nil {
-			return 0, err
-		}
+		n := dec.ReadInt16()
 		*v = n
-		return 2, err
+		return 2
 	case *uint16:
-		n, err := dec.ReadUint16()
-		if err != nil {
-			return 0, err
-		}
+		n := dec.ReadUint16()
 		*v = n
-		return 2, err
+		return 2
 	case *int32:
-		n, err := dec.ReadInt32()
-		if err != nil {
-			return 0, err
-		}
+		n := dec.ReadInt32()
 		*v = n
-		return 4, err
+		return 4
 	case *uint32:
-		n, err := dec.ReadUint32()
-		if err != nil {
-			return 0, err
-		}
+		n := dec.ReadUint32()
 		*v = n
-		return 4, err
+		return 4
 	case *int64:
-		n, err := dec.ReadInt64()
-		if err != nil {
-			return 0, err
-		}
+		n := dec.ReadInt64()
 		*v = n
-		return 8, err
+		return 8
 	case *uint64:
-		n, err := dec.ReadUint64()
-		if err != nil {
-			return 0, err
-		}
+		n := dec.ReadUint64()
 		*v = n
-		return 8, err
+		return 8
 	case *float32:
-		n, err := dec.ReadFloat32()
-		if err != nil {
-			return 0, err
-		}
+		n := dec.ReadFloat32()
 		*v = n
-		return 4, err
+		return 4
 	case *float64:
-		n, err := dec.ReadFloat64()
-		if err != nil {
-			return 0, err
-		}
+		n := dec.ReadFloat64()
 		*v = n
-		return 8, err
+		return 8
 	// Name struct implemented Unpacker interface
 	// case *Name:
 	// 	n, err := dec.UnpackUint64()
@@ -472,9 +393,9 @@ func (dec *Decoder) Unpack(i interface{}) (n int, err error) {
 		// if DEBUG {
 		// 	panic(fmt.Sprintf("unknown Unpack type <%v>", i))
 		// }
-		panic("unknown Unpack type")
+		panic("unknown type in Unpack")
 	}
-	return 0, err
+	return 0
 }
 
 type Encoder struct {
@@ -508,7 +429,7 @@ func (enc *Encoder) WriteByte(b byte) {
 }
 
 // Pack supported types:
-// Packer, interface
+// Packer
 // string, bytes
 // byte, uint16, int32, uint32, int64, uint64, float64
 // Name
@@ -691,43 +612,44 @@ func (enc *Encoder) GetBytes() []byte {
 	return enc.buf
 }
 
-func CalcPackedSize(i interface{}) (int, error) {
+func CalcPackedSize(i interface{}) int {
 	switch v := i.(type) {
 	case PackedSize:
-		return v.Size(), nil
+		return v.Size()
 	case string:
-		return PackedVarUint32Length(uint32(len(v))) + len(v), nil
+		return PackedVarUint32Length(uint32(len(v))) + len(v)
 	case []byte:
-		return PackedVarUint32Length(uint32(len(v))) + len(v), nil
+		return PackedVarUint32Length(uint32(len(v))) + len(v)
 	case bool:
-		return 1, nil
+		return 1
 	case uint8:
-		return 1, nil
+		return 1
 	case int16:
-		return 2, nil
+		return 2
 	case uint16:
-		return 2, nil
+		return 2
 	case int32:
-		return 4, nil
+		return 4
 	case uint32:
-		return 4, nil
+		return 4
 	case int64:
-		return 8, nil
+		return 8
 	case uint64:
-		return 8, nil
+		return 8
 	case Uint128:
-		return 16, nil
+		return 16
 	case Float128:
-		return 16, nil
+		return 16
 	case Uint256:
-		return 32, nil
+		return 32
 	case float32:
-		return 4, nil
+		return 4
 	case float64:
-		return 8, nil
+		return 8
 	case Name:
-		return 8, nil
+		return 8
 	default:
-		return 0, errors.New("Unknow pack type")
+		panic("Unknow type in CalcPackedSize")
 	}
+	return 0
 }

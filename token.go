@@ -44,10 +44,10 @@ func (a *SymbolCode) Pack() []byte {
 	return enc.GetBytes()
 }
 
-func (a *SymbolCode) Unpack(data []byte) (int, error) {
+func (a *SymbolCode) Unpack(data []byte) int {
 	dec := NewDecoder(data)
 	dec.Unpack(&a.Value)
-	return dec.Pos(), nil
+	return dec.Pos()
 }
 
 func (t *SymbolCode) Size() int {
@@ -105,10 +105,10 @@ func (a *Symbol) Pack() []byte {
 	return enc.GetBytes()
 }
 
-func (a *Symbol) Unpack(data []byte) (int, error) {
+func (a *Symbol) Unpack(data []byte) int {
 	dec := NewDecoder(data)
 	dec.Unpack(&a.Value)
-	return dec.Pos(), nil
+	return dec.Pos()
 }
 
 func (t *Symbol) Size() int {
@@ -197,11 +197,11 @@ func (a *Asset) Pack() []byte {
 	return enc.GetBytes()
 }
 
-func (a *Asset) Unpack(data []byte) (int, error) {
+func (a *Asset) Unpack(data []byte) int {
 	dec := NewDecoder(data)
 	dec.Unpack(&a.Amount)
 	dec.Unpack(&a.Symbol)
-	return 16, nil
+	return 16
 }
 
 func (t *Asset) Size() int {
@@ -224,11 +224,11 @@ func (t *ExtendedAsset) Pack() []byte {
 	return enc.GetBytes()
 }
 
-func (t *ExtendedAsset) Unpack(data []byte) (int, error) {
+func (t *ExtendedAsset) Unpack(data []byte) int {
 	dec := NewDecoder(data)
 	dec.Unpack(&t.Quantity)
 	dec.Unpack(&t.Contract)
-	return dec.Pos(), nil
+	return dec.Pos()
 }
 
 func (t *ExtendedAsset) Size() int {
@@ -251,11 +251,11 @@ func (a *Transfer) Pack() []byte {
 	return enc.GetBytes()
 }
 
-func (a *Transfer) Unpack(data []byte) (int, error) {
+func (a *Transfer) Unpack(data []byte) int {
 	dec := NewDecoder(data)
 	dec.Unpack(&a.From)
 	dec.Unpack(&a.To)
 	dec.Unpack(&a.Quantity)
 	dec.Unpack(&a.Memo)
-	return dec.Pos(), nil
+	return dec.Pos()
 }

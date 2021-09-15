@@ -133,10 +133,7 @@ func NewAction(account Name, name Name, args ...interface{}) *Action {
 		args = args[1:]
 		size := 0
 		for _, v := range args {
-			n, err := CalcPackedSize(v)
-			if err != nil {
-				panic(err.Error())
-			}
+			n := CalcPackedSize(v)
 			size += n
 		}
 		enc := NewEncoder(size)
@@ -190,20 +187,17 @@ func (a *Action) Pack() []byte {
 	// return buf
 }
 
-func (a *Action) Unpack(b []byte) (int, error) {
+func (a *Action) Unpack(b []byte) int {
 	dec := NewDecoder(b)
 	dec.Unpack(&a.Account)
 	dec.Unpack(&a.Name)
-	length, err := dec.UnpackLength()
-	if err != nil {
-		return 0, err
-	}
+	length := dec.UnpackLength()
 	a.Authorization = make([]PermissionLevel, length)
 	for i := 0; i < length; i++ {
 		dec.Unpack(&a.Authorization[i])
 	}
 	dec.Unpack(&a.Data)
-	return dec.Pos(), nil
+	return dec.Pos()
 }
 
 func (a *Action) Print() {

@@ -71,5 +71,5 @@ type SecondaryDB interface {
 type DBValue interface {
 	GetPrimary() uint64
 	Pack() []byte
-	Unpack(data []byte) (int, error)
+	Unpack(data []byte) int
 }
