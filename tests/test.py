@@ -379,3 +379,12 @@ func main() {
             error_msg = e.args[0]['action_traces'][0]['except']['stack'][0]['data']['s']
             assert error_msg == 'mi.Update: Can not change primary key duration update'
         self.chain.produce_block()
+
+    def test_float128(self):
+        with open('testfloat128.go', 'r') as f:
+            code = f.read()
+        code, abi = self.compile('testfloat128', code)
+        assert code
+        self.chain.deploy_contract('hello', code, b'', 0)
+        r = self.chain.push_action('hello', 'sayhello', b'hello,world')
+        print_console(r)

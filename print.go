@@ -69,7 +69,7 @@ func PrintDf(value float64) {
 }
 
 //Prints value as quadruple-precision floating point number
-func PrintQf(value [16]byte) {
+func PrintQf(value Float128) {
 	C.printqf((*C.uint8_t)(&value[0]))
 }
 
@@ -135,6 +135,8 @@ func PrintVariant(variant interface{}) {
 		PrintSf(v)
 	case float64:
 		PrintDf(v)
+	case Float128:
+		PrintQf(v)
 	// case [16]byte:
 	// 	PrintQf(v)
 	case Name:

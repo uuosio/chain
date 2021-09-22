@@ -104,22 +104,6 @@ func (n *Uint256) Uint64() uint64 {
 	return binary.LittleEndian.Uint64(n[:])
 }
 
-type Float128 [16]byte
-
-func (n *Float128) Pack() []byte {
-	return n[:]
-}
-
-func (n *Float128) Unpack(data []byte) int {
-	dec := NewDecoder(data)
-	dec.Read(n[:])
-	return 16
-}
-
-func (t *Float128) Size() int {
-	return 16
-}
-
 type TimePoint struct {
 	Elapsed uint64
 }
