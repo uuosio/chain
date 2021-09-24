@@ -4,19 +4,34 @@ import (
 	"github.com/uuosio/chain"
 )
 
-type B struct {
-	a uint32
-	b uint64
-	c uint64
+func IsEqual(a, b *chain.Float128) bool {
+	minValue := chain.NewFloat128(0.000000001)
+	sub := chain.NewFloat128(0.0)
+	sub.Sub(a, b)
+	if minValue.Cmp(sub.Abs(sub)) > 0 {
+		return true
+	}
+	return false
 }
 
 func main() {
-	a := chain.Float128{}
-	b := chain.Float128{}
-	a.Set(100.11)
-	b.Set(3.11)
-	a.Add(&b)
-	chain.Println(a)
-	a.Mul(&b)
-	chain.Println(a)
+	a := chain.NewFloat128(100.11)
+	b := chain.NewFloat128(3.11)
+	a.Add(a, b)
+	chain.Check(IsEqual(a, chain.NewFloat128(103.22)), "a.Add(a, b)")
+
+	a = chain.NewFloat128(100.11)
+	b = chain.NewFloat128(3.11)
+	a.Sub(a, b)
+	chain.Check(IsEqual(a, chain.NewFloat128(97.0)), "a.Sub(a, b)")
+
+	a = chain.NewFloat128(100.11)
+	b = chain.NewFloat128(3.11)
+	a.Mul(a, b)
+	chain.Check(IsEqual(a, chain.NewFloat128(311.34209999999996)), "a.Mul(a, b)")
+
+	a = chain.NewFloat128(100.11)
+	b = chain.NewFloat128(3.11)
+	a.Div(a, b)
+	chain.Check(IsEqual(a, chain.NewFloat128(32.18971061093248)), "a.Div(a, b)")
 }

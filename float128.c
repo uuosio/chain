@@ -7,8 +7,12 @@ void say_hello() {
     printf("Hello, World %Lf!\n", i);
 }
 
-void float128_set(float128* a, double* b) {
+void float128_from_double(float128* a, double* b) {
     *a = (float128)(*(double*)(b));
+}
+
+void float128_to_double(float128* a, double* b) {
+    *b = (double)(*(float128*)(b));
 }
 
 void float128_add(float128* a, float128* b, float128* c) {

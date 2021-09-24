@@ -28,13 +28,13 @@ def print_console(tx):
         tx = tx['processed']
     for trace in tx['action_traces']:
         # logger.info(trace['console'])
-        print(f'+++++console:{num}', trace['console'])
+        print(f'+++++console:{num}\n%s'%(trace['console'], ))
 
         if not 'inline_traces' in trace:
             continue
         for inline_trace in trace['inline_traces']:
             # logger.info(inline_trace['console'])
-            print(f'+++++console:{num}', inline_trace['console'])
+            print(f'+++++console:{num}\n%s'%(inline_trace['console'], ))
 
 def print_except(tx):
     if 'processed' in tx:
