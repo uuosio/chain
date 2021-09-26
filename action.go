@@ -116,32 +116,28 @@ type Action struct {
 	Data          []byte
 }
 
-func NewAction(account Name, name Name, args ...interface{}) *Action {
+func NewAction(perm PermissionLevel, account Name, name Name, args ...interface{}) *Action {
 	a := &Action{}
 	a.Account = account
 	a.Name = name
 
-	if len(args) > 0 {
-		if perm, ok := args[0].([]PermissionLevel); ok {
-			a.Authorization = perm
-		} else {
-			panic("third argument not a []PermissionLevel type")
-		}
+	a.Authorization = append(a.Authorization, perm)
+	if len(args) == 0 {
+		a.Data = []byte{}
+		return a
 	}
 
-	if len(args) >= 2 {
-		args = args[1:]
-		size := 0
-		for _, v := range args {
-			n := CalcPackedSize(v)
-			size += n
-		}
-		enc := NewEncoder(size)
-		for _, arg := range args {
-			enc.Pack(arg)
-		}
-		a.Data = enc.GetBytes()
+	size := 0
+	for _, v := range args {
+		n := CalcPackedSize(v)
+		size += n
 	}
+	enc := NewEncoder(size)
+	for _, arg := range args {
+		enc.Pack(arg)
+	}
+	a.Data = enc.GetBytes()
+
 	return a
 }
 

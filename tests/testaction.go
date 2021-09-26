@@ -41,9 +41,9 @@ func (c *ActionTest) SayHello2() {
 //action sayhello3
 func (c *ActionTest) SayHello3() {
 	a := chain.NewAction(
+		chain.PermissionLevel{gContractName, chain.ActiveName},
 		chain.NewName("eosio.token"),
 		chain.NewName("transfer"),
-		[]chain.PermissionLevel{{gContractName, chain.ActiveName}},
 		chain.NewName("hello"),                           //from
 		chain.NewName("eosio"),                           //to
 		chain.NewAsset(10000, chain.NewSymbol("EOS", 4)), //quantity 1.0000 EOS
