@@ -21,7 +21,10 @@ int recover_key( const capi_checksum256* digest, const char* sig, size_t siglen,
 void assert_recover_key( const capi_checksum256* digest, const char* sig, size_t siglen, const char* pub, size_t publen );
 */
 import "C"
-import "unsafe"
+
+import (
+	"unsafe"
+)
 
 type Checksum160 [20]byte
 
@@ -186,4 +189,27 @@ func (t *PublicKey) Unpack(data []byte) int {
 
 func (t *PublicKey) Size() int {
 	return 34
+}
+
+func less(a, b []byte) bool {
+	for i := 0; i < len(a) && i < len(b); i++ {
+		if a[i] < b[i] {
+			return true
+		}
+		if a[i] > b[i] {
+			return false
+		}
+	}
+	return len(a) < len(b)
+}
+
+type PublicKeyList []PublicKey
+
+func (a PublicKeyList) Len() int { return len(a) }
+func (a PublicKeyList) Less(i, j int) bool {
+	return less(a[i].Data[:], a[j].Data[:])
+}
+
+func (a PublicKeyList) Swap(i, j int) {
+	a[i], a[j] = a[j], a[i]
 }
