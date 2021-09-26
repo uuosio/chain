@@ -12,16 +12,21 @@
             ]
         },
         {
-            "name": "sayhello",
+            "name": "test",
             "base": "",
-            "fields": []
+            "fields": [
+                {
+                    "name": "pubs",
+                    "type": "public_key[]"
+                }
+            ]
         }
     ],
     "types": [],
     "actions": [
         {
-            "name": "sayhello",
-            "type": "sayhello",
+            "name": "test",
+            "type": "test",
             "ricardian_contract": ""
         }
     ],
