@@ -13,6 +13,10 @@ func NewName(s string) Name {
 	return Name{N: S2N(s)}
 }
 
+func N(s string) Name {
+	return Name{N: S2N(s)}
+}
+
 func (a *Name) Pack() []byte {
 	enc := NewEncoder(8)
 	enc.WriteUint64(a.N)
@@ -32,4 +36,15 @@ func (t *Name) Size() int {
 
 func (a *Name) String() string {
 	return N2S(a.N)
+}
+
+type NameList []Name
+
+func (a NameList) Len() int { return len(a) }
+func (a NameList) Less(i, j int) bool {
+	return a[i].N < a[j].N
+}
+
+func (a NameList) Swap(i, j int) {
+	a[i], a[j] = a[j], a[i]
 }

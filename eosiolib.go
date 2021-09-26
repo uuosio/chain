@@ -76,10 +76,6 @@ func N2S(value uint64) string {
 	return string(str[:i+1])
 }
 
-func N(s string) uint64 {
-	return string_to_name(s)
-}
-
 type SliceHeader struct {
 	Data uintptr
 	Len  int
