@@ -38,7 +38,7 @@ func (db *IdxDB64) GetIndex() int {
 //Store an association of a 64-bit integer secondary key to a primary key in a secondary 64-bit integer index table
 func (db *IdxDB64) Store(id uint64, secondary interface{}, payer uint64) SecondaryIterator {
 	_secondary, ok := secondary.(uint64)
-	chain.Check(ok, "bad secondary type")
+	chain.Check(ok, "IdxDB64.Store: bad secondary type")
 	chain.Check(db.code == chain.CurrentReceiver().N, "bad code name")
 	ret := C.db_idx64_store(db.scope, db.table, payer, id, &_secondary)
 	return SecondaryIterator{ret, id, db.dbIndex}
@@ -81,7 +81,7 @@ func (db *IdxDB64) FindByPrimary(primary uint64) (SecondaryIterator, interface{}
 func (db *IdxDB64) Find(secondary interface{}) SecondaryIterator {
 	var primary uint64 = 0
 	_secondary, ok := secondary.(uint64)
-	chain.Check(ok, "bad secondary type")
+	chain.Check(ok, "IdxDB64.Find: bad secondary type")
 	ret := C.db_idx64_find_secondary(db.code, db.scope, db.table, &_secondary, &primary)
 	return SecondaryIterator{ret, primary, db.dbIndex}
 }
@@ -90,7 +90,7 @@ func (db *IdxDB64) Find(secondary interface{}) SecondaryIterator {
 func (db *IdxDB64) Lowerbound(secondary interface{}) (SecondaryIterator, interface{}) {
 	var primary uint64 = 0
 	_secondary, ok := secondary.(uint64)
-	chain.Assert(ok, "bad secondary type")
+	chain.Assert(ok, "IdxDB64.Lowerbound: bad secondary type")
 	ret := C.db_idx64_lowerbound(db.code, db.scope, db.table, &_secondary, &primary)
 	return SecondaryIterator{ret, primary, db.dbIndex}, _secondary
 }
@@ -99,7 +99,7 @@ func (db *IdxDB64) Lowerbound(secondary interface{}) (SecondaryIterator, interfa
 func (db *IdxDB64) Upperbound(secondary interface{}) (SecondaryIterator, interface{}) {
 	var primary uint64 = 0
 	_secondary, ok := secondary.(uint64)
-	chain.Assert(ok, "bad secondary type")
+	chain.Assert(ok, "IdxDB64.Upperbound: bad secondary type")
 	ret := C.db_idx64_upperbound(db.code, db.scope, db.table, &_secondary, &primary)
 	return SecondaryIterator{ret, primary, db.dbIndex}, _secondary
 }
