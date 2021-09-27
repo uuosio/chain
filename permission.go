@@ -58,6 +58,13 @@ type NewAccount struct {
 	Active  Authority
 }
 
+func CreateNewAccount(creator Name, newAccount Name) *NewAccount {
+	a := &NewAccount{}
+	a.Creator = creator
+	a.Name = newAccount
+	return a
+}
+
 func (t *NewAccount) Pack() []byte {
 	enc := NewEncoder(int(unsafe.Sizeof(*t)))
 	enc.Pack(&t.Creator)
