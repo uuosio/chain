@@ -137,6 +137,7 @@ func (mi *MultiIndex) Get(id uint64) (Iterator, MultiIndexValue) {
 	value := mi.unpacker(data)
 	_data, ok := value.(MultiIndexValue)
 	chain.Check(ok, "mi.Get: Not a MultiIndexValue type")
+	chain.Check(id == _data.GetPrimary(), "mi.Get: bad primary value")
 	return it, _data
 }
 
