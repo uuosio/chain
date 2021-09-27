@@ -117,6 +117,12 @@ type Authority struct {
 	Waits     []WaitWeight
 }
 
+func NewAuthority(threshold int) *Authority {
+	a := &Authority{}
+	a.Threshold = uint32(threshold)
+	return a
+}
+
 func (t *Authority) SetThreshold(threshold uint32) {
 	t.Threshold = threshold
 }
