@@ -219,12 +219,16 @@ type UpdateAuth struct {
 	Auth       Authority
 }
 
-func NewUpdateAuth(account Name, permission Name, parent Name) *UpdateAuth {
-	auth := &UpdateAuth{}
-	auth.Account = account
-	auth.Permission = permission
-	auth.Parent = parent
-	return auth
+func NewUpdateAuth(account Name, permission Name, parent Name, threshold int, auth ...Authority) *UpdateAuth {
+	updateAuth := &UpdateAuth{}
+	updateAuth.Account = account
+	updateAuth.Permission = permission
+	updateAuth.Parent = parent
+	if len(auth) == 1 {
+		updateAuth.Auth = auth[0]
+	}
+	updateAuth.Auth.Threshold = uint32(threshold)
+	return updateAuth
 }
 
 func (t *UpdateAuth) Pack() []byte {
