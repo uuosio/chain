@@ -4,7 +4,8 @@ import "github.com/uuosio/chain"
 
 type SingletonInterface interface {
 	Set(data DBValue, payer chain.Name)
-	Get() (interface{}, error)
+	Get() interface{}
+	Remove()
 }
 
 type SingletonDB struct {
@@ -35,5 +36,12 @@ func (t *SingletonDB) Get() interface{} {
 		return value
 	} else {
 		return data
+	}
+}
+
+func (t *SingletonDB) Remove() {
+	it := t.DB.Find(t.DB.table)
+	if it.IsOk() {
+		t.DB.Remove(it)
 	}
 }
