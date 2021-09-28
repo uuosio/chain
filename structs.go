@@ -163,3 +163,7 @@ func (t *BlockTimestampType) Unpack(data []byte) int {
 func (t *BlockTimestampType) Size() int {
 	return 4
 }
+
+type BinaryExtension struct {
+	HasValue bool
+}
