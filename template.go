@@ -10,7 +10,7 @@ func (t *Template) Pack() []byte {
 
 func (t *Template) Unpack(data []byte) int {
 	// dec := chain.NewDecoder(data)
-	// return dec.Pos(), nil
+	// return dec.Pos()
 	return 0
 }
 
