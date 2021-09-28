@@ -142,13 +142,13 @@ func AssertRecoverKey(digest Checksum256, sig Signature, pub PublicKey) {
 
 //TODO: implement Signature&PublicKey struct
 type Signature struct {
-	Type int // Signature type
+	Type uint8 // Signature type
 	Data [65]byte
 }
 
 func (t *Signature) Pack() []byte {
 	enc := NewEncoder(1 + len(t.Data))
-	enc.WriteUint8(uint8(t.Type))
+	enc.WriteUint8(t.Type)
 	enc.WriteBytes(t.Data[:])
 	return enc.GetBytes()
 }
@@ -156,7 +156,7 @@ func (t *Signature) Pack() []byte {
 func (t *Signature) Unpack(data []byte) int {
 	dec := NewDecoder(data)
 	n := dec.ReadUint8()
-	t.Type = int(n)
+	t.Type = n
 	dec.Read(t.Data[:])
 	return dec.Pos()
 }
@@ -166,13 +166,13 @@ func (t *Signature) Size() int {
 }
 
 type PublicKey struct {
-	Type int // Public key type
+	Type uint8 // Public key type
 	Data [33]byte
 }
 
 func (t *PublicKey) Pack() []byte {
 	enc := NewEncoder(34)
-	enc.WriteUint8(uint8(t.Type))
+	enc.WriteUint8(t.Type)
 	enc.WriteBytes(t.Data[:])
 	return enc.GetBytes()
 }
@@ -182,7 +182,7 @@ func (t *PublicKey) Unpack(data []byte) int {
 	dec := NewDecoder(data)
 	_type := dec.ReadUint8()
 
-	t.Type = int(_type)
+	t.Type = _type
 	dec.Read(t.Data[:])
 	return dec.Pos()
 }
