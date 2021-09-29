@@ -167,3 +167,7 @@ func (t *BlockTimestampType) Size() int {
 type BinaryExtension struct {
 	HasValue bool
 }
+
+type Optional struct {
+	IsValid bool
+}
