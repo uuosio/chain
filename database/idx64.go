@@ -79,11 +79,17 @@ func (db *IdxDB64) FindByPrimary(primary uint64) (SecondaryIterator, interface{}
 
 //Find a table row in a secondary 64-bit integer index table by secondary key
 func (db *IdxDB64) Find(secondary interface{}) SecondaryIterator {
-	var primary uint64 = 0
 	_secondary, ok := secondary.(uint64)
 	chain.Check(ok, "IdxDB64.Find: bad secondary type")
-	ret := C.db_idx64_find_secondary(db.code, db.scope, db.table, &_secondary, &primary)
-	return SecondaryIterator{ret, primary, db.dbIndex}
+	//ret := C.db_idx64_find_secondary(db.code, db.scope, db.table, &_secondary, &primary)
+	// return SecondaryIterator{ret, primary, db.dbIndex}
+	it, value := db.Lowerbound(secondary)
+	if it.IsOk() {
+		if value.(uint64) == _secondary {
+			return it
+		}
+	}
+	return SecondaryIterator{-1, 0, db.dbIndex}
 }
 
 //Find the table row in a secondary 64-bit integer index table that matches the lowerbound condition for a given secondary key

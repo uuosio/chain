@@ -201,10 +201,13 @@ func (mi *MultiIndex) Update(it Iterator, v MultiIndexValue, payer chain.Name) {
 	if err != nil {
 		panic(err)
 	}
-	chain.Check(oldValue.GetPrimary() == v.GetPrimary(), "mi.Update: Can not change primary key duration update")
+
+	primary := v.GetPrimary()
+	chain.Check(oldValue.GetPrimary() == primary, "mi.Update: Can not change primary key duration update")
+
+	chain.Check(mi.code == chain.CurrentReceiver(), "mi.Update: Can not update other contract")
 
 	mi.DB.Update(it, v.Pack(), payer)
-	primary := v.GetPrimary()
 	for i, db := range mi.IDXDBs {
 		it, oldSecondary := db.FindByPrimary(primary)
 		// logger.Println(primary, i, oldSecondary, ":")

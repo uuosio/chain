@@ -55,6 +55,11 @@ func Now() TimePoint {
 	return CurrentTime()
 }
 
+func NowSeconds() uint32 {
+	t := CurrentTime().Elapsed / 1000000
+	return uint32(t)
+}
+
 func CurrentTimeSeconds() uint32 {
 	t := CurrentTime().Elapsed / 1000000
 	return uint32(t)

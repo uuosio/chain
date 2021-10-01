@@ -1,10 +1,7 @@
 package chain
 
 /*
-#include <stdint.h>
-
-typedef uint64_t capi_name;
-typedef uint8_t capi_checksum256;
+#include "chain.h"
 
 void get_resource_limits( capi_name account, int64_t* ram_bytes, int64_t* net_weight, int64_t* cpu_weight );
 void set_resource_limits( capi_name account, int64_t ram_bytes, int64_t net_weight, int64_t cpu_weight );
@@ -179,6 +176,6 @@ func SetKVParametersPacked(data []byte) {
 //Pre-activate protocol feature
 func PreactivateFeature(feature_digest [32]byte) {
 	C.preactivate_feature(
-		(*C.uint8_t)(unsafe.Pointer(&feature_digest[0])),
+		(*C.capi_checksum256)(unsafe.Pointer(&feature_digest[0])),
 	)
 }

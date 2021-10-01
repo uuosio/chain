@@ -3,8 +3,6 @@ package database
 /*
 #include <stdint.h>
 
-typedef uint8_t uint128_t; //fake uint128_t definition
-
 int32_t db_store_i64(uint64_t scope, uint64_t table, uint64_t payer, uint64_t id,  const char* data, uint32_t len);
 void db_update_i64(int32_t iterator, uint64_t payer, const char* data, uint32_t len);
 void db_remove_i64(int32_t iterator);

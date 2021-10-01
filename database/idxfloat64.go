@@ -1,8 +1,7 @@
 package database
 
 /*
-#include <stdint.h>
-typedef uint8_t uint128_t; //fake uint128_t definition
+#include "database.h"
 
 int32_t db_idx_double_store(uint64_t scope, uint64_t table, uint64_t payer, uint64_t id, const double* secondary);
 void db_idx_double_update(int32_t iterator, uint64_t payer, const double* secondary);
@@ -81,11 +80,18 @@ func (db *IdxDBFloat64) FindByPrimary(primary uint64) (SecondaryIterator, interf
 
 //Find a table row in a secondary double-precision floating-point index table by secondary key
 func (db *IdxDBFloat64) Find(secondary interface{}) SecondaryIterator {
-	var primary uint64 = 0
+	// var primary uint64 = 0
 	_secondary, ok := secondary.(float64)
 	chain.Check(ok, "not a float64 value")
-	ret := C.db_idx_double_find_secondary(db.code, db.scope, db.table, &_secondary, &primary)
-	return SecondaryIterator{ret, primary, db.dbIndex}
+	// ret := C.db_idx_double_find_secondary(db.code, db.scope, db.table, &_secondary, &primary)
+	// return SecondaryIterator{ret, primary, db.dbIndex}
+	it, value := db.Lowerbound(secondary)
+	if it.IsOk() {
+		if value.(float64) == _secondary {
+			return it
+		}
+	}
+	return SecondaryIterator{-1, 0, db.dbIndex}
 }
 
 //Find the table row in a secondary double-precision floating-point index table that matches the lowerbound condition for a given secondary key

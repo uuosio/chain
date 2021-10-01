@@ -25,10 +25,23 @@ import "unsafe"
 
 //Checks if a transaction is authorized by a provided set of keys and permissions
 func CheckTransactionAuthorization(trx_data []byte, pubkeys_data []byte, perms_data []byte) int32 {
+	var pubKeys_ptr *C.char
+	var perms_ptr *C.char
+	if len(pubkeys_data) > 0 {
+		pubKeys_ptr = (*C.char)(unsafe.Pointer(&pubkeys_data[0]))
+	} else {
+		pubKeys_ptr = nil
+	}
+
+	if len(perms_data) > 0 {
+		perms_ptr = (*C.char)(unsafe.Pointer(&perms_data[0]))
+	} else {
+		perms_ptr = nil
+	}
 	return C.check_transaction_authorization(
 		(*C.char)(unsafe.Pointer(&trx_data[0])), (C.uint32_t)(len(trx_data)),
-		(*C.char)(unsafe.Pointer(&pubkeys_data[0])), (C.uint32_t)(len(pubkeys_data)),
-		(*C.char)(unsafe.Pointer(&perms_data[0])), (C.uint32_t)(len(perms_data)),
+		pubKeys_ptr, (C.uint32_t)(len(pubkeys_data)),
+		perms_ptr, (C.uint32_t)(len(perms_data)),
 	)
 }
 

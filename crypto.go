@@ -1,13 +1,7 @@
 package chain
 
 /*
-#include <stddef.h>
-#include <stdint.h>
-
-//fake typedef for call api from go
-typedef uint8_t capi_checksum160;
-typedef uint8_t capi_checksum256;
-typedef uint8_t capi_checksum512;
+#include "chain.h"
 
 void assert_sha256( const char* data, uint32_t length, const capi_checksum256* hash );
 void assert_sha1( const char* data, uint32_t length, const capi_checksum160* hash );
@@ -76,49 +70,49 @@ func (t *Checksum512) Size() int {
 
 //Tests if the sha256 hash generated from data matches the provided checksum.
 func AssertSha256(data []byte, hash Checksum256) {
-	C.assert_sha256((*C.char)(unsafe.Pointer(&data[0])), uint32(len(data)), (*C.uint8_t)(unsafe.Pointer(&hash)))
+	C.assert_sha256((*C.char)(unsafe.Pointer(&data[0])), uint32(len(data)), (*C.capi_checksum256)(unsafe.Pointer(&hash)))
 }
 
 //Tests if the sha1 hash generated from data matches the provided checksum.
 func AssertSha1(data []byte, hash Checksum160) {
-	C.assert_sha1((*C.char)(unsafe.Pointer(&data[0])), uint32(len(data)), (*C.uint8_t)(unsafe.Pointer(&hash)))
+	C.assert_sha1((*C.char)(unsafe.Pointer(&data[0])), uint32(len(data)), (*C.capi_checksum160)(unsafe.Pointer(&hash)))
 }
 
 //Tests if the sha512 hash generated from data matches the provided checksum.
 func AssertSha512(data []byte, hash Checksum512) {
-	C.assert_sha512((*C.char)(unsafe.Pointer(&data[0])), uint32(len(data)), (*C.uint8_t)(unsafe.Pointer(&hash)))
+	C.assert_sha512((*C.char)(unsafe.Pointer(&data[0])), uint32(len(data)), (*C.capi_checksum512)(unsafe.Pointer(&hash)))
 }
 
 //Tests if the ripemod160 hash generated from data matches the provided checksum.
 func AssertRipemd160(data []byte, hash Checksum160) {
-	C.assert_ripemd160((*C.char)(unsafe.Pointer(&data[0])), uint32(len(data)), (*C.uint8_t)(unsafe.Pointer(&hash)))
+	C.assert_ripemd160((*C.char)(unsafe.Pointer(&data[0])), uint32(len(data)), (*C.capi_checksum160)(unsafe.Pointer(&hash)))
 }
 
 //Hashes data using sha256 and return hash value.
 func Sha256(data []byte) Checksum256 {
 	var hash Checksum256
-	C.sha256((*C.char)(unsafe.Pointer(&data[0])), uint32(len(data)), (*C.uint8_t)(unsafe.Pointer(&hash)))
+	C.sha256((*C.char)(unsafe.Pointer(&data[0])), uint32(len(data)), (*C.capi_checksum256)(unsafe.Pointer(&hash)))
 	return hash
 }
 
 //Hashes data using sha1 and return hash value.
 func Sha1(data []byte) Checksum160 {
 	var hash Checksum160
-	C.sha1((*C.char)(unsafe.Pointer(&data[0])), uint32(len(data)), (*C.uint8_t)(unsafe.Pointer(&hash)))
+	C.sha1((*C.char)(unsafe.Pointer(&data[0])), uint32(len(data)), (*C.capi_checksum160)(unsafe.Pointer(&hash)))
 	return hash
 }
 
 //Hashes data using sha512 and return hash value.
 func Sha512(data []byte) Checksum512 {
 	var hash Checksum512
-	C.sha512((*C.char)(unsafe.Pointer(&data[0])), uint32(len(data)), (*C.uint8_t)(unsafe.Pointer(&hash)))
+	C.sha512((*C.char)(unsafe.Pointer(&data[0])), uint32(len(data)), (*C.capi_checksum512)(unsafe.Pointer(&hash)))
 	return hash
 }
 
 //Hashes data using ripemd160 and return hash value.
 func Ripemd160(data []byte) Checksum160 {
 	var hash Checksum160
-	C.ripemd160((*C.char)(unsafe.Pointer(&data[0])), uint32(len(data)), (*C.uint8_t)(unsafe.Pointer(&hash)))
+	C.ripemd160((*C.char)(unsafe.Pointer(&data[0])), uint32(len(data)), (*C.capi_checksum160)(unsafe.Pointer(&hash)))
 	return hash
 }
 
@@ -127,7 +121,7 @@ func RecoverKey(digest Checksum256, sig *Signature) *PublicKey {
 	//TODO: handle webauth signature
 	var pub [128]byte //34
 	_sig := sig.Pack()
-	ret := C.recover_key((*C.uint8_t)(unsafe.Pointer(&digest)), (*C.char)(unsafe.Pointer(&_sig[0])), C.size_t(len(_sig)), (*C.char)(unsafe.Pointer(&pub[0])), C.size_t(len(pub)))
+	ret := C.recover_key((*C.capi_checksum256)(unsafe.Pointer(&digest)), (*C.char)(unsafe.Pointer(&_sig[0])), C.size_t(len(_sig)), (*C.char)(unsafe.Pointer(&pub[0])), C.size_t(len(pub)))
 	_pub := &PublicKey{}
 	_pub.Unpack(pub[:int(ret)])
 	return _pub
@@ -137,7 +131,7 @@ func RecoverKey(digest Checksum256, sig *Signature) *PublicKey {
 func AssertRecoverKey(digest Checksum256, sig Signature, pub PublicKey) {
 	_sig := sig.Pack()
 	_pub := pub.Pack()
-	C.assert_recover_key((*C.uint8_t)(unsafe.Pointer(&digest)), (*C.char)(unsafe.Pointer(&_sig[0])), C.size_t(len(_sig)), (*C.char)(unsafe.Pointer(&_pub[0])), C.size_t(len(_pub)))
+	C.assert_recover_key((*C.capi_checksum256)(unsafe.Pointer(&digest)), (*C.char)(unsafe.Pointer(&_sig[0])), C.size_t(len(_sig)), (*C.char)(unsafe.Pointer(&_pub[0])), C.size_t(len(_pub)))
 }
 
 //TODO: implement Signature&PublicKey struct
