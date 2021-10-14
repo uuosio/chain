@@ -156,9 +156,9 @@ func (token *Token) addBalance(owner chain.Name, value chain.Asset, ramPayer cha
 	it, to := accountDB.Get(value.Symbol.Code())
 	if !it.IsOk() {
 		account := &Account{Balance: value}
-		accountDB.Store(account, owner)
+		accountDB.Store(account, ramPayer)
 	} else {
 		to.Balance.Add(&value)
-		accountDB.Update(it, to, owner)
+		accountDB.Update(it, to, chain.Name{0})
 	}
 }
