@@ -52,6 +52,9 @@ func (token *Token) Create(issuer chain.Name, maximum_supply chain.Asset) {
 
 //action issue
 func (token *Token) Issue(to chain.Name, quantity chain.Asset, memo string) {
+	check(quantity.Symbol.IsValid(), "invalid symbol name")
+	check(len(memo) <= 256, "memo has more than 256 bytes")
+
 	sym_code := quantity.Symbol.Code()
 	db := NewCurrencyStatsDB(token.receiver, chain.Name{sym_code})
 	it, item := db.Get(sym_code)
@@ -61,6 +64,9 @@ func (token *Token) Issue(to chain.Name, quantity chain.Asset, memo string) {
 	chain.RequireAuth(item.Issuer)
 	check(quantity.IsValid(), "invalid quantity")
 	check(quantity.Amount > 0, "must issue positive quantity")
+
+	check(quantity.Symbol == item.Supply.Symbol, "symbol precision mismatch")
+	check(quantity.Amount <= item.MaxSupply.Amount-item.Supply.Amount, "quantity exceeds available supply")
 
 	item.Supply.Add(&quantity)
 	db.Update(it, item, item.Issuer)
