@@ -33,6 +33,7 @@ func NewContract(receiver, firstReceiver, action chain.Name) *Token {
 
 //action create
 func (token *Token) Create(issuer chain.Name, maximum_supply chain.Asset) {
+	chain.RequireAuth(token.receiver)
 	check(maximum_supply.Symbol.IsValid(), "invalid symbol name")
 	check(maximum_supply.IsValid(), "invalid supply")
 	check(maximum_supply.Amount > 0, "max-supply must be positive")
@@ -46,7 +47,7 @@ func (token *Token) Create(issuer chain.Name, maximum_supply chain.Asset) {
 	stats.Supply.Symbol = maximum_supply.Symbol
 	stats.MaxSupply = maximum_supply
 	stats.Issuer = issuer
-	db.Store(stats, issuer)
+	db.Store(stats, token.receiver)
 }
 
 //action issue
