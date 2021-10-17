@@ -1,10 +1,12 @@
 package chain
 
 /*
+#include <stddef.h>
 #include <stdint.h>
+#include "database/database.h"
 
-typedef char float128;
-typedef uint64_t float64;
+typedef double float64;
+typedef float128_t float128;
 
 void float128_from_double(float128* a, float64* b);
 void float128_to_double(float128* a, float64* b);

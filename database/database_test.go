@@ -16,12 +16,11 @@ func ExampleDB() {
 	payer := code
 	mydb := NewMyDataDB(code, scope)
 	primary := uint64(1)
-	it, data := mydb.Get(primary)
-	if !it.IsOk() {
-		data := &MyData{primary, 111}
-		mydb.Store(data, payer)
-	} else {
+	if it, data := mydb.Get(primary); it.IsOk() {
 		data.n += 1
 		mydb.Update(it, data, payer)
+	} else {
+		data := &MyData{primary, 111}
+		mydb.Store(data, payer)
 	}
 }
