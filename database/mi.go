@@ -10,9 +10,9 @@ type MultiIndex struct {
 	code             chain.Name
 	scope            chain.Name
 	table            chain.Name
-	idxDBNameToIndex func(string) int
+	IdxDBNameToIndex func(string) int
 	IndexTypes       []int
-	unpacker         Unpacker
+	Unpack           Unpacker
 
 	DB     *DBI64
 	IDXDBs []SecondaryDB
@@ -68,13 +68,13 @@ func NewMultiIndex(code chain.Name, scope chain.Name, table chain.Name, idxDBNam
 	mi.scope = scope
 	mi.table = table
 	mi.DB = NewDBI64(code, scope, table)
-	mi.idxDBNameToIndex = idxDBNameToIndex
+	mi.IdxDBNameToIndex = idxDBNameToIndex
 	mi.IndexTypes = indexTypes
 	mi.IDXDBs = make([]SecondaryDB, len(indexTypes))
 	if len(unpacker) == 0 {
-		mi.unpacker = nil
+		mi.Unpack = nil
 	} else {
-		mi.unpacker = unpacker[0]
+		mi.Unpack = unpacker[0]
 	}
 	for i, v := range indexTypes {
 		idxTable := (table.N & uint64(0xfffffffffffffff0)) | uint64(i)
@@ -99,6 +99,12 @@ func NewMultiIndex(code chain.Name, scope chain.Name, table chain.Name, idxDBNam
 		// mi.secondaryDBs[v] = NewSecondaryDB(code.N, scope.N, table.N, v)
 	}
 	return mi
+}
+
+func (mi *MultiIndex) SetTable(code chain.Name, scope chain.Name, table chain.Name) {
+	mi.code = code
+	mi.scope = scope
+	mi.table = table
 }
 
 func (mi *MultiIndex) Store(v MultiIndexValue, payer chain.Name) {
@@ -134,7 +140,7 @@ func (mi *MultiIndex) Get(id uint64) (Iterator, MultiIndexValue) {
 	if !it.IsOk() {
 		return it, nil
 	}
-	value := mi.unpacker(data)
+	value := mi.Unpack(data)
 	_data, ok := value.(MultiIndexValue)
 	chain.Check(ok, "mi.Get: Not a MultiIndexValue type")
 	chain.Check(id == _data.GetPrimary(), "mi.Get: bad primary value")
@@ -147,7 +153,7 @@ func (mi *MultiIndex) GetByIterator(it Iterator) (MultiIndexValue, error) {
 	if err != nil {
 		return nil, err
 	}
-	vv := mi.unpacker(v)
+	vv := mi.Unpack(v)
 	return vv, nil
 }
 
@@ -268,7 +274,7 @@ func (mi *MultiIndex) UpdateSecondaryValue(idxDB SecondaryDB, primary uint64, se
 	chain.Check(itPrimary.IsOk(), "primary not found!")
 	v, err := mi.DB.GetByIterator(itPrimary)
 	chain.Check(err == nil, "get primary value error!")
-	_v := mi.unpacker(v)
+	_v := mi.Unpack(v)
 
 	newSecondary := _v.GetSecondaryValue(idxDB.GetIndex())
 	if IsEqual(mi.IndexTypes[idxDB.GetIndex()], newSecondary, secondary) {
@@ -279,8 +285,8 @@ func (mi *MultiIndex) UpdateSecondaryValue(idxDB SecondaryDB, primary uint64, se
 }
 
 func (mi *MultiIndex) IdxFindByName(idxDBName string, secondary interface{}) SecondaryIterator {
-	chain.Check(mi.idxDBNameToIndex != nil, "idxDBNameToIndex is nil")
-	index := mi.idxDBNameToIndex(idxDBName)
+	chain.Check(mi.IdxDBNameToIndex != nil, "idxDBNameToIndex is nil")
+	index := mi.IdxDBNameToIndex(idxDBName)
 	return mi.IDXDBs[index].Find(secondary)
 }
 
@@ -291,7 +297,7 @@ func (mi *MultiIndex) IdxUpdate(it SecondaryIterator, secondary interface{}, pay
 	chain.Check(itPrimary.IsOk(), "primary not found!")
 	v, err := mi.DB.GetByIterator(itPrimary)
 	chain.Check(err == nil, "get primary value error!")
-	_v := mi.unpacker(v)
+	_v := mi.Unpack(v)
 	newSecondary := _v.GetSecondaryValue(idxDB.GetIndex())
 	if IsEqual(mi.IndexTypes[idxDB.GetIndex()], newSecondary, secondary) {
 		return
@@ -326,8 +332,8 @@ func (mi *MultiIndex) GetIdxDBByIndex(index int) SecondaryDB {
 }
 
 func (mi *MultiIndex) GetIdxDB(idxDBName string) SecondaryDB {
-	chain.Check(mi.idxDBNameToIndex != nil, "idxDBNameToIndex is nil")
-	index := mi.idxDBNameToIndex(idxDBName)
+	chain.Check(mi.IdxDBNameToIndex != nil, "idxDBNameToIndex is nil")
+	index := mi.IdxDBNameToIndex(idxDBName)
 	return mi.IDXDBs[index]
 }
 
