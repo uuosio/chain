@@ -55,7 +55,9 @@ func (t *TestMI) test1() {
 
 	it := mi.Lowerbound(uint64(1001))
 	for ; it.IsOk(); it, _ = mi.Next(it) {
-		logger.Print(it.I)
+		data, err := mi.GetByIterator(it)
+		chain.Check(err == nil, "bad data")
+		chain.Println("+++++++next value:", data.a1)
 	}
 	logger.Println()
 
