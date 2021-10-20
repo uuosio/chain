@@ -120,24 +120,23 @@ func (db *IdxDBFloat128) End() SecondaryIterator {
 
 type IdxDBFloat128I struct {
 	SecondaryDB
-	I *IdxDBFloat128
 }
 
 func (db *IdxDBFloat128I) FindByPrimary(primary uint64) (SecondaryIterator, chain.Float128) {
-	it, _secondary := db.I.FindByPrimary(primary)
+	it, _secondary := db.SecondaryDB.FindByPrimary(primary)
 	return it, _secondary.(chain.Float128)
 }
 
 func (db *IdxDBFloat128I) Find(secondary chain.Float128) SecondaryIterator {
-	return db.I.Find(secondary)
+	return db.SecondaryDB.Find(secondary)
 }
 
 func (db *IdxDBFloat128I) Lowerbound(secondary chain.Float128) (SecondaryIterator, chain.Float128) {
-	it, _secondary := db.I.Lowerbound(secondary)
+	it, _secondary := db.SecondaryDB.Lowerbound(secondary)
 	return it, _secondary.(chain.Float128)
 }
 
 func (db *IdxDBFloat128I) Upperbound(secondary chain.Float128) (SecondaryIterator, chain.Float128) {
-	it, _secondary := db.I.Upperbound(secondary)
+	it, _secondary := db.SecondaryDB.Upperbound(secondary)
 	return it, _secondary.(chain.Float128)
 }
