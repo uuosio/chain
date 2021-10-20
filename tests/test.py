@@ -414,3 +414,33 @@ func main() {
         logger.info(hex_pubs)
         hex_pubs.sort()
         logger.info(hex_pubs)
+
+    def test_4float(self):
+        # with open('test.cpp', 'r') as f:
+        #     code = f.read()
+        # code = wasmcompiler.compile_cpp_src('hello', code)
+
+        with open('test.wasm', 'rb') as f:
+            code = f.read()
+        assert code
+        self.chain.deploy_contract('hello', code, b'', 0)
+        r = self.chain.push_action('hello', 'sayhello', b'hello,world')
+        print_console(r)
+
+    def test_5float(self):
+        with open('testfloat-deter.go', 'r') as f:
+            code = f.read()
+        code, abi = self.compile('testfloat128', code)
+        assert code
+        self.chain.deploy_contract('hello', code, abi, 0)
+        r = self.chain.push_action('hello', 'sayhello', b'hello,world')
+        print_console(r)
+
+    def test_largecode(self):
+        with open('testlargecode.go', 'r') as f:
+            code = f.read()
+        code, abi = self.compile('testlargecode', code)
+        assert code
+        self.chain.deploy_contract('hello', code, abi, 0)
+        r = self.chain.push_action('hello', 'test', b'hello,world')
+        print_console(r)
