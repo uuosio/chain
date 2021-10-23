@@ -7,7 +7,6 @@ import (
 /*
 #include <stddef.h>
 #include <stdint.h>
-typedef uint8_t uint128_t;
 
 void prints( const char* cstr );
 void prints_l( const char* cstr, uint32_t len);
@@ -16,7 +15,7 @@ void printui( uint64_t value );
 //void printi128( const int128_t* value );
 void printi128( const uint8_t* value );
 
-//void printui128( const uint128_t* value );
+//void printui128( const uint128* value );
 void printui128( const uint8_t* value );
 void printsf(float value);
 void printdf(double value);

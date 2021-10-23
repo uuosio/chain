@@ -3,7 +3,7 @@ package chain
 /*
 #include <stddef.h>
 #include <stdint.h>
-#include "database/database.h"
+#include "structs.h"
 
 typedef double float64;
 typedef float128_t float128;

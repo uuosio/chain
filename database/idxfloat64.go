@@ -1,7 +1,7 @@
 package database
 
 /*
-#include "database.h"
+#include "../structs.h"
 
 int32_t db_idx_double_store(uint64_t scope, uint64_t table, uint64_t payer, uint64_t id, const double* secondary);
 void db_idx_double_update(int32_t iterator, uint64_t payer, const double* secondary);

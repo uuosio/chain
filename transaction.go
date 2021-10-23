@@ -3,11 +3,11 @@ package chain
 /*
 #include <stddef.h>
 #include <stdint.h>
-typedef uint8_t uint128_t;
+#include "structs.h"
 typedef uint64_t capi_name;
 
-void send_deferred(const uint128_t* sender_id, capi_name payer, const char *serialized_transaction, size_t size, uint32_t replace_existing);
-int cancel_deferred(const uint128_t* sender_id);
+void send_deferred(const uint128* sender_id, capi_name payer, const char *serialized_transaction, size_t size, uint32_t replace_existing);
+int cancel_deferred(const uint128* sender_id);
 size_t read_transaction(char *buffer, size_t size);
 size_t transaction_size( void );
 int tapos_block_num( void );
@@ -26,12 +26,12 @@ func SendDeferred(senderID [2]uint64, payer Name, transaction []byte, replaceExi
 		cReplaceExisting = C.uint32_t(1)
 	}
 
-	C.send_deferred((*C.uint8_t)(unsafe.Pointer(&senderID[0])), payer.N, (*C.char)(unsafe.Pointer(&transaction[0])), C.size_t(len(transaction)), cReplaceExisting)
+	C.send_deferred((*C.uint128)(unsafe.Pointer(&senderID[0])), payer.N, (*C.char)(unsafe.Pointer(&transaction[0])), C.size_t(len(transaction)), cReplaceExisting)
 }
 
 // int cancel_deferred(const uint128_t* sender_id);
 func CancelDeferred(senderID [16]byte) int {
-	ret := C.cancel_deferred((*C.uint8_t)(unsafe.Pointer(&senderID[0])))
+	ret := C.cancel_deferred((*C.uint128)(unsafe.Pointer(&senderID[0])))
 	return int(ret)
 }
 

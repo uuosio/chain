@@ -1,17 +1,17 @@
 package database
 
 /*
-#include "database.h"
+#include "../structs.h"
 
-int32_t db_idx128_store(uint64_t scope, uint64_t table, uint64_t payer, uint64_t id, const uint128_t* secondary);
-void db_idx128_update(int32_t iterator, uint64_t payer, const uint128_t* secondary);
+int32_t db_idx128_store(uint64_t scope, uint64_t table, uint64_t payer, uint64_t id, const uint128* secondary);
+void db_idx128_update(int32_t iterator, uint64_t payer, const uint128* secondary);
 void db_idx128_remove(int32_t iterator);
 int32_t db_idx128_next(int32_t iterator, uint64_t* primary);
 int32_t db_idx128_previous(int32_t iterator, uint64_t* primary);
-int32_t db_idx128_find_primary(uint64_t code, uint64_t scope, uint64_t table, uint128_t* secondary, uint64_t primary);
-int32_t db_idx128_find_secondary(uint64_t code, uint64_t scope, uint64_t table, const uint128_t* secondary, uint64_t* primary);
-int32_t db_idx128_lowerbound(uint64_t code, uint64_t scope, uint64_t table, uint128_t* secondary, uint64_t* primary);
-int32_t db_idx128_upperbound(uint64_t code, uint64_t scope, uint64_t table, uint128_t* secondary, uint64_t* primary);
+int32_t db_idx128_find_primary(uint64_t code, uint64_t scope, uint64_t table, uint128* secondary, uint64_t primary);
+int32_t db_idx128_find_secondary(uint64_t code, uint64_t scope, uint64_t table, const uint128* secondary, uint64_t* primary);
+int32_t db_idx128_lowerbound(uint64_t code, uint64_t scope, uint64_t table, uint128* secondary, uint64_t* primary);
+int32_t db_idx128_upperbound(uint64_t code, uint64_t scope, uint64_t table, uint128* secondary, uint64_t* primary);
 int32_t db_idx128_end(uint64_t code, uint64_t scope, uint64_t table);
 */
 import "C"
@@ -42,7 +42,7 @@ func NewIdxDB128(index int, code uint64, scope uint64, table uint64) *IdxDB128 {
 func (db *IdxDB128) Store(id uint64, secondary interface{}, payer uint64) SecondaryIterator {
 	_secondary, ok := secondary.(chain.Uint128)
 	chain.Check(ok, "bad secondary type")
-	ret := C.db_idx128_store(db.scope, db.table, payer, id, (*C.uint128_t)(unsafe.Pointer(&_secondary)))
+	ret := C.db_idx128_store(db.scope, db.table, payer, id, (*C.uint128)(unsafe.Pointer(&_secondary)))
 	return SecondaryIterator{ret, id, db.dbIndex}
 }
 
@@ -50,7 +50,7 @@ func (db *IdxDB128) Store(id uint64, secondary interface{}, payer uint64) Second
 func (db *IdxDB128) Update(it SecondaryIterator, secondary interface{}, payer uint64) {
 	_secondary, ok := secondary.(chain.Uint128)
 	chain.Check(ok, "bad secondary type")
-	C.db_idx128_update(it.I, payer, (*C.uint128_t)(unsafe.Pointer(&_secondary)))
+	C.db_idx128_update(it.I, payer, (*C.uint128)(unsafe.Pointer(&_secondary)))
 }
 
 //Remove a table row from a secondary 128-bit integer index table
@@ -75,7 +75,7 @@ func (db *IdxDB128) Previous(it SecondaryIterator) SecondaryIterator {
 //Find a table row in a secondary 128-bit integer index table by primary key
 func (db *IdxDB128) FindByPrimary(primary uint64) (SecondaryIterator, interface{}) {
 	var secondary chain.Uint128
-	ret := C.db_idx128_find_primary(db.code, db.scope, db.table, (*C.uint128_t)(unsafe.Pointer(&secondary)), primary)
+	ret := C.db_idx128_find_primary(db.code, db.scope, db.table, (*C.uint128)(unsafe.Pointer(&secondary)), primary)
 	return SecondaryIterator{ret, primary, db.dbIndex}, secondary
 }
 
@@ -111,7 +111,7 @@ func (db *IdxDB128) Lowerbound(secondary interface{}) (SecondaryIterator, interf
 	var primary uint64 = 0
 	_secondary, ok := secondary.(chain.Uint128)
 	chain.Assert(ok, "bad secondary type")
-	ret := C.db_idx128_lowerbound(db.code, db.scope, db.table, (*C.uint128_t)(unsafe.Pointer(&_secondary)), &primary)
+	ret := C.db_idx128_lowerbound(db.code, db.scope, db.table, (*C.uint128)(unsafe.Pointer(&_secondary)), &primary)
 	return SecondaryIterator{ret, primary, db.dbIndex}, _secondary
 }
 
@@ -120,7 +120,7 @@ func (db *IdxDB128) Upperbound(secondary interface{}) (SecondaryIterator, interf
 	var primary uint64 = 0
 	_secondary, ok := secondary.(chain.Uint128)
 	chain.Assert(ok, "bad secondary type")
-	ret := C.db_idx128_upperbound(db.code, db.scope, db.table, (*C.uint128_t)(unsafe.Pointer(&_secondary)), &primary)
+	ret := C.db_idx128_upperbound(db.code, db.scope, db.table, (*C.uint128)(unsafe.Pointer(&_secondary)), &primary)
 	return SecondaryIterator{ret, primary, db.dbIndex}, _secondary
 }
 

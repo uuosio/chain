@@ -1,17 +1,17 @@
 package database
 
 /*
-#include "database.h"
+#include "../structs.h"
 
-int32_t db_idx256_store(uint64_t scope, uint64_t table, uint64_t payer, uint64_t id, const uint128_t* data, uint32_t data_len );
-void db_idx256_update(int32_t iterator, uint64_t payer, const uint128_t* data, uint32_t data_len);
+int32_t db_idx256_store(uint64_t scope, uint64_t table, uint64_t payer, uint64_t id, const uint128* data, uint32_t data_len );
+void db_idx256_update(int32_t iterator, uint64_t payer, const uint128* data, uint32_t data_len);
 void db_idx256_remove(int32_t iterator);
 int32_t db_idx256_next(int32_t iterator, uint64_t* primary);
 int32_t db_idx256_previous(int32_t iterator, uint64_t* primary);
-int32_t db_idx256_find_primary(uint64_t code, uint64_t scope, uint64_t table, uint128_t* data, uint32_t data_len, uint64_t primary);
-int32_t db_idx256_find_secondary(uint64_t code, uint64_t scope, uint64_t table, const uint128_t* data, uint32_t data_len, uint64_t* primary);
-int32_t db_idx256_lowerbound(uint64_t code, uint64_t scope, uint64_t table, uint128_t* data, uint32_t data_len, uint64_t* primary);
-int32_t db_idx256_upperbound(uint64_t code, uint64_t scope, uint64_t table, uint128_t* data, uint32_t data_len, uint64_t* primary);
+int32_t db_idx256_find_primary(uint64_t code, uint64_t scope, uint64_t table, uint128* data, uint32_t data_len, uint64_t primary);
+int32_t db_idx256_find_secondary(uint64_t code, uint64_t scope, uint64_t table, const uint128* data, uint32_t data_len, uint64_t* primary);
+int32_t db_idx256_lowerbound(uint64_t code, uint64_t scope, uint64_t table, uint128* data, uint32_t data_len, uint64_t* primary);
+int32_t db_idx256_upperbound(uint64_t code, uint64_t scope, uint64_t table, uint128* data, uint32_t data_len, uint64_t* primary);
 int32_t db_idx256_end(uint64_t code, uint64_t scope, uint64_t table);
 */
 import "C"
@@ -42,7 +42,7 @@ func (db *IdxDB256) GetIndex() int {
 func (db *IdxDB256) Store(id uint64, secondary interface{}, payer uint64) SecondaryIterator {
 	_secondary, ok := secondary.(chain.Uint256)
 	chain.Check(ok, "bad secondary type")
-	ret := C.db_idx256_store(db.scope, db.table, payer, id, (*C.uint128_t)(unsafe.Pointer(&_secondary)), 2)
+	ret := C.db_idx256_store(db.scope, db.table, payer, id, (*C.uint128)(unsafe.Pointer(&_secondary)), 2)
 	return SecondaryIterator{ret, id, db.dbIndex}
 }
 
@@ -50,7 +50,7 @@ func (db *IdxDB256) Store(id uint64, secondary interface{}, payer uint64) Second
 func (db *IdxDB256) Update(it SecondaryIterator, secondary interface{}, payer uint64) {
 	_secondary, ok := secondary.(chain.Uint256)
 	chain.Check(ok, "bad secondary type")
-	C.db_idx256_update(it.I, payer, (*C.uint128_t)(unsafe.Pointer(&_secondary)), 2)
+	C.db_idx256_update(it.I, payer, (*C.uint128)(unsafe.Pointer(&_secondary)), 2)
 }
 
 //Remove a table row from a secondary 256-bit index table
@@ -75,7 +75,7 @@ func (db *IdxDB256) Previous(it SecondaryIterator) SecondaryIterator {
 //Find a table row in a secondary 128-bit integer index table by primary key
 func (db *IdxDB256) FindByPrimary(primary uint64) (SecondaryIterator, interface{}) {
 	var secondary chain.Uint256
-	ret := C.db_idx256_find_primary(db.code, db.scope, db.table, (*C.uint128_t)(unsafe.Pointer(&secondary)), 2, primary)
+	ret := C.db_idx256_find_primary(db.code, db.scope, db.table, (*C.uint128)(unsafe.Pointer(&secondary)), 2, primary)
 	return SecondaryIterator{ret, primary, db.dbIndex}, secondary
 }
 
@@ -109,7 +109,7 @@ func (db *IdxDB256) Lowerbound(secondary interface{}) (SecondaryIterator, interf
 	var primary uint64 = 0
 	_secondary, ok := secondary.(chain.Uint256)
 	chain.Assert(ok, "not a Uint256 value")
-	ret := C.db_idx256_lowerbound(db.code, db.scope, db.table, (*C.uint128_t)(unsafe.Pointer(&_secondary)), 2, &primary)
+	ret := C.db_idx256_lowerbound(db.code, db.scope, db.table, (*C.uint128)(unsafe.Pointer(&_secondary)), 2, &primary)
 	return SecondaryIterator{ret, primary, db.dbIndex}, _secondary
 }
 
@@ -118,7 +118,7 @@ func (db *IdxDB256) Upperbound(secondary interface{}) (SecondaryIterator, interf
 	var primary uint64 = 0
 	_secondary, ok := secondary.(chain.Uint256)
 	chain.Assert(ok, "not a Uint256 value")
-	ret := C.db_idx256_upperbound(db.code, db.scope, db.table, (*C.uint128_t)(unsafe.Pointer(&_secondary)), 2, &primary)
+	ret := C.db_idx256_upperbound(db.code, db.scope, db.table, (*C.uint128)(unsafe.Pointer(&_secondary)), 2, &primary)
 	return SecondaryIterator{ret, primary, db.dbIndex}, _secondary
 }
 

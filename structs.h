@@ -1,12 +1,12 @@
-#ifndef __DB_H__
-#define __DB_H__
+#ifndef __DEFS_H__
+#define __DEFS_H__
 
 #include <stdint.h>
 
 typedef struct {
 	uint64_t lo;
 	uint64_t hi;
-} uint128_t;
+} uint128;
 
 //typedef long double long_double;
 
@@ -18,4 +18,4 @@ typedef struct {
 
 
 
-#endif // __DB_H__
+#endif // __DEFS_H__
