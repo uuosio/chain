@@ -2,11 +2,6 @@
 
 typedef long double float128;
 
-void say_hello() {
-    long double i = 0.1;
-    printf("Hello, World %Lf!\n", i);
-}
-
 void float128_from_double(float128* a, double* b) {
     *a = (float128)(*(double*)(b));
 }
