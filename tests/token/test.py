@@ -84,9 +84,9 @@ class Test(object):
 
         r = self.chain.get_table_rows(True, 'hello', 'EOS', 'stat', "", "")
         logger.info(r)
-        assert r['rows'][0]['Issuer'] == 'hello'
-        assert r['rows'][0]['MaxSupply'] == '100.0000 EOS'
-        assert r['rows'][0]['Supply'] == '0.0000 EOS'
+        assert r['rows'][0]['issuer'] == 'hello'
+        assert r['rows'][0]['max_supply'] == '100.0000 EOS'
+        assert r['rows'][0]['supply'] == '0.0000 EOS'
 
         try:
             r = self.chain.push_action('hello', 'create', create)
@@ -104,13 +104,13 @@ class Test(object):
 
         r = self.chain.get_table_rows(True, 'hello', 'EOS', 'stat', "", "")
         logger.info(r)
-        assert r['rows'][0]['Issuer'] == 'hello'
-        assert r['rows'][0]['MaxSupply'] == '100.0000 EOS'
-        assert r['rows'][0]['Supply'] == '1.0000 EOS'
+        assert r['rows'][0]['issuer'] == 'hello'
+        assert r['rows'][0]['max_supply'] == '100.0000 EOS'
+        assert r['rows'][0]['supply'] == '1.0000 EOS'
 
         r = self.chain.get_table_rows(True, 'hello', 'hello', 'accounts', "", "")
         logger.info(r)
-        assert r['rows'][0]['Balance'] == '1.0000 EOS'
+        assert r['rows'][0]['balance'] == '1.0000 EOS'
 
         try:
             issue = {'to': 'eosio', 'quantity': '1.0000 EOS', 'memo': 'issue to alice'}
@@ -128,11 +128,11 @@ class Test(object):
 
         r = self.chain.get_table_rows(True, 'hello', 'hello', 'accounts', "", "")
         logger.info(r)
-        assert r['rows'][0]['Balance'] == '0.0000 EOS'
+        assert r['rows'][0]['balance'] == '0.0000 EOS'
 
         r = self.chain.get_table_rows(True, 'hello', 'alice', 'accounts', "", "")
         logger.info(r)
-        assert r['rows'][0]['Balance'] == '1.0000 EOS'
+        assert r['rows'][0]['balance'] == '1.0000 EOS'
 
         # transfer back
         transfer = {'from': 'alice', 'to': 'hello', 'quantity': '1.0000 EOS', 'memo': 'transfer back'}
@@ -146,11 +146,11 @@ class Test(object):
         logger.info('+++++++retire elapsed: %s', r['elapsed'])
 
         r = self.chain.get_table_rows(True, 'hello', 'hello', 'accounts', "", "")
-        assert r['rows'][0]['Balance'] == '0.0000 EOS'
+        assert r['rows'][0]['balance'] == '0.0000 EOS'
 
         r = self.chain.get_table_rows(True, 'hello', 'EOS', 'stat', "", "")
         logger.info(r)
-        assert r['rows'][0]['Supply'] == '0.0000 EOS'
+        assert r['rows'][0]['supply'] == '0.0000 EOS'
 
 
         r = self.chain.get_table_rows(True, 'hello', 'helloworld11', 'accounts', "", "")
@@ -163,7 +163,7 @@ class Test(object):
         logger.info('+++++++open elapsed: %s', r['elapsed'])
 
         r = self.chain.get_table_rows(True, 'hello', 'helloworld11', 'accounts', "", "")
-        assert r['rows'][0]['Balance'] == '0.0000 EOS'
+        assert r['rows'][0]['balance'] == '0.0000 EOS'
 
         #test close
         close_action = {'owner': 'helloworld11', 'symbol': '4,EOS'}
