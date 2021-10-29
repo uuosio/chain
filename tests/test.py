@@ -444,3 +444,41 @@ func main() {
         self.chain.deploy_contract('hello', code, abi, 0)
         r = self.chain.push_action('hello', 'test', b'hello,world')
         print_console(r)
+
+    def test_math(self):
+        code = '''
+#include <stdint.h>
+#include <eosio/eosio.hpp>
+extern "C" void apply(uint64_t a, uint64_t b, uint64_t c) {
+    uint64_t d = 0;
+    if (a == 0) {
+        d = 1;
+    }
+    eosio::print(a/d);
+//    eosio::check(a/0, "bad");
+}
+'''
+        code = wasmcompiler.compile_cpp_src('hello', code)
+        assert code
+        self.chain.deploy_contract('hello', code, b'', 0)
+        r = self.chain.push_action('hello', 'test', b'hello,world')
+        print_console(r)
+
+    def test_go_math(self):
+        with open('testmath.go', 'r') as f:
+            code = f.read()
+        code, abi = self.compile('testmath', code)
+        assert code
+        self.chain.deploy_contract('hello', code, abi, 0)
+        r = self.chain.push_action('hello', 'test', b'hello,world')
+        print_console(r)
+
+    def test_malloc(self):
+        with open('testmalloc.go', 'r') as f:
+            code = f.read()
+        code, abi = self.compile('testmalloc', code)
+        assert code
+        print(len(code))
+        self.chain.deploy_contract('hello', code, abi, 0)
+        r = self.chain.push_action('hello', 'test', b'hello,world')
+        print_console(r)
