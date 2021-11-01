@@ -9,24 +9,24 @@ type SingletonInterface interface {
 }
 
 type SingletonDB struct {
-	DB       *DBI64
+	DBI64
 	unpacker Unpacker
 }
 
 func NewSingletonDB(code, scope, table chain.Name, unpacker ...Unpacker) *SingletonDB {
 	if len(unpacker) > 0 {
-		return &SingletonDB{DB: NewDBI64(code, scope, table), unpacker: unpacker[0]}
+		return &SingletonDB{DBI64: DBI64{code.N, scope.N, table.N}, unpacker: unpacker[0]}
 	} else {
-		return &SingletonDB{DB: NewDBI64(code, scope, table), unpacker: nil}
+		return &SingletonDB{DBI64: DBI64{code.N, scope.N, table.N}, unpacker: nil}
 	}
 }
 
 func (t *SingletonDB) Set(data DBValue, payer chain.Name) {
-	t.DB.Set(t.DB.table, data.Pack(), payer)
+	t.DBI64.Set(t.DBI64.table, data.Pack(), payer)
 }
 
 func (t *SingletonDB) Get() interface{} {
-	it, data := t.DB.Get(t.DB.table)
+	it, data := t.DBI64.Get(t.DBI64.table)
 	if !it.IsOk() {
 		return nil
 	}
@@ -40,8 +40,8 @@ func (t *SingletonDB) Get() interface{} {
 }
 
 func (t *SingletonDB) Remove() {
-	it := t.DB.Find(t.DB.table)
+	it := t.DBI64.Find(t.DBI64.table)
 	if it.IsOk() {
-		t.DB.Remove(it)
+		t.DBI64.Remove(it)
 	}
 }
