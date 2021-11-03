@@ -28,17 +28,19 @@ void set_action_return_value(char *return_value, size_t size);
 */
 import "C"
 import (
-	"runtime"
 	"unsafe"
 )
 
 //Read current action data
 func ReadActionData() []byte {
 	n := C.action_data_size()
-	buf := runtime.Alloc(uintptr(n))
-	C.read_action_data(buf, uint32(n))
-	pp := (*[1 << 30]byte)(buf)
-	return pp[:n]
+	if n <= 0 {
+		return nil
+	}
+	buf := make([]byte, int(n))
+	ptr := GetBytesPtr(buf)
+	C.read_action_data(ptr, n)
+	return buf
 }
 
 //Get the length of the current action's data field
