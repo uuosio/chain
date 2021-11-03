@@ -473,6 +473,8 @@ func (enc *Encoder) Pack(i interface{}) error {
 		enc.PackFloat64(v)
 	case Name:
 		enc.WriteUint64(v.N)
+	case Asset:
+		enc.Write(v.Pack())
 	default:
 		// if DEBUG {
 		// 	panic(fmt.Sprintf("Unknow Pack type <%v>", i))

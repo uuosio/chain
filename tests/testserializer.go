@@ -123,3 +123,11 @@ func (c *SerializerTest) testvarint(a1 chain.VarInt32, a2 chain.VarInt32) {
 	check(a1 == chain.VarInt32(-1), "a1")
 	check(a2 == chain.VarInt32(0x7fffffff), "a2")
 }
+
+//action testpack
+func (c *SerializerTest) testpack() {
+	a := chain.Asset{}
+	enc := chain.NewEncoder(100)
+	enc.Pack(a)
+	chain.Check(len(enc.GetBytes()) == 16, "bad value")
+}

@@ -47,7 +47,6 @@ class Test(object):
 
     @classmethod
     def setup_class(cls):
-        cls.main_token = 'UUOS'
         cls.chain = ChainTester()
 
         test_account1 = 'hello'
@@ -106,6 +105,6 @@ class Test(object):
             logger.info(h)
 
 
-        r = self.chain.push_action('hello', 'test', {'pubs': pubs})
+        r = self.chain.push_action('hello', 'test1', '')
         print_console(r)
         self.chain.produce_block()
