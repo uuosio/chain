@@ -33,7 +33,7 @@ func EosioAssert(test bool, msg string) {
 		_test = 1
 	}
 	_msg := (*StringHeader)(unsafe.Pointer(&msg))
-	C.eosio_assert_message(_test, (*C.char)(_msg.data), C.uint32_t(len(msg)))
+	C.eosio_assert_message(C.uint32_t(_test), (*C.char)(_msg.data), C.uint32_t(len(msg)))
 }
 
 //Aborts processing of this action and unwinds all pending changes if the test condition is true
@@ -42,7 +42,7 @@ func EosioAssertCode(test bool, code uint64) {
 	if test {
 		_test = 1
 	}
-	C.eosio_assert_code(_test, C.uint64_t(code))
+	C.eosio_assert_code(C.uint32_t(_test), C.uint64_t(code))
 }
 
 //Returns the time in microseconds from 1970 of the current block

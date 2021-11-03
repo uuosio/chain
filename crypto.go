@@ -70,49 +70,49 @@ func (t *Checksum512) Size() int {
 
 //Tests if the sha256 hash generated from data matches the provided checksum.
 func AssertSha256(data []byte, hash Checksum256) {
-	C.assert_sha256((*C.char)(unsafe.Pointer(&data[0])), uint32(len(data)), (*C.capi_checksum256)(unsafe.Pointer(&hash)))
+	C.assert_sha256((*C.char)(unsafe.Pointer(&data[0])), C.uint32_t(len(data)), (*C.capi_checksum256)(unsafe.Pointer(&hash)))
 }
 
 //Tests if the sha1 hash generated from data matches the provided checksum.
 func AssertSha1(data []byte, hash Checksum160) {
-	C.assert_sha1((*C.char)(unsafe.Pointer(&data[0])), uint32(len(data)), (*C.capi_checksum160)(unsafe.Pointer(&hash)))
+	C.assert_sha1((*C.char)(unsafe.Pointer(&data[0])), C.uint32_t(len(data)), (*C.capi_checksum160)(unsafe.Pointer(&hash)))
 }
 
 //Tests if the sha512 hash generated from data matches the provided checksum.
 func AssertSha512(data []byte, hash Checksum512) {
-	C.assert_sha512((*C.char)(unsafe.Pointer(&data[0])), uint32(len(data)), (*C.capi_checksum512)(unsafe.Pointer(&hash)))
+	C.assert_sha512((*C.char)(unsafe.Pointer(&data[0])), C.uint32_t(len(data)), (*C.capi_checksum512)(unsafe.Pointer(&hash)))
 }
 
 //Tests if the ripemod160 hash generated from data matches the provided checksum.
 func AssertRipemd160(data []byte, hash Checksum160) {
-	C.assert_ripemd160((*C.char)(unsafe.Pointer(&data[0])), uint32(len(data)), (*C.capi_checksum160)(unsafe.Pointer(&hash)))
+	C.assert_ripemd160((*C.char)(unsafe.Pointer(&data[0])), C.uint32_t(len(data)), (*C.capi_checksum160)(unsafe.Pointer(&hash)))
 }
 
 //Hashes data using sha256 and return hash value.
 func Sha256(data []byte) Checksum256 {
 	var hash Checksum256
-	C.sha256((*C.char)(unsafe.Pointer(&data[0])), uint32(len(data)), (*C.capi_checksum256)(unsafe.Pointer(&hash)))
+	C.sha256((*C.char)(unsafe.Pointer(&data[0])), C.uint32_t(len(data)), (*C.capi_checksum256)(unsafe.Pointer(&hash)))
 	return hash
 }
 
 //Hashes data using sha1 and return hash value.
 func Sha1(data []byte) Checksum160 {
 	var hash Checksum160
-	C.sha1((*C.char)(unsafe.Pointer(&data[0])), uint32(len(data)), (*C.capi_checksum160)(unsafe.Pointer(&hash)))
+	C.sha1((*C.char)(unsafe.Pointer(&data[0])), C.uint32_t(len(data)), (*C.capi_checksum160)(unsafe.Pointer(&hash)))
 	return hash
 }
 
 //Hashes data using sha512 and return hash value.
 func Sha512(data []byte) Checksum512 {
 	var hash Checksum512
-	C.sha512((*C.char)(unsafe.Pointer(&data[0])), uint32(len(data)), (*C.capi_checksum512)(unsafe.Pointer(&hash)))
+	C.sha512((*C.char)(unsafe.Pointer(&data[0])), C.uint32_t(len(data)), (*C.capi_checksum512)(unsafe.Pointer(&hash)))
 	return hash
 }
 
 //Hashes data using ripemd160 and return hash value.
 func Ripemd160(data []byte) Checksum160 {
 	var hash Checksum160
-	C.ripemd160((*C.char)(unsafe.Pointer(&data[0])), uint32(len(data)), (*C.capi_checksum160)(unsafe.Pointer(&hash)))
+	C.ripemd160((*C.char)(unsafe.Pointer(&data[0])), C.uint32_t(len(data)), (*C.capi_checksum160)(unsafe.Pointer(&hash)))
 	return hash
 }
 

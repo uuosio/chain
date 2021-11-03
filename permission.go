@@ -38,30 +38,34 @@ func CheckTransactionAuthorization(trx_data []byte, pubkeys_data []byte, perms_d
 	} else {
 		perms_ptr = nil
 	}
-	return C.check_transaction_authorization(
+	ret := C.check_transaction_authorization(
 		(*C.char)(unsafe.Pointer(&trx_data[0])), (C.uint32_t)(len(trx_data)),
 		pubKeys_ptr, (C.uint32_t)(len(pubkeys_data)),
 		perms_ptr, (C.uint32_t)(len(perms_data)),
 	)
+	return int32(ret)
 }
 
 //Checks if a permission is authorized by a provided delay and a provided set of keys and permissions
 func CheckPermissionAuthorization(account Name, permission Name, pubkeys_data []byte, perms_data []byte, delay_us uint64) int32 {
-	return C.check_permission_authorization(account.N, permission.N,
+	ret := C.check_permission_authorization(C.uint64_t(account.N), C.uint64_t(permission.N),
 		(*C.char)(unsafe.Pointer(&pubkeys_data[0])), (C.uint32_t)(len(pubkeys_data)),
 		(*C.char)(unsafe.Pointer(&perms_data[0])), (C.uint32_t)(len(perms_data)),
-		delay_us,
+		C.uint64_t(delay_us),
 	)
+	return int32(ret)
 }
 
 //Returns the last used time of a permission
 func GetPermissionLastUsed(account Name, permission Name) int64 {
-	return C.get_permission_last_used(account.N, permission.N)
+	ret := C.get_permission_last_used(C.uint64_t(account.N), C.uint64_t(permission.N))
+	return int64(ret)
 }
 
 //Returns the creation time of an account
 func GetAccountCreationTime(account Name) int64 {
-	return C.get_account_creation_time(account.N)
+	ret := C.get_account_creation_time(C.uint64_t(account.N))
+	return int64(ret)
 }
 
 type NewAccount struct {

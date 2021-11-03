@@ -10,8 +10,10 @@ import "unsafe"
 
 //Gets the set of active producers.
 func GetActiveProducers() []Name {
-	var datalen uint32 = 0
-	datalen = C.get_active_producers((*C.uint8_t)(unsafe.Pointer(uintptr(0))), 0)
+	datalen := C.get_active_producers((*C.uint8_t)(unsafe.Pointer(uintptr(0))), 0)
+	if datalen == 0 {
+		return nil
+	}
 
 	var producers = make([]uint64, int(datalen)/8)
 	C.get_active_producers((*C.uint8_t)(unsafe.Pointer(&producers[0])), datalen)

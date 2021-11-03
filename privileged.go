@@ -26,13 +26,13 @@ func GetResourceLimits(account Name) (int64, int64, int64) {
 		net_weight int64
 		cpu_weight int64
 	)
-	C.get_resource_limits(account.N, (*C.int64_t)(unsafe.Pointer(&ram_bytes)), (*C.int64_t)(unsafe.Pointer(&net_weight)), (*C.int64_t)(unsafe.Pointer(&cpu_weight)))
+	C.get_resource_limits(C.uint64_t(account.N), (*C.int64_t)(unsafe.Pointer(&ram_bytes)), (*C.int64_t)(unsafe.Pointer(&net_weight)), (*C.int64_t)(unsafe.Pointer(&cpu_weight)))
 	return ram_bytes, net_weight, cpu_weight
 }
 
 //Set the resource limits of an account
 func SetResourceLimits(account Name, ram_bytes, net_weight, cpu_weight int64) {
-	C.set_resource_limits(account.N, C.int64_t(ram_bytes), C.int64_t(net_weight), C.int64_t(cpu_weight))
+	C.set_resource_limits(C.uint64_t(account.N), C.int64_t(ram_bytes), C.int64_t(net_weight), C.int64_t(cpu_weight))
 }
 
 type BlockSigningAuthorityV0 struct {
@@ -132,12 +132,13 @@ func SetProposedProducersEx(producers []ProducerAuthority) int64 {
 		enc.Write(producers[i].Pack())
 	}
 	producer_data := enc.GetBytes()
-	return C.set_proposed_producers_ex(uint64(1), (*C.char)(unsafe.Pointer(&producer_data[0])), C.uint32_t(len(producer_data)))
+	ret := C.set_proposed_producers_ex(C.uint64_t(1), (*C.char)(unsafe.Pointer(&producer_data[0])), C.uint32_t(len(producer_data)))
+	return int64(ret)
 }
 
 //Check if an account is privileged
 func IsPrivileged(account Name) bool {
-	return C.is_privileged(account.N) != 0
+	return C.is_privileged(C.uint64_t(account.N)) != 0
 }
 
 //Set the privileged status of an account
@@ -146,7 +147,7 @@ func SetPrivileged(account Name, is_priv bool) {
 	if is_priv {
 		_is_priv = 1
 	}
-	C.set_privileged(account.N, C.char(_is_priv))
+	C.set_privileged(C.uint64_t(account.N), C.char(_is_priv))
 }
 
 //Set the blockchain parameters

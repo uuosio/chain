@@ -58,8 +58,6 @@ var (
 
 func NewMultiIndex(code chain.Name, scope chain.Name, table chain.Name, idxDBNameToIndex func(string) int, indexTypes []int, unpacker ...Unpacker) *MultiIndex {
 	chain.Check(code != chain.Name{0}, "bad code name")
-	chain.Check(scope != chain.Name{0}, "bad scope name")
-	chain.Check(table != chain.Name{0}, "bad table name")
 
 	if table.N&uint64(0x0f) != 0 {
 		// Limit table names to 12 characters so that the last character (4 bits) can be used to distinguish between the secondary indices.

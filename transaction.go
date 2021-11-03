@@ -26,7 +26,7 @@ func SendDeferred(senderID [2]uint64, payer Name, transaction []byte, replaceExi
 		cReplaceExisting = C.uint32_t(1)
 	}
 
-	C.send_deferred((*C.uint128)(unsafe.Pointer(&senderID[0])), payer.N, (*C.char)(unsafe.Pointer(&transaction[0])), C.size_t(len(transaction)), cReplaceExisting)
+	C.send_deferred((*C.uint128)(unsafe.Pointer(&senderID[0])), C.uint64_t(payer.N), (*C.char)(unsafe.Pointer(&transaction[0])), C.size_t(len(transaction)), C.uint32_t(cReplaceExisting))
 }
 
 // int cancel_deferred(const uint128_t* sender_id);
@@ -62,7 +62,8 @@ func TaposBlockPrefix() int {
 
 // uint32_t expiration( void );
 func Expiration() uint32 {
-	return C.expiration()
+	ret := C.expiration()
+	return uint32(ret)
 }
 
 // int get_action( uint32_t type, uint32_t index, char* buff, size_t size );

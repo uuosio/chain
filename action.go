@@ -45,22 +45,22 @@ func ReadActionData() []byte {
 
 //Get the length of the current action's data field
 func ActionDataSize() uint32 {
-	return C.action_data_size()
+	return uint32(C.action_data_size())
 }
 
 //Add the specified account to set of accounts to be notified
 func RequireRecipient(name Name) {
-	C.require_recipient(name.N)
+	C.require_recipient(C.uint64_t(name.N))
 }
 
 //Verifies that name exists in the set of provided auths on a action. Throws if not found.
 func RequireAuth(name Name) {
-	C.require_auth(name.N)
+	C.require_auth(C.uint64_t(name.N))
 }
 
 //Verifies that name has auth.
 func HasAuth(name Name) bool {
-	ret := C.has_auth(name.N)
+	ret := C.has_auth(C.uint64_t(name.N))
 	if ret == 0 {
 		return false
 	}
@@ -69,12 +69,12 @@ func HasAuth(name Name) bool {
 
 //Verifies that name exists in the set of provided auths on a action. Throws if not found.
 func RequireAuth2(name Name, permission Name) {
-	C.require_auth2(name.N, permission.N)
+	C.require_auth2(C.uint64_t(name.N), C.uint64_t(permission.N))
 }
 
 //Verifies that name is an existing account.
 func IsAccount(name Name) bool {
-	ret := C.is_account(name.N)
+	ret := C.is_account(C.uint64_t(name.N))
 	if ret == 0 {
 		return false
 	}
@@ -96,13 +96,13 @@ func SendContextFreeInline(data []byte) {
 
 //Returns the time in microseconds from 1970 of the publication_time
 func PublicationTime() uint64 {
-	return C.publication_time()
+	return uint64(C.publication_time())
 }
 
 //Get the current receiver of the action
 func CurrentReceiver() Name {
 	n := C.current_receiver()
-	return Name{n}
+	return Name{uint64(n)}
 }
 
 //Set the action return value which will be included in the action_receipt

@@ -1,7 +1,6 @@
 package chain
 
 import (
-	"runtime"
 	"unsafe"
 )
 
@@ -87,10 +86,6 @@ type StringHeader struct {
 	len  uintptr
 }
 
-func Printui(n uint64) {
-	C.printui(n)
-}
-
 type T struct {
 	a int
 	b int
@@ -98,9 +93,4 @@ type T struct {
 
 func SayHello() {
 	Prints("hello,world!")
-}
-
-func GetApplyArgs() (Name, Name, Name) {
-	receiver, code, action := runtime.GetApplyArgs()
-	return Name{receiver}, Name{code}, Name{action}
 }
