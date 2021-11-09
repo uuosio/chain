@@ -45,8 +45,11 @@ func S2N(s string) uint64 {
 	return string_to_name(s)
 }
 
+var (
+	charmap = []byte(".12345abcdefghijklmnopqrstuvwxyz")
+)
+
 func N2S(value uint64) string {
-	charmap := []byte(".12345abcdefghijklmnopqrstuvwxyz")
 	// 13 dots
 	str := []byte{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'}
 
