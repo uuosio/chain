@@ -47,7 +47,6 @@ class Test(object):
 
     @classmethod
     def setup_class(cls):
-        cls.main_token = 'UUOS'
         cls.chain = ChainTester()
 
         test_account1 = 'hello'
@@ -345,6 +344,9 @@ func main() {
         r = self.chain.push_action('hello', 'testvarint', args)
         print_console(r)
 
+        r = self.chain.push_action('hello', 'testpack', '')
+        print_console(r)
+
     def test_kv(self):
         import uuosio
         test_dir = os.path.dirname(uuosio.__file__)
@@ -449,12 +451,21 @@ func main() {
         code = '''
 #include <stdint.h>
 #include <eosio/eosio.hpp>
+
+void test_double() {
+    double a = 88888.11111111111;
+    double b = 99999.22222222222;
+    double c = 77777.33333333333;
+    eosio::check(a/b*c==a*c/b, "a/b*c ==a*c/b failed!");
+}
+
 extern "C" void apply(uint64_t a, uint64_t b, uint64_t c) {
     uint64_t d = 0;
     if (a == 0) {
         d = 1;
     }
     eosio::print(a/d);
+//    test_double();
 //    eosio::check(a/0, "bad");
 }
 '''
