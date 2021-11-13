@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/binary"
 
 	"github.com/uuosio/chain"
@@ -48,16 +49,29 @@ func main() {
 	if action == chain.NewName("sayhello1") {
 		payer := chain.NewName("hello")
 
-		a := chain.Action{}
-		a.Account = chain.NewName("hello")
-		a.Name = chain.NewName("sayhello2")
-		a.AddPermission(chain.NewName("hello"), chain.ActiveName)
-		a.Data = []byte("hello,world")
+		// a := chain.Action{}
+		// a.Account = chain.NewName("hello")
+		// a.Name = chain.NewName("sayhello2")
+		// a.AddPermission(chain.NewName("hello"), chain.ActiveName)
+		// a.Data = []byte("hello,world")
+
+		a := chain.NewAction(
+			chain.NewPermission(chain.NewName("hello"), chain.ActiveName),
+			chain.NewName("hello"),
+			chain.NewName("sayhello2"),
+			[]byte("hello,world"),
+		)
 
 		t := chain.NewTransaction(1)
-		t.Actions = []chain.Action{a}
+		t.Actions = []*chain.Action{a}
 		t.Send(1, false, payer)
 		logger.Println("send done!")
+
+		rawTx := t.Pack()
+		t2 := chain.Transaction{}
+		t2.Unpack(rawTx)
+		rawTx2 := t2.Pack()
+		chain.Check(bytes.Compare(rawTx, rawTx2) == 0, "bad transaction")
 	} else if action == chain.NewName("sayhello2") {
 		db := database.NewDBI64(code, scope, table)
 		it := db.Find(id)

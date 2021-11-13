@@ -12,6 +12,10 @@ func (t *PermissionLevel) Pack() []byte {
 	return enc.GetBytes()
 }
 
+func NewPermission(actor Name, permission Name) PermissionLevel {
+	return PermissionLevel{actor, permission}
+}
+
 func (t *PermissionLevel) Unpack(data []byte) int {
 	dec := NewDecoder(data)
 	dec.Unpack(&t.Actor)

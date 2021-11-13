@@ -129,9 +129,9 @@ type Transaction struct {
 	MaxNetUsageWords   VarUint32
 	MaxCpuUsageMs      uint8
 	DelaySec           VarUint32 //unsigned_int
-	ContextFreeActions []Action
-	Actions            []Action
-	Extention          []TransactionExtension
+	ContextFreeActions []*Action
+	Actions            []*Action
+	Extention          []*TransactionExtension
 }
 
 func NewTransaction(delaySec int) *Transaction {
@@ -180,17 +180,17 @@ func (t *Transaction) Pack() []byte {
 
 	enc.PackLength(len(t.ContextFreeActions))
 	for _, action := range t.ContextFreeActions {
-		enc.Pack(&action)
+		enc.Pack(action)
 	}
 
 	enc.PackLength(len(t.Actions))
 	for _, action := range t.Actions {
-		enc.Pack(&action)
+		enc.Pack(action)
 	}
 
 	enc.PackLength(len(t.Extention))
 	for _, extention := range t.Extention {
-		enc.Pack(&extention)
+		enc.Pack(extention)
 	}
 	return enc.GetBytes()
 }
@@ -212,23 +212,29 @@ func (t *Transaction) Unpack(data []byte) int {
 
 	contextFreeActionLength := dec.UnpackVarUint32()
 
-	t.ContextFreeActions = make([]Action, contextFreeActionLength)
+	t.ContextFreeActions = make([]*Action, contextFreeActionLength)
 	for i := 0; i < int(contextFreeActionLength); i++ {
-		dec.Unpack(&t.ContextFreeActions[i])
+		action := &Action{}
+		dec.Unpack(action)
+		t.ContextFreeActions[i] = action
 	}
 
 	actionLength := dec.UnpackVarUint32()
 
-	t.Actions = make([]Action, actionLength)
+	t.Actions = make([]*Action, actionLength)
 	for i := 0; i < int(actionLength); i++ {
-		dec.Unpack(&t.Actions[i])
+		action := &Action{}
+		dec.Unpack(action)
+		t.Actions[i] = action
 	}
 
 	extentionLength := dec.UnpackVarUint32()
-	t.Extention = make([]TransactionExtension, extentionLength)
+	t.Extention = make([]*TransactionExtension, extentionLength)
 	for i := 0; i < int(extentionLength); i++ {
-		t.Extention[i].Type = dec.UnpackUint16()
-		t.Extention[i].Data = dec.UnpackBytes()
+		extention := &TransactionExtension{}
+		extention.Type = dec.UnpackUint16()
+		extention.Data = dec.UnpackBytes()
+		t.Extention[i] = extention
 	}
 	return dec.Pos()
 }
