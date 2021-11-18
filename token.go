@@ -259,3 +259,12 @@ func (a *Transfer) Unpack(data []byte) int {
 	dec.Unpack(&a.Memo)
 	return dec.Pos()
 }
+
+func (t *Transfer) Size() int {
+	size := 0
+	size += 8                                                        //From
+	size += 8                                                        //To
+	size += t.Quantity.Size()                                        //Quantity
+	size += PackedVarUint32Length(uint32(len(t.Memo))) + len(t.Memo) //Memo
+	return size
+}
