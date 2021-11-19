@@ -4,7 +4,7 @@ import json
 import time
 from inspect import currentframe, getframeinfo
 
-from uuoskit import wasmcompiler
+from pyeoskit import wasmcompiler
 
 test_dir = os.path.dirname(__file__)
 sys.path.append(os.path.join(test_dir, '..'))

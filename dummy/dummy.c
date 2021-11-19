@@ -1,8 +1,22 @@
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 
-typedef signed __int128 int128_t;
-typedef unsigned __int128 uint128_t;
+typedef struct {
+    int64_t low;
+    int64_t high;
+} int128_t;
+
+typedef struct {
+    uint64_t low;
+    uint64_t high;
+} uint128_t;
+
+typedef struct {
+    double low;
+    double high;
+} LongDouble;
+
 typedef uint64_t capi_name;
 typedef char bool;
 
@@ -18,368 +32,13 @@ typedef struct {
 	unsigned char data[20];
 } capi_checksum160;
 
-void go_panic(char* funcName);
+static void go_panic(char* funcName) {
+    printf("%s\n not implemented", funcName);
+    char *a = 0;
+    *a = 0;
+}
+
 uint32_t get_active_producers( capi_name* producers, uint32_t datalen )
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_store_i64(uint64_t scope, capi_name table, capi_name payer, uint64_t id,  const void* data, uint32_t len)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-void db_update_i64(int32_t iterator, capi_name payer, const void* data, uint32_t len)
-{
-    go_panic((char *)__FUNCTION__);
-    return;
-}
-
-void db_remove_i64(int32_t iterator)
-{
-    go_panic((char *)__FUNCTION__);
-    return;
-}
-
-int32_t db_get_i64(int32_t iterator, const void* data, uint32_t len)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_next_i64(int32_t iterator, uint64_t* primary)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_previous_i64(int32_t iterator, uint64_t* primary)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_find_i64(capi_name code, uint64_t scope, capi_name table, uint64_t id)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_lowerbound_i64(capi_name code, uint64_t scope, capi_name table, uint64_t id)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_upperbound_i64(capi_name code, uint64_t scope, capi_name table, uint64_t id)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_end_i64(capi_name code, uint64_t scope, capi_name table)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_idx64_store(uint64_t scope, capi_name table, capi_name payer, uint64_t id, const uint64_t* secondary)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-void db_idx64_update(int32_t iterator, capi_name payer, const uint64_t* secondary)
-{
-    go_panic((char *)__FUNCTION__);
-    return;
-}
-
-void db_idx64_remove(int32_t iterator)
-{
-    go_panic((char *)__FUNCTION__);
-    return;
-}
-
-int32_t db_idx64_next(int32_t iterator, uint64_t* primary)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_idx64_previous(int32_t iterator, uint64_t* primary)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_idx64_find_primary(capi_name code, uint64_t scope, capi_name table, uint64_t* secondary, uint64_t primary)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_idx64_find_secondary(capi_name code, uint64_t scope, capi_name table, const uint64_t* secondary, uint64_t* primary)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_idx64_lowerbound(capi_name code, uint64_t scope, capi_name table, uint64_t* secondary, uint64_t* primary)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_idx64_upperbound(capi_name code, uint64_t scope, capi_name table, uint64_t* secondary, uint64_t* primary)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_idx64_end(capi_name code, uint64_t scope, capi_name table)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_idx128_store(uint64_t scope, capi_name table, capi_name payer, uint64_t id, const uint128_t* secondary)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-void db_idx128_update(int32_t iterator, capi_name payer, const uint128_t* secondary)
-{
-    go_panic((char *)__FUNCTION__);
-    return;
-}
-
-void db_idx128_remove(int32_t iterator)
-{
-    go_panic((char *)__FUNCTION__);
-    return;
-}
-
-int32_t db_idx128_next(int32_t iterator, uint64_t* primary)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_idx128_previous(int32_t iterator, uint64_t* primary)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_idx128_find_primary(capi_name code, uint64_t scope, capi_name table, uint128_t* secondary, uint64_t primary)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_idx128_find_secondary(capi_name code, uint64_t scope, capi_name table, const uint128_t* secondary, uint64_t* primary)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_idx128_lowerbound(capi_name code, uint64_t scope, capi_name table, uint128_t* secondary, uint64_t* primary)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_idx128_upperbound(capi_name code, uint64_t scope, capi_name table, uint128_t* secondary, uint64_t* primary)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_idx128_end(capi_name code, uint64_t scope, capi_name table)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_idx256_store(uint64_t scope, capi_name table, capi_name payer, uint64_t id, const uint128_t* data, uint32_t data_len )
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-void db_idx256_update(int32_t iterator, capi_name payer, const uint128_t* data, uint32_t data_len)
-{
-    go_panic((char *)__FUNCTION__);
-    return;
-}
-
-void db_idx256_remove(int32_t iterator)
-{
-    go_panic((char *)__FUNCTION__);
-    return;
-}
-
-int32_t db_idx256_next(int32_t iterator, uint64_t* primary)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_idx256_previous(int32_t iterator, uint64_t* primary)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_idx256_find_primary(capi_name code, uint64_t scope, capi_name table, uint128_t* data, uint32_t data_len, uint64_t primary)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_idx256_find_secondary(capi_name code, uint64_t scope, capi_name table, const uint128_t* data, uint32_t data_len, uint64_t* primary)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_idx256_lowerbound(capi_name code, uint64_t scope, capi_name table, uint128_t* data, uint32_t data_len, uint64_t* primary)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_idx256_upperbound(capi_name code, uint64_t scope, capi_name table, uint128_t* data, uint32_t data_len, uint64_t* primary)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_idx256_end(capi_name code, uint64_t scope, capi_name table)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_idx_double_store(uint64_t scope, capi_name table, capi_name payer, uint64_t id, const double* secondary)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-void db_idx_double_update(int32_t iterator, capi_name payer, const double* secondary)
-{
-    go_panic((char *)__FUNCTION__);
-    return;
-}
-
-void db_idx_double_remove(int32_t iterator)
-{
-    go_panic((char *)__FUNCTION__);
-    return;
-}
-
-int32_t db_idx_double_next(int32_t iterator, uint64_t* primary)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_idx_double_previous(int32_t iterator, uint64_t* primary)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_idx_double_find_primary(capi_name code, uint64_t scope, capi_name table, double* secondary, uint64_t primary)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_idx_double_find_secondary(capi_name code, uint64_t scope, capi_name table, const double* secondary, uint64_t* primary)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_idx_double_lowerbound(capi_name code, uint64_t scope, capi_name table, double* secondary, uint64_t* primary)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_idx_double_upperbound(capi_name code, uint64_t scope, capi_name table, double* secondary, uint64_t* primary)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_idx_double_end(capi_name code, uint64_t scope, capi_name table)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_idx_long_double_store(uint64_t scope, capi_name table, capi_name payer, uint64_t id, const long double* secondary)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-void db_idx_long_double_update(int32_t iterator, capi_name payer, const long double* secondary)
-{
-    go_panic((char *)__FUNCTION__);
-    return;
-}
-
-void db_idx_long_double_remove(int32_t iterator)
-{
-    go_panic((char *)__FUNCTION__);
-    return;
-}
-
-int32_t db_idx_long_double_next(int32_t iterator, uint64_t* primary)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_idx_long_double_previous(int32_t iterator, uint64_t* primary)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_idx_long_double_find_primary(capi_name code, uint64_t scope, capi_name table, long double* secondary, uint64_t primary)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_idx_long_double_find_secondary(capi_name code, uint64_t scope, capi_name table, const long double* secondary, uint64_t* primary)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_idx_long_double_lowerbound(capi_name code, uint64_t scope, capi_name table, long double* secondary, uint64_t* primary)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_idx_long_double_upperbound(capi_name code, uint64_t scope, capi_name table, long double* secondary, uint64_t* primary)
-{
-    go_panic((char *)__FUNCTION__);
-    return 0;
-}
-
-int32_t db_idx_long_double_end(capi_name code, uint64_t scope, capi_name table)
 {
     go_panic((char *)__FUNCTION__);
     return 0;
@@ -571,7 +230,7 @@ void printdf(double value)
     return;
 }
 
-void printqf(const long double* value)
+void printqf(const LongDouble* value)
 {
     go_panic((char *)__FUNCTION__);
     return;

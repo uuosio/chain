@@ -23,13 +23,13 @@ import (
 
 type IdxDBFloat128 struct {
 	dbIndex int
-	code    uint64
-	scope   uint64
-	table   uint64
+	code    C.uint64_t
+	scope   C.uint64_t
+	table   C.uint64_t
 }
 
 func NewIdxDBFloat128(index int, code uint64, scope uint64, table uint64) *IdxDBFloat128 {
-	v := &IdxDBFloat128{index, code, scope, table}
+	v := &IdxDBFloat128{index, C.uint64_t(code), C.uint64_t(scope), C.uint64_t(table)}
 	return v
 }
 
@@ -41,41 +41,41 @@ func (db *IdxDBFloat128) GetIndex() int {
 func (db *IdxDBFloat128) Store(id uint64, secondary interface{}, payer uint64) SecondaryIterator {
 	_secondary, ok := secondary.(chain.Float128)
 	chain.Check(ok, "bad secondary type")
-	ret := C.db_idx_long_double_store(db.scope, db.table, payer, id, (*C.float128_t)(unsafe.Pointer(&_secondary)))
-	return SecondaryIterator{ret, id, db.dbIndex}
+	ret := C.db_idx_long_double_store(db.scope, db.table, C.uint64_t(payer), C.uint64_t(id), (*C.float128_t)(unsafe.Pointer(&_secondary)))
+	return SecondaryIterator{int32(ret), id, db.dbIndex}
 }
 
 //Update an association for a quadruple-precision floating-point secondary key to a primary key in a secondary quadruple-precision floating-point index table
 func (db *IdxDBFloat128) Update(it SecondaryIterator, secondary interface{}, payer uint64) {
 	_secondary, ok := secondary.(chain.Float128)
 	chain.Check(ok, "bad secondary type")
-	C.db_idx_long_double_update(it.I, payer, (*C.float128_t)(unsafe.Pointer(&_secondary)))
+	C.db_idx_long_double_update(C.int32_t(it.I), C.uint64_t(payer), (*C.float128_t)(unsafe.Pointer(&_secondary)))
 }
 
 //Remove a table row from a secondary quadruple-precision floating-point index table
 func (db *IdxDBFloat128) Remove(it SecondaryIterator) {
-	C.db_idx_long_double_remove(it.I)
+	C.db_idx_long_double_remove(C.int32_t(it.I))
 }
 
 //Find the table row following the referenced table row in a secondary quadruple-precision floating-point index table
 func (db *IdxDBFloat128) Next(it SecondaryIterator) SecondaryIterator {
 	var primary uint64 = 0
-	ret := C.db_idx_long_double_next(it.I, &primary)
-	return SecondaryIterator{ret, primary, db.dbIndex}
+	ret := C.db_idx_long_double_next(C.int32_t(it.I), (*C.uint64_t)(&primary))
+	return SecondaryIterator{int32(ret), primary, db.dbIndex}
 }
 
 //Find the table row preceding the referenced table row in a secondary quadruple-precision floating-point index table
 func (db *IdxDBFloat128) Previous(it SecondaryIterator) SecondaryIterator {
 	var primary uint64 = 0
-	ret := C.db_idx_long_double_previous(it.I, &primary)
-	return SecondaryIterator{ret, primary, db.dbIndex}
+	ret := C.db_idx_long_double_previous(C.int32_t(it.I), (*C.uint64_t)(&primary))
+	return SecondaryIterator{int32(ret), primary, db.dbIndex}
 }
 
 //Find a table row in a secondary quadruple-precision floating-point index table by primary key
 func (db *IdxDBFloat128) FindByPrimary(primary uint64) (SecondaryIterator, interface{}) {
 	var secondary chain.Float128
-	ret := C.db_idx_long_double_find_primary(db.code, db.scope, db.table, (*C.float128_t)(unsafe.Pointer(&secondary)), primary)
-	return SecondaryIterator{ret, primary, db.dbIndex}, secondary
+	ret := C.db_idx_long_double_find_primary(db.code, db.scope, db.table, (*C.float128_t)(unsafe.Pointer(&secondary)), C.uint64_t(primary))
+	return SecondaryIterator{int32(ret), primary, db.dbIndex}, secondary
 }
 
 //Find a table row in a secondary quadruple-precision floating-point index table by secondary key
@@ -99,8 +99,8 @@ func (db *IdxDBFloat128) Lowerbound(secondary interface{}) (SecondaryIterator, i
 	var primary uint64 = 0
 	_secondary, ok := secondary.(chain.Float128)
 	chain.Assert(ok, "not a float128_t value")
-	ret := C.db_idx_long_double_lowerbound(db.code, db.scope, db.table, (*C.float128_t)(unsafe.Pointer(&_secondary)), &primary)
-	return SecondaryIterator{ret, primary, db.dbIndex}, _secondary
+	ret := C.db_idx_long_double_lowerbound(db.code, db.scope, db.table, (*C.float128_t)(unsafe.Pointer(&_secondary)), (*C.uint64_t)(&primary))
+	return SecondaryIterator{int32(ret), primary, db.dbIndex}, _secondary
 }
 
 //Find the table row in a secondary quadruple-precision floating-point index table that matches the upperbound condition for a given secondary key
@@ -108,14 +108,14 @@ func (db *IdxDBFloat128) Upperbound(secondary interface{}) (SecondaryIterator, i
 	var primary uint64 = 0
 	_secondary, ok := secondary.(chain.Float128)
 	chain.Assert(ok, "not a float128_t value")
-	ret := C.db_idx_long_double_upperbound(db.code, db.scope, db.table, (*C.float128_t)(unsafe.Pointer(&_secondary)), &primary)
-	return SecondaryIterator{ret, primary, db.dbIndex}, _secondary
+	ret := C.db_idx_long_double_upperbound(db.code, db.scope, db.table, (*C.float128_t)(unsafe.Pointer(&_secondary)), (*C.uint64_t)(&primary))
+	return SecondaryIterator{int32(ret), primary, db.dbIndex}, _secondary
 }
 
 //Get an end iterator representing just-past-the-end of the last table row of a secondary quadruple-precision floating-point index table
 func (db *IdxDBFloat128) End() SecondaryIterator {
 	ret := C.db_idx_long_double_end(db.code, db.scope, db.table)
-	return SecondaryIterator{ret, 0, db.dbIndex}
+	return SecondaryIterator{int32(ret), 0, db.dbIndex}
 }
 
 type IdxDBFloat128I struct {

@@ -3,7 +3,7 @@ import sys
 import json
 import time
 
-from uuoskit import wasmcompiler, uuosapi
+from pyeoskit import wasmcompiler, uuosapi
 
 test_dir = os.path.dirname(__file__)
 sys.path.append(os.path.join(test_dir, '..'))

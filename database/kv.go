@@ -65,7 +65,7 @@ func (t *KVIteratorStatus) Print() {
 
 type KVIterator struct {
 	Prefix        []byte
-	Handle        uint32
+	Handle        C.uint32_t
 	CurrentStatus KVIteratorStatus
 }
 
@@ -80,13 +80,13 @@ func NewKV(contract chain.Name) *KV {
 // int64_t kv_erase(uint64_t contract, const char* key, uint32_t key_size);
 func (t *KV) Erase(key []byte) int64 {
 	ret := C.kv_erase(C.uint64_t(t.Contract.N), (*C.char)(unsafe.Pointer(&key[0])), C.uint32_t(len(key)))
-	return ret
+	return int64(ret)
 }
 
 // int64_t kv_set(uint64_t contract, const char* key, uint32_t key_size, const char* value, uint32_t value_size, uint64_t payer);
 func (t *KV) Set(key []byte, value []byte, payer chain.Name) int64 {
 	ret := C.kv_set(C.uint64_t(t.Contract.N), (*C.char)(unsafe.Pointer(&key[0])), C.uint32_t(len(key)), (*C.char)(unsafe.Pointer(&value[0])), C.uint32_t(len(value)), C.uint64_t(payer.N))
-	return ret
+	return int64(ret)
 }
 
 type stringHeader struct {
@@ -144,25 +144,25 @@ func (t *KVIterator) Destroy() {
 // int32_t kv_it_status(uint32_t itr);
 func (t *KVIterator) Status() KVIteratorStatus {
 	ret := C.kv_it_status(t.Handle)
-	return KVIteratorStatus{ret}
+	return KVIteratorStatus{int32(ret)}
 }
 
 // int32_t kv_it_compare(uint32_t itr_a, uint32_t itr_b);
 func (t *KVIterator) Compare(itr_b KVIterator) KVIteratorStatus {
-	ret := C.kv_it_compare(t.Handle, itr_b.Handle)
-	return KVIteratorStatus{ret}
+	ret := C.kv_it_compare(t.Handle, C.uint32_t(itr_b.Handle))
+	return KVIteratorStatus{int32(ret)}
 }
 
 // int32_t kv_it_key_compare(uint32_t itr, const char* key, uint32_t size);
 func (t *KVIterator) KeyCompare(key []byte) KVIteratorStatus {
 	ret := C.kv_it_key_compare(t.Handle, GetBytesPointer(key), C.uint32_t(len(key)))
-	return KVIteratorStatus{ret}
+	return KVIteratorStatus{int32(ret)}
 }
 
 // int32_t kv_it_move_to_end(uint32_t itr);
 func (t *KVIterator) MoveToEnd() KVIteratorStatus {
 	ret := C.kv_it_move_to_end(t.Handle)
-	return KVIteratorStatus{ret}
+	return KVIteratorStatus{int32(ret)}
 }
 
 // int32_t kv_it_next(uint32_t itr, uint32_t* found_key_size, uint32_t* found_value_size);
@@ -170,7 +170,7 @@ func (t *KVIterator) Next() (int32, int32, KVIteratorStatus) {
 	var key_size C.uint32_t
 	var value_size C.uint32_t
 	ret := C.kv_it_next(t.Handle, &key_size, &value_size)
-	return int32(key_size), int32(value_size), KVIteratorStatus{ret}
+	return int32(key_size), int32(value_size), KVIteratorStatus{int32(ret)}
 }
 
 // int32_t kv_it_prev(uint32_t itr, uint32_t* found_key_size, uint32_t* found_value_size);
@@ -178,7 +178,7 @@ func (t *KVIterator) Prev() (int32, int32, KVIteratorStatus) {
 	var key_size C.uint32_t
 	var value_size C.uint32_t
 	ret := C.kv_it_prev(t.Handle, &key_size, &value_size)
-	return int32(key_size), int32(value_size), KVIteratorStatus{ret}
+	return int32(key_size), int32(value_size), KVIteratorStatus{int32(ret)}
 }
 
 // int32_t kv_it_lower_bound(uint32_t itr, const char* key, uint32_t size, uint32_t* found_key_size, uint32_t* found_value_size);
@@ -186,7 +186,7 @@ func (t *KVIterator) LowerBound(key []byte) (int32, int32, KVIteratorStatus) {
 	var key_size C.uint32_t
 	var value_size C.uint32_t
 	ret := C.kv_it_lower_bound(t.Handle, GetBytesPointer(key), C.uint32_t(len(key)), &key_size, &value_size)
-	return int32(key_size), int32(value_size), KVIteratorStatus{ret}
+	return int32(key_size), int32(value_size), KVIteratorStatus{int32(ret)}
 }
 
 // int32_t kv_it_key(uint32_t itr, uint32_t offset, char* dest, uint32_t size, uint32_t* actual_size);
