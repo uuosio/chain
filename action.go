@@ -187,8 +187,8 @@ func (a *Action) Pack() []byte {
 
 func (a *Action) Unpack(b []byte) int {
 	dec := NewDecoder(b)
-	dec.Unpack(&a.Account)
-	dec.Unpack(&a.Name)
+	a.Account = dec.UnpackName()
+	a.Name = dec.UnpackName()
 	length := dec.UnpackLength()
 	a.Authorization = make([]PermissionLevel, length)
 	for i := 0; i < length; i++ {
