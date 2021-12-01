@@ -52,32 +52,6 @@ func (t *Int128) Size() int {
 	return 16
 }
 
-type Uint128 [16]byte
-
-func (n *Uint128) Pack() []byte {
-	return n[:]
-}
-
-func (n *Uint128) Unpack(data []byte) int {
-	dec := NewDecoder(data)
-	dec.Read(n[:])
-	return 16
-}
-
-func (t *Uint128) Size() int {
-	return 16
-}
-
-func (n *Uint128) SetUint64(v uint64) {
-	tmp := Uint128{}
-	copy(n[:], tmp[:]) //memset
-	binary.LittleEndian.PutUint64(n[:], v)
-}
-
-func (n *Uint128) Uint64() uint64 {
-	return binary.LittleEndian.Uint64(n[:])
-}
-
 type Uint256 [32]uint8
 
 func (n *Uint256) Pack() []byte {
