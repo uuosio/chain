@@ -19,7 +19,7 @@ type MultiIndex struct {
 }
 
 type MultiIndexInterface interface {
-	Store(v MultiIndexValue, payer chain.Name)
+	Store(v MultiIndexValue, payer chain.Name) Iterator
 	Set(primary uint64, v MultiIndexValue, payer chain.Name)
 	Get(id uint64) (Iterator, MultiIndexValue)
 	GetByIterator(it Iterator) (MultiIndexValue, error)
@@ -108,12 +108,13 @@ func (mi *MultiIndex) SetTable(code chain.Name, scope chain.Name, table chain.Na
 	mi.table = table
 }
 
-func (mi *MultiIndex) Store(v MultiIndexValue, payer chain.Name) {
-	mi.DB.Store(v.GetPrimary(), v.Pack(), payer)
+func (mi *MultiIndex) Store(v MultiIndexValue, payer chain.Name) Iterator {
+	it := mi.DB.Store(v.GetPrimary(), v.Pack(), payer)
 	primary := v.GetPrimary()
 	for i, db := range mi.IDXDBs {
 		db.Store(primary, v.GetSecondaryValue(i), payer.N)
 	}
+	return it
 }
 
 func (mi *MultiIndex) Set(primary uint64, v MultiIndexValue, payer chain.Name) {
