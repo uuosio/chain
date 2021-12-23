@@ -75,3 +75,7 @@ func IsFeatureActivated(featureDigest [32]byte) bool {
 func GetSender() uint64 {
 	return uint64(C.get_sender())
 }
+
+func Exit() {
+	C.eosio_exit(0)
+}
