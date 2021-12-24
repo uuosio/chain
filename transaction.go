@@ -30,7 +30,7 @@ func SendDeferred(senderID [2]uint64, payer Name, transaction []byte, replaceExi
 }
 
 // int cancel_deferred(const uint128_t* sender_id);
-func CancelDeferred(senderID [16]byte) int {
+func CancelDeferred(senderID Uint128) int {
 	ret := C.cancel_deferred((*C.uint128)(unsafe.Pointer(&senderID[0])))
 	return int(ret)
 }
