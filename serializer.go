@@ -650,6 +650,8 @@ func CalcPackedSize(i interface{}) int {
 		return 8
 	case Name:
 		return 8
+	case Asset:
+		return 16
 	default:
 		panic("Unknow type in CalcPackedSize")
 	}
