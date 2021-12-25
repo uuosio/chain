@@ -8,15 +8,18 @@ var DEBUG = true
 
 // var DEBUG = false
 
-func char_to_symbol(c byte) byte {
+func char_to_symbol(c byte) (byte, bool) {
 	if c >= 'a' && c <= 'z' {
-		return (c - 'a') + 6
+		return (c - 'a') + 6, true
 	}
 
 	if c >= '1' && c <= '5' {
-		return (c - '1') + 1
+		return (c - '1') + 1, true
 	}
-	return 0
+	if c == '.' {
+		return 0, true
+	}
+	return 0, false
 }
 
 func string_to_name(str string) uint64 {
@@ -26,7 +29,11 @@ func string_to_name(str string) uint64 {
 	for i := 0; i <= 12; i++ {
 		c := uint64(0)
 		if i < length && i <= 12 {
-			c = uint64(char_to_symbol(str[i]))
+			n, ok := char_to_symbol(str[i])
+			if !ok {
+				return 0
+			}
+			c = uint64(n)
 		}
 		if i < 12 {
 			c &= 0x1f
