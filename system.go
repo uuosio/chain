@@ -14,10 +14,18 @@ uint64_t get_sender( void );
 */
 import "C"
 import (
+	"runtime"
 	"unsafe"
 )
 
 func Check(b bool, msg string) {
+	revert := runtime.GetRevertFunction()
+	if revert != nil {
+		if !b {
+			revert(msg)
+		}
+		return
+	}
 	EosioAssert(b, msg)
 }
 
