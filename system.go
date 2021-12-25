@@ -14,12 +14,23 @@ uint64_t get_sender( void );
 */
 import "C"
 import (
-	"runtime"
 	"unsafe"
 )
 
+type RevertFunction func(errMsg string)
+
+var gRevertFn RevertFunction
+
+func SetRevertFn(fn RevertFunction) {
+	gRevertFn = fn
+}
+
+func GetRevertFn() RevertFunction {
+	return gRevertFn
+}
+
 func Check(b bool, msg string) {
-	revert := runtime.GetRevertFunction()
+	revert := GetRevertFn()
 	if revert != nil {
 		if !b {
 			revert(msg)

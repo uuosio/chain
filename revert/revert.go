@@ -1,8 +1,6 @@
 package revert
 
 import (
-	"runtime"
-
 	"github.com/uuosio/chain"
 	"github.com/uuosio/chain/database"
 )
@@ -21,5 +19,6 @@ func Revert(msg string) {
 
 func Init() {
 	database.SetSaveState(true)
-	runtime.SetRevertFunction(Revert)
+	chain.SetRevertFn(Revert)
+	//		runtime.SetRevertOnPanicFn(Revert)
 }
