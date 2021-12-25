@@ -56,6 +56,7 @@ func (it *SecondaryIterator) IsInvalid() bool {
 
 type SecondaryDB interface {
 	GetIndex() int
+	GetTable() (uint64, uint64, uint64)
 	Store(id uint64, secondary interface{}, payer uint64) SecondaryIterator
 	Update(it SecondaryIterator, secondary interface{}, payer uint64)
 	Remove(it SecondaryIterator)

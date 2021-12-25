@@ -14,10 +14,15 @@ type SingletonDB struct {
 }
 
 func NewSingletonDB(code, scope, table chain.Name, unpacker ...Unpacker) *SingletonDB {
-	if len(unpacker) > 0 {
-		return &SingletonDB{DBI64: *NewDBI64(code, scope, table), unpacker: unpacker[0]}
+	chain.Check(len(unpacker) == 1, "unpacker cannot be nil when save state is enabled")
+
+	if len(unpacker) >= 1 {
+		primaryDBUnpacker := func([]byte) DBValue {
+			return unpacker[0]([]byte{})
+		}
+		return &SingletonDB{DBI64: *NewDBI64(code, scope, table, primaryDBUnpacker), unpacker: unpacker[0]}
 	} else {
-		return &SingletonDB{DBI64: *NewDBI64(code, scope, table), unpacker: nil}
+		return &SingletonDB{DBI64: *NewDBI64(code, scope, table, nil), unpacker: nil}
 	}
 }
 

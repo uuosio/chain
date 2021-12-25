@@ -23,23 +23,18 @@ import (
 )
 
 type IdxDBFloat64 struct {
-	dbIndex int
-	code    C.uint64_t
-	scope   C.uint64_t
-	table   C.uint64_t
+	IdxDB
 }
 
 func NewIdxDBFloat64(index int, code uint64, scope uint64, table uint64) *IdxDBFloat64 {
-	v := &IdxDBFloat64{index, C.uint64_t(code), C.uint64_t(scope), C.uint64_t(table)}
+	v := &IdxDBFloat64{IdxDB{index, C.uint64_t(code), C.uint64_t(scope), C.uint64_t(table)}}
 	return v
-}
-
-func (db *IdxDBFloat64) GetIndex() int {
-	return db.dbIndex
 }
 
 // Store an association of a double-precision floating-point secondary key to a primary key in a secondary double-precision floating-point index table
 func (db *IdxDBFloat64) Store(id uint64, secondary interface{}, payer uint64) SecondaryIterator {
+	GetStateManager().OnIdxDBStore(db, id)
+
 	_secondary, ok := secondary.(float64)
 	chain.Check(ok, "bad secondary type")
 	ret := C.db_idx_double_store(db.scope, db.table, C.uint64_t(payer), C.uint64_t(id), (*C.Double)(&_secondary))
@@ -48,6 +43,8 @@ func (db *IdxDBFloat64) Store(id uint64, secondary interface{}, payer uint64) Se
 
 //Update an association for a double-precision floating-point secondary key to a primary key in a secondary double-precision floating-point index table
 func (db *IdxDBFloat64) Update(it SecondaryIterator, secondary interface{}, payer uint64) {
+	GetStateManager().OnIdxDBUpdate(db, it, payer)
+
 	_secondary, ok := secondary.(float64)
 	chain.Check(ok, "IdxFloat64: bad secondary type")
 	C.db_idx_double_update(C.int32_t(it.I), C.uint64_t(payer), (*C.Double)(&_secondary))
@@ -55,6 +52,8 @@ func (db *IdxDBFloat64) Update(it SecondaryIterator, secondary interface{}, paye
 
 //Remove a table row from a secondary double-precision floating-point index table
 func (db *IdxDBFloat64) Remove(it SecondaryIterator) {
+	GetStateManager().OnIdxDBRemove(db, it)
+
 	C.db_idx_double_remove(C.int32_t(it.I))
 }
 

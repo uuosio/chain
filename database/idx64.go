@@ -20,19 +20,12 @@ import (
 )
 
 type IdxDB64 struct {
-	dbIndex int
-	code    C.uint64_t
-	scope   C.uint64_t
-	table   C.uint64_t
+	IdxDB
 }
 
 func NewIdxDB64(index int, code uint64, scope uint64, table uint64) *IdxDB64 {
-	v := &IdxDB64{index, C.uint64_t(code), C.uint64_t(scope), C.uint64_t(table)}
+	v := &IdxDB64{IdxDB{index, C.uint64_t(code), C.uint64_t(scope), C.uint64_t(table)}}
 	return v
-}
-
-func (db *IdxDB64) GetIndex() int {
-	return db.dbIndex
 }
 
 //Store an association of a 64-bit integer secondary key to a primary key in a secondary 64-bit integer index table
@@ -41,18 +34,20 @@ func (db *IdxDB64) Store(id uint64, secondary interface{}, payer uint64) Seconda
 	chain.Check(ok, "IdxDB64.Store: bad secondary type")
 	chain.Check(uint64(db.code) == chain.CurrentReceiver().N, "bad code name")
 	ret := C.db_idx64_store(db.scope, db.table, C.uint64_t(payer), C.uint64_t(id), (*C.uint64_t)(&_secondary))
+	GetStateManager().OnIdxDBStore(db, id)
 	return SecondaryIterator{int32(ret), id, db.dbIndex}
 }
 
 //Update an association for a 64-bit integer secondary key to a primary key in a secondary 64-bit integer index table
 func (db *IdxDB64) Update(it SecondaryIterator, secondary interface{}, payer uint64) {
-	// db.mi.UpdateSecondaryValue(db, it.Primary, secondary, chain.Name{payer})
+	GetStateManager().OnIdxDBUpdate(db, it, payer)
 	_secondary := secondary.(uint64)
 	C.db_idx64_update(C.int32_t(it.I), C.uint64_t(payer), (*C.uint64_t)(&_secondary))
 }
 
 //Remove a table row from a secondary 64-bit integer index table
 func (db *IdxDB64) Remove(it SecondaryIterator) {
+	GetStateManager().OnIdxDBRemove(db, it)
 	C.db_idx64_remove(C.int32_t(it.I))
 }
 

@@ -22,20 +22,38 @@ import (
 	"github.com/uuosio/chain"
 )
 
+const (
+	MsgErrorUnpacker = "unpacker cannot be nil when save state is enabled"
+)
+
+const (
+	OperationStore  = 1
+	OperationUpdate = 2
+	OperationRemove = 3
+)
+
+type DBI64Unpacker func([]byte) DBValue
+
 type DBI64 struct {
-	code  C.uint64_t
-	scope C.uint64_t
-	table C.uint64_t
+	code      C.uint64_t
+	scope     C.uint64_t
+	table     C.uint64_t
+	unpacker  DBI64Unpacker
+	saveState bool
 }
 
-func NewDBI64(code chain.Name, scope chain.Name, table chain.Name) *DBI64 {
-	return &DBI64{C.uint64_t(code.N), C.uint64_t(scope.N), C.uint64_t(table.N)}
+func NewDBI64(code chain.Name, scope chain.Name, table chain.Name, unpacker DBI64Unpacker) *DBI64 {
+	return &DBI64{C.uint64_t(code.N), C.uint64_t(scope.N), C.uint64_t(table.N), unpacker, saveState}
 }
 
 func (db *DBI64) Init(code chain.Name, scope chain.Name, table chain.Name) {
 	db.code = C.uint64_t(code.N)
 	db.scope = C.uint64_t(scope.N)
 	db.table = C.uint64_t(table.N)
+}
+
+func (db *DBI64) GetTable() (uint64, uint64, uint64) {
+	return uint64(db.code), uint64(db.scope), uint64(db.table)
 }
 
 func (db *DBI64) GetTableName() uint64 {
@@ -123,12 +141,14 @@ func (db *DBI64) End() Iterator {
 }
 
 func (db *DBI64) storeI64(payer uint64, id uint64, data []byte) Iterator {
+	GetStateManager().OnStore(db, id)
 	p := (*C.char)(unsafe.Pointer(&data[0]))
 	ret := C.db_store_i64(db.scope, db.table, C.uint64_t(payer), C.uint64_t(id), p, C.uint32_t(len(data)))
 	return Iterator{int32(ret)}
 }
 
 func (db *DBI64) updateI64(iterator Iterator, payer uint64, data []byte) {
+	GetStateManager().OnUpdate(db, iterator, payer)
 	p := (*C.char)(unsafe.Pointer(&data[0]))
 	C.db_update_i64(C.int32_t(iterator.I), C.uint64_t(payer), p, C.uint32_t(len(data)))
 }

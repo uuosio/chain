@@ -23,23 +23,17 @@ import (
 )
 
 type IdxDB256 struct {
-	dbIndex int
-	code    C.uint64_t
-	scope   C.uint64_t
-	table   C.uint64_t
+	IdxDB
 }
 
 func NewIdxDB256(index int, code uint64, scope uint64, table uint64) *IdxDB256 {
-	v := &IdxDB256{index, C.uint64_t(code), C.uint64_t(scope), C.uint64_t(table)}
+	v := &IdxDB256{IdxDB{index, C.uint64_t(code), C.uint64_t(scope), C.uint64_t(table)}}
 	return v
-}
-
-func (db *IdxDB256) GetIndex() int {
-	return db.dbIndex
 }
 
 //Store an association of a 256-bit secondary key to a primary key in a secondary 256-bit index table
 func (db *IdxDB256) Store(id uint64, secondary interface{}, payer uint64) SecondaryIterator {
+	GetStateManager().OnIdxDBStore(db, id)
 	_secondary, ok := secondary.(chain.Uint256)
 	chain.Check(ok, "bad secondary type")
 	ret := C.db_idx256_store(db.scope, db.table, C.uint64_t(payer), C.uint64_t(id), (*C.uint128)(unsafe.Pointer(&_secondary)), 2)
@@ -48,6 +42,8 @@ func (db *IdxDB256) Store(id uint64, secondary interface{}, payer uint64) Second
 
 //Update an association for a 256-bit secondary key to a primary key in a secondary 256-bit index table
 func (db *IdxDB256) Update(it SecondaryIterator, secondary interface{}, payer uint64) {
+	GetStateManager().OnIdxDBUpdate(db, it, payer)
+
 	_secondary, ok := secondary.(chain.Uint256)
 	chain.Check(ok, "bad secondary type")
 	C.db_idx256_update(C.int32_t(it.I), C.uint64_t(payer), (*C.uint128)(unsafe.Pointer(&_secondary)), 2)
@@ -55,6 +51,8 @@ func (db *IdxDB256) Update(it SecondaryIterator, secondary interface{}, payer ui
 
 //Remove a table row from a secondary 256-bit index table
 func (db *IdxDB256) Remove(it SecondaryIterator) {
+	GetStateManager().OnIdxDBRemove(db, it)
+
 	C.db_idx256_remove(C.int32_t(it.I))
 }
 

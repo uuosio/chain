@@ -56,7 +56,7 @@ var (
 	ErrNotMultiIndexValue = errors.New("not a MultiIndexValue type")
 )
 
-func NewMultiIndex(code chain.Name, scope chain.Name, table chain.Name, idxDBNameToIndex func(string) int, indexTypes []int, unpacker ...Unpacker) *MultiIndex {
+func NewMultiIndex(code chain.Name, scope chain.Name, table chain.Name, idxDBNameToIndex func(string) int, indexTypes []int, saveState bool, unpacker ...Unpacker) *MultiIndex {
 	chain.Check(code != chain.Name{0}, "bad code name")
 
 	if table.N&uint64(0x0f) != 0 {
@@ -68,7 +68,9 @@ func NewMultiIndex(code chain.Name, scope chain.Name, table chain.Name, idxDBNam
 	mi.code = code
 	mi.scope = scope
 	mi.table = table
-	mi.DB = NewDBI64(code, scope, table)
+	mi.DB = NewDBI64(code, scope, table, func(data []byte) DBValue {
+		return mi.Unpack(data)
+	})
 	mi.IdxDBNameToIndex = idxDBNameToIndex
 	mi.IndexTypes = indexTypes
 	mi.IDXDBs = make([]SecondaryDB, len(indexTypes))
