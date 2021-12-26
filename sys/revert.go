@@ -1,11 +1,20 @@
-package revert
+package sys
 
 import (
 	"github.com/uuosio/chain"
 	"github.com/uuosio/chain/database"
 )
 
+type RevertInterface interface {
+	OnRevert(msg string)
+}
+
+var gRevert RevertInterface
+
 func Revert(msg string) {
+	if gRevert != nil {
+		gRevert.OnRevert(msg)
+	}
 	database.GetStateManager().Revert()
 	receiver := chain.CurrentReceiver()
 	chain.NewAction(
@@ -17,7 +26,8 @@ func Revert(msg string) {
 	chain.Exit()
 }
 
-func Init() {
+func Init(onRevert RevertInterface) {
+	gRevert = onRevert
 	database.SetSaveState(true)
 	chain.SetRevertFn(Revert)
 	//		runtime.SetRevertOnPanicFn(Revert)
