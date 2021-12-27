@@ -25,12 +25,6 @@ type StateManager struct {
 
 var StateManagerInstance *StateManager
 
-var saveState = false
-
-func SetSaveState(save bool) {
-	saveState = save
-}
-
 func GetStateManager() *StateManager {
 	if StateManagerInstance == nil {
 		StateManagerInstance = &StateManager{
@@ -42,7 +36,7 @@ func GetStateManager() *StateManager {
 }
 
 func (s *StateManager) OnStore(db *DBI64, primary uint64) {
-	if !saveState {
+	if !chain.IsRevertEnabled() {
 		return
 	}
 
@@ -50,7 +44,7 @@ func (s *StateManager) OnStore(db *DBI64, primary uint64) {
 }
 
 func (s *StateManager) OnUpdate(db *DBI64, it Iterator, payer uint64) {
-	if !saveState {
+	if !chain.IsRevertEnabled() {
 		return
 	}
 
@@ -62,7 +56,7 @@ func (s *StateManager) OnUpdate(db *DBI64, it Iterator, payer uint64) {
 }
 
 func (s *StateManager) OnRemove(db *DBI64, it Iterator) {
-	if !saveState {
+	if !chain.IsRevertEnabled() {
 		return
 	}
 
@@ -74,7 +68,7 @@ func (s *StateManager) OnRemove(db *DBI64, it Iterator) {
 }
 
 func (s *StateManager) AddState(db *DBI64, op int, primary uint64, value interface{}, payer uint64) {
-	if !saveState {
+	if !chain.IsRevertEnabled() {
 		return
 	}
 
@@ -105,7 +99,7 @@ func (s *StateManager) OnIdxDBRemove(db SecondaryDB, it SecondaryIterator) {
 }
 
 func (s *StateManager) AddIdxState(db SecondaryDB, op int, primary uint64, payer uint64) {
-	if !saveState {
+	if !chain.IsRevertEnabled() {
 		return
 	}
 
@@ -135,7 +129,7 @@ func (s *StateManager) AddIdxState(db SecondaryDB, op int, primary uint64, payer
 }
 
 func (s *StateManager) Revert() {
-	if !saveState {
+	if !chain.IsRevertEnabled() {
 		return
 	}
 

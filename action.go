@@ -31,8 +31,8 @@ import (
 	"unsafe"
 )
 
-var gActionCache = make([][]byte, 0, 10)
-var gNotifyCache = make([]Name, 0, 2)
+var gActionCache [][]byte
+var gNotifyCache []Name
 
 //Read current action data
 func ReadActionData() []byte {
@@ -53,8 +53,11 @@ func ActionDataSize() uint32 {
 
 //Add the specified account to set of accounts to be notified
 func RequireRecipient(name Name) {
-	gNotifyCache = append(gNotifyCache, name)
-	//	C.require_recipient(C.uint64_t(name.N))
+	if IsRevertEnabled() {
+		AddNotifyToCache(name)
+	} else {
+		C.require_recipient(C.uint64_t(name.N))
+	}
 }
 
 //Verifies that name exists in the set of provided auths on a action. Throws if not found.
@@ -218,10 +221,33 @@ func (a *Action) AddPermission(actor Name, permission Name) {
 	a.Authorization = append(a.Authorization, PermissionLevel{actor, permission})
 }
 
+func AddNotifyToCache(a Name) {
+	if !IsRevertEnabled() {
+		return
+	}
+	if gNotifyCache == nil {
+		gNotifyCache = make([]Name, 0, 5)
+	}
+	gNotifyCache = append(gNotifyCache, a)
+}
+
+func AddActionToCache(a []byte) {
+	if !IsRevertEnabled() {
+		return
+	}
+	if gActionCache == nil {
+		gActionCache = make([][]byte, 0, 5)
+	}
+	gActionCache = append(gActionCache, a)
+}
+
 func (a *Action) Send() {
 	data := a.Pack()
-	gActionCache = append(gActionCache, data)
-	//	SendInline(data)
+	if IsRevertEnabled() {
+		AddActionToCache(data)
+	} else {
+		SendInline(data)
+	}
 }
 
 func SendAllActions() {
@@ -231,6 +257,12 @@ func SendAllActions() {
 }
 
 func Finish() {
+	if !IsRevertEnabled() {
+		return
+	}
+
+	SendCachedTransactions()
+
 	for _, notify := range gNotifyCache {
 		C.require_recipient(C.uint64_t(notify.N))
 	}

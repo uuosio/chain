@@ -27,8 +27,8 @@ func Revert(msg string) {
 }
 
 func Init(onRevert RevertInterface) {
+	chain.EnableRevert(true)
 	gRevert = onRevert
-	database.SetSaveState(true)
 	chain.SetRevertFn(Revert)
 	//		runtime.SetRevertOnPanicFn(Revert)
 }

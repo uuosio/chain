@@ -20,7 +20,7 @@ import "C"
 import "unsafe"
 
 // void send_deferred(const uint128_t* sender_id, capi_name payer, const char *serialized_transaction, size_t size, uint32_t replace_existing);
-func SendDeferred(senderID [2]uint64, payer Name, transaction []byte, replaceExisting bool) {
+func SendDeferred(senderID *Uint128, payer Name, transaction []byte, replaceExisting bool) {
 	cReplaceExisting := C.uint32_t(0)
 	if replaceExisting {
 		cReplaceExisting = C.uint32_t(1)
@@ -145,12 +145,35 @@ func NewTransaction(delaySec int) *Transaction {
 	return t
 }
 
-func (t *Transaction) Send(senderId uint64, replaceExisting bool, payer Name) {
-	SendDeferred([2]uint64{senderId, 0}, payer, t.Pack(), replaceExisting)
+type TransactionCache struct {
+	sendId      *Uint128
+	payer       Name
+	transaction []byte
+	replace     bool
 }
 
-func (t *Transaction) SendEx(senderId [2]uint64, payer Name, replaceExisting bool) {
-	SendDeferred(senderId, payer, t.Pack(), replaceExisting)
+var gTransactionCache []*TransactionCache
+
+func AddTransactionCache(sendId *Uint128, payer Name, transaction []byte, replace bool) {
+	if gTransactionCache == nil {
+		gTransactionCache = make([]*TransactionCache, 0, 2)
+	}
+	gTransactionCache = append(gTransactionCache, &TransactionCache{sendId, payer, transaction, replace})
+}
+
+func SendCachedTransactions() {
+	for _, cache := range gTransactionCache {
+		SendDeferred(cache.sendId, cache.payer, cache.transaction, cache.replace)
+	}
+	gTransactionCache = nil
+}
+
+func (t *Transaction) Send(senderId *Uint128, replaceExisting bool, payer Name) {
+	if IsRevertEnabled() {
+		AddTransactionCache(senderId, payer, t.Pack(), replaceExisting)
+	} else {
+		SendDeferred(senderId, payer, t.Pack(), replaceExisting)
+	}
 }
 
 func (t *Transaction) Pack() []byte {

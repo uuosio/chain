@@ -35,15 +35,14 @@ const (
 type DBI64Unpacker func([]byte) DBValue
 
 type DBI64 struct {
-	code      C.uint64_t
-	scope     C.uint64_t
-	table     C.uint64_t
-	unpacker  DBI64Unpacker
-	saveState bool
+	code     C.uint64_t
+	scope    C.uint64_t
+	table    C.uint64_t
+	unpacker DBI64Unpacker
 }
 
 func NewDBI64(code chain.Name, scope chain.Name, table chain.Name, unpacker DBI64Unpacker) *DBI64 {
-	return &DBI64{C.uint64_t(code.N), C.uint64_t(scope.N), C.uint64_t(table.N), unpacker, saveState}
+	return &DBI64{C.uint64_t(code.N), C.uint64_t(scope.N), C.uint64_t(table.N), unpacker}
 }
 
 func (db *DBI64) Init(code chain.Name, scope chain.Name, table chain.Name) {
