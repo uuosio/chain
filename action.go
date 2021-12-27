@@ -31,6 +31,9 @@ import (
 	"unsafe"
 )
 
+var gActionCache = make([][]byte, 0, 10)
+var gNotifyCache = make([]Name, 0, 2)
+
 //Read current action data
 func ReadActionData() []byte {
 	n := C.action_data_size()
@@ -50,7 +53,8 @@ func ActionDataSize() uint32 {
 
 //Add the specified account to set of accounts to be notified
 func RequireRecipient(name Name) {
-	C.require_recipient(C.uint64_t(name.N))
+	gNotifyCache = append(gNotifyCache, name)
+	//	C.require_recipient(C.uint64_t(name.N))
 }
 
 //Verifies that name exists in the set of provided auths on a action. Throws if not found.
@@ -216,5 +220,19 @@ func (a *Action) AddPermission(actor Name, permission Name) {
 
 func (a *Action) Send() {
 	data := a.Pack()
-	SendInline(data)
+	gActionCache = append(gActionCache, data)
+	//	SendInline(data)
+}
+
+func SendAllActions() {
+	for _, a := range gActionCache {
+		SendInline(a)
+	}
+}
+
+func Finish() {
+	for _, notify := range gNotifyCache {
+		C.require_recipient(C.uint64_t(notify.N))
+	}
+	SendAllActions()
 }
