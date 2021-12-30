@@ -22,7 +22,7 @@ func Revert(msg string) {
 		receiver,
 		chain.NewName("revert"),
 		msg,
-	).Send()
+	).SendEx()
 	chain.Exit()
 }
 

@@ -60,6 +60,10 @@ func RequireRecipient(name Name) {
 	}
 }
 
+func RequireRecipientEx(name Name) {
+	C.require_recipient(C.uint64_t(name.N))
+}
+
 //Verifies that name exists in the set of provided auths on a action. Throws if not found.
 func RequireAuth(name Name) {
 	C.require_auth(C.uint64_t(name.N))
@@ -248,6 +252,12 @@ func (a *Action) Send() {
 	} else {
 		SendInline(data)
 	}
+}
+
+//send action directly, no cache
+func (a *Action) SendEx() {
+	data := a.Pack()
+	SendInline(data)
 }
 
 func SendAllActions() {
