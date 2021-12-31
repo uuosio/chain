@@ -5,12 +5,12 @@
 typedef struct {
     int64_t low;
     int64_t high;
-} int128_t;
+} int128;
 
 typedef struct {
     uint64_t low;
     uint64_t high;
-} uint128_t;
+} uint128;
 
 typedef struct {
     double low;
@@ -206,13 +206,13 @@ void printui( uint64_t value )
     return;
 }
 
-void printi128( const int128_t* value )
+void printi128( const int128* value )
 {
     go_panic((char *)__FUNCTION__);
     return;
 }
 
-void printui128( const uint128_t* value )
+void printui128( const uint128* value )
 {
     go_panic((char *)__FUNCTION__);
     return;
@@ -344,13 +344,13 @@ void preactivate_feature( const capi_checksum256* feature_digest )
     return;
 }
 
-void send_deferred(const uint128_t* sender_id, capi_name payer, const char *serialized_transaction, size_t size, uint32_t replace_existing)
+void send_deferred(const uint128* sender_id, capi_name payer, const char *serialized_transaction, size_t size, uint32_t replace_existing)
 {
     go_panic((char *)__FUNCTION__);
     return;
 }
 
-int cancel_deferred(const uint128_t* sender_id)
+int cancel_deferred(const uint128* sender_id)
 {
     go_panic((char *)__FUNCTION__);
     return 0;

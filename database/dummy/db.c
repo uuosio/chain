@@ -11,12 +11,12 @@ static void go_panic(char* funcName) {
 typedef struct {
     int64_t low;
     int64_t high;
-} int128_t;
+} int128;
 
 typedef struct {
     uint64_t low;
     uint64_t high;
-} uint128_t;
+} uint128;
 
 typedef struct {
     double low;
@@ -146,13 +146,13 @@ int32_t db_idx64_end(capi_name code, uint64_t scope, capi_name table)
     return 0;
 }
 
-int32_t db_idx128_store(uint64_t scope, capi_name table, capi_name payer, uint64_t id, const uint128_t* secondary)
+int32_t db_idx128_store(uint64_t scope, capi_name table, capi_name payer, uint64_t id, const uint128* secondary)
 {
     go_panic((char *)__FUNCTION__);
     return 0;
 }
 
-void db_idx128_update(int32_t iterator, capi_name payer, const uint128_t* secondary)
+void db_idx128_update(int32_t iterator, capi_name payer, const uint128* secondary)
 {
     go_panic((char *)__FUNCTION__);
     return;
@@ -176,25 +176,25 @@ int32_t db_idx128_previous(int32_t iterator, uint64_t* primary)
     return 0;
 }
 
-int32_t db_idx128_find_primary(capi_name code, uint64_t scope, capi_name table, uint128_t* secondary, uint64_t primary)
+int32_t db_idx128_find_primary(capi_name code, uint64_t scope, capi_name table, uint128* secondary, uint64_t primary)
 {
     go_panic((char *)__FUNCTION__);
     return 0;
 }
 
-int32_t db_idx128_find_secondary(capi_name code, uint64_t scope, capi_name table, const uint128_t* secondary, uint64_t* primary)
+int32_t db_idx128_find_secondary(capi_name code, uint64_t scope, capi_name table, const uint128* secondary, uint64_t* primary)
 {
     go_panic((char *)__FUNCTION__);
     return 0;
 }
 
-int32_t db_idx128_lowerbound(capi_name code, uint64_t scope, capi_name table, uint128_t* secondary, uint64_t* primary)
+int32_t db_idx128_lowerbound(capi_name code, uint64_t scope, capi_name table, uint128* secondary, uint64_t* primary)
 {
     go_panic((char *)__FUNCTION__);
     return 0;
 }
 
-int32_t db_idx128_upperbound(capi_name code, uint64_t scope, capi_name table, uint128_t* secondary, uint64_t* primary)
+int32_t db_idx128_upperbound(capi_name code, uint64_t scope, capi_name table, uint128* secondary, uint64_t* primary)
 {
     go_panic((char *)__FUNCTION__);
     return 0;
@@ -206,13 +206,13 @@ int32_t db_idx128_end(capi_name code, uint64_t scope, capi_name table)
     return 0;
 }
 
-int32_t db_idx256_store(uint64_t scope, capi_name table, capi_name payer, uint64_t id, const uint128_t* data, uint32_t data_len )
+int32_t db_idx256_store(uint64_t scope, capi_name table, capi_name payer, uint64_t id, const uint128* data, uint32_t data_len )
 {
     go_panic((char *)__FUNCTION__);
     return 0;
 }
 
-void db_idx256_update(int32_t iterator, capi_name payer, const uint128_t* data, uint32_t data_len)
+void db_idx256_update(int32_t iterator, capi_name payer, const uint128* data, uint32_t data_len)
 {
     go_panic((char *)__FUNCTION__);
     return;
@@ -236,25 +236,25 @@ int32_t db_idx256_previous(int32_t iterator, uint64_t* primary)
     return 0;
 }
 
-int32_t db_idx256_find_primary(capi_name code, uint64_t scope, capi_name table, uint128_t* data, uint32_t data_len, uint64_t primary)
+int32_t db_idx256_find_primary(capi_name code, uint64_t scope, capi_name table, uint128* data, uint32_t data_len, uint64_t primary)
 {
     go_panic((char *)__FUNCTION__);
     return 0;
 }
 
-int32_t db_idx256_find_secondary(capi_name code, uint64_t scope, capi_name table, const uint128_t* data, uint32_t data_len, uint64_t* primary)
+int32_t db_idx256_find_secondary(capi_name code, uint64_t scope, capi_name table, const uint128* data, uint32_t data_len, uint64_t* primary)
 {
     go_panic((char *)__FUNCTION__);
     return 0;
 }
 
-int32_t db_idx256_lowerbound(capi_name code, uint64_t scope, capi_name table, uint128_t* data, uint32_t data_len, uint64_t* primary)
+int32_t db_idx256_lowerbound(capi_name code, uint64_t scope, capi_name table, uint128* data, uint32_t data_len, uint64_t* primary)
 {
     go_panic((char *)__FUNCTION__);
     return 0;
 }
 
-int32_t db_idx256_upperbound(capi_name code, uint64_t scope, capi_name table, uint128_t* data, uint32_t data_len, uint64_t* primary)
+int32_t db_idx256_upperbound(capi_name code, uint64_t scope, capi_name table, uint128* data, uint32_t data_len, uint64_t* primary)
 {
     go_panic((char *)__FUNCTION__);
     return 0;
