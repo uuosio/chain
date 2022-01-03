@@ -1,78 +1,69 @@
 package main
 
 import (
-	"bytes"
-	"sort"
-
 	"github.com/uuosio/chain"
+	"github.com/uuosio/chain/sys"
 )
 
-//table mydata2 singleton
-type MySingleton struct {
-	a1 uint64
+//table test
+type MyData struct {
+	id    uint64 //primary: t.id
+	value uint64 //IDX64: ByValue : t.value : t.value
 }
 
-//contract test
-type MyContract struct {
-	Receiver      chain.Name
-	FirstReceiver chain.Name
-	Action        chain.Name
+//table test2
+type MyData2 struct {
+	id    uint64        //primary: t.id
+	value chain.Uint128 //IDX128: ByValue : t.value : t.value
 }
 
-func NewContract(receiver, firstReceiver, action chain.Name) *MyContract {
-	return &MyContract{receiver, firstReceiver, action}
-}
+func main() {
+	receiver, _, action := chain.GetApplyArgs()
+	if action == chain.NewName("revert") {
+		db := NewMyDataDB(receiver, receiver)
+		it := db.Find(1)
+		chain.Check(!it.IsOk(), "value should not exists")
 
-func less(a, b []byte) bool {
-	if len(a) < len(b) {
-		return true
-	} else if len(a) > len(b) {
-		return false
-	}
+		idxDB := db.GetIdxDBByValue()
+		it2 := idxDB.Find(2)
+		chain.Check(!it2.IsOk(), "secondary value should not exists")
+		{
+			db := NewMyData2DB(receiver, receiver)
+			it := db.Find(1)
+			chain.Check(!it.IsOk(), "value should not exists")
 
-	for i := 0; i < len(a); i++ {
-		if a[i] < b[i] {
-			return true
+			value := chain.Uint128{}
+			value.SetUint64(123)
+			idxDB := db.GetIdxDBByValue()
+			it2 := idxDB.Find(value)
+			chain.Check(!it2.IsOk(), "secondary value should not exists")
 		}
-		return false
-	}
-	return false
-}
+		chain.Println("revert ok")
+	} else {
+		sys.Init(nil)
+		db := NewMyDataDB(receiver, receiver)
+		db.Store(&MyData{1, 2}, receiver)
 
-//action test
-func (t *MyContract) test(pubs []chain.PublicKey) {
+		it := db.Find(1)
+		chain.Check(it.IsOk(), "value should exists")
 
-	a := []byte("02056f8d91fc8996bd3f2fa4dc2dd60d6cdd05811db0065dd4f191b8bbd8eda5d4")
-	b := []byte("02cbb8488ce044116dd4411c7c76ca44bb42b76400a0eb8353bf62a327423da26c")
-	r := bytes.Compare(a, b)
-	println("++++bytes.Compare:", r)
+		idxDB := db.GetIdxDBByValue()
+		it2 := idxDB.Find(2)
+		chain.Check(it2.IsOk(), "secondary value should exists")
 
-	// chain.Println("02cbb8488ce044116dd4411c7c76ca44bb42b76400a0eb8353bf62a327423da26c" < "02056f8d91fc8996bd3f2fa4dc2dd60d6cdd05811db0065dd4f191b8bbd8eda5d4")
+		{
+			db := NewMyData2DB(receiver, receiver)
+			value := chain.Uint128{}
+			value.SetUint64(123)
+			db.Store(&MyData2{1, value}, receiver)
 
-	// a := []int{1, 3, 2}
-	// sort.Slice(a, func(i, j int) bool {
-	// 	return a[i] < a[j]
-	// })
+			it := db.Find(1)
+			chain.Check(it.IsOk(), "value should exists")
 
-	// for _, v := range a {
-	// 	chain.Println("test", "v", v)
-	// }
-
-	// sort.Slice(pubs, func(i, j int) bool {
-	// 	return bytes.Compare(pubs[i].Data[:], pubs[j].Data[:]) < 0
-	// })
-
-	// sort.Slice(pubs, func(i, j int) bool {
-	// 	return string(pubs[i].Data[:]) < string(pubs[j].Data[:])
-	// })
-
-	// for _, pub := range pubs {
-	// 	chain.Println(pub.Type, pub.Data[:])
-	// }
-	// return
-
-	sort.Sort(chain.PublicKeyList(pubs))
-	for _, pub := range pubs {
-		chain.Println(pub.Type, pub.Data[:])
+			idxDB := db.GetIdxDBByValue()
+			it2 := idxDB.Find(value)
+			chain.Check(it2.IsOk(), "secondary value should exists")
+		}
+		chain.Check(false, "revert")
 	}
 }

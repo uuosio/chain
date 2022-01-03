@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/uuosio/chain"
-	"github.com/uuosio/chain/revert"
+	"github.com/uuosio/chain/sys"
 )
 
 //table test
@@ -12,6 +12,7 @@ type MyData struct {
 }
 
 func main() {
+	sys.Init(nil)
 	receiver, _, action := chain.GetApplyArgs()
 	if action == chain.NewName("revert") {
 		db := NewMyDataDB(receiver, receiver)
@@ -23,7 +24,7 @@ func main() {
 		chain.Check(!it2.IsOk(), "secondary value should not exists")
 		chain.Println("revert ok")
 	} else {
-		revert.Init()
+		sys.Init(nil)
 		db := NewMyDataDB(receiver, receiver)
 		db.Store(&MyData{1, 2}, receiver)
 

@@ -10,6 +10,7 @@ import (
 
 const DEBUG = false
 
+//packer
 type MyData struct {
 	primary uint64
 	n       uint32
