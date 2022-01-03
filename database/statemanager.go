@@ -48,8 +48,7 @@ func (s *StateManager) OnUpdate(db *DBI64, it Iterator, payer uint64) {
 		return
 	}
 
-	rawValue, err := db.GetByIterator(it)
-	chain.Check(err == nil, "bad iterator")
+	rawValue := db.GetByIterator(it)
 	value := db.unpacker(rawValue)
 	primary := value.GetPrimary()
 	s.AddState(db, OperationUpdate, primary, rawValue, payer)
@@ -60,8 +59,7 @@ func (s *StateManager) OnRemove(db *DBI64, it Iterator) {
 		return
 	}
 
-	rawValue, err := db.GetByIterator(it)
-	chain.Check(err == nil, "bad iterator")
+	rawValue := db.GetByIterator(it)
 	value := db.unpacker(rawValue)
 	primary := value.GetPrimary()
 	s.AddState(db, OperationRemove, primary, value, chain.CurrentReceiver().N)

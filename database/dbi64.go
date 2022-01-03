@@ -80,12 +80,10 @@ func (db *DBI64) Get(id uint64) (Iterator, []byte) {
 	return it, raw
 }
 
-func (db *DBI64) GetByIterator(it Iterator) ([]byte, error) {
-	if !it.IsOk() {
-		return nil, ErrInvalidIterator
-	}
+func (db *DBI64) GetByIterator(it Iterator) []byte {
+	chain.Check(it.IsOk(), "invalid iterator")
 	raw := db.getI64(it)
-	return raw, nil
+	return raw
 }
 
 //Store a record in a primary 64-bit integer index table

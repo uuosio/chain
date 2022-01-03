@@ -22,7 +22,7 @@ type MultiIndexInterface interface {
 	Store(v MultiIndexValue, payer chain.Name) Iterator
 	Set(primary uint64, v MultiIndexValue, payer chain.Name)
 	Get(id uint64) (Iterator, MultiIndexValue)
-	GetByIterator(it Iterator) (MultiIndexValue, error)
+	GetByIterator(it Iterator) MultiIndexValue
 	Update(it Iterator, v MultiIndexValue, payer chain.Name)
 
 	Find(primary uint64) Iterator
@@ -152,13 +152,10 @@ func (mi *MultiIndex) Get(id uint64) (Iterator, MultiIndexValue) {
 }
 
 //Get value by primary Iterator
-func (mi *MultiIndex) GetByIterator(it Iterator) (MultiIndexValue, error) {
-	v, err := mi.DB.GetByIterator(it)
-	if err != nil {
-		return nil, err
-	}
+func (mi *MultiIndex) GetByIterator(it Iterator) MultiIndexValue {
+	v := mi.DB.GetByIterator(it)
 	vv := mi.Unpack(v)
-	return vv, nil
+	return vv
 }
 
 func IsEqual(indexType int, a, b interface{}) bool {
@@ -207,10 +204,7 @@ func IsEqual(indexType int, a, b interface{}) bool {
 }
 
 func (mi *MultiIndex) Update(it Iterator, v MultiIndexValue, payer chain.Name) {
-	oldValue, err := mi.GetByIterator(it)
-	if err != nil {
-		panic(err)
-	}
+	oldValue := mi.GetByIterator(it)
 
 	primary := v.GetPrimary()
 	chain.Check(oldValue.GetPrimary() == primary, "mi.Update: Can not change primary key duration update")
@@ -231,8 +225,7 @@ func (mi *MultiIndex) Update(it Iterator, v MultiIndexValue, payer chain.Name) {
 }
 
 func (mi *MultiIndex) Remove(it Iterator) {
-	v, err := mi.GetByIterator(it)
-	chain.Check(err == nil, "mi.Remove: Invalid Iterator")
+	v := mi.GetByIterator(it)
 	mi.DB.Remove(it)
 	for _, db := range mi.IDXDBs {
 		it, secondary := db.FindByPrimary(v.GetPrimary())
@@ -276,8 +269,7 @@ func (mi *MultiIndex) IdxFind(index int, secondary interface{}) SecondaryIterato
 func (mi *MultiIndex) UpdateSecondaryValue(idxDB SecondaryDB, primary uint64, secondary interface{}, payer chain.Name) {
 	itPrimary := mi.DB.Find(primary)
 	chain.Check(itPrimary.IsOk(), "primary not found!")
-	v, err := mi.DB.GetByIterator(itPrimary)
-	chain.Check(err == nil, "get primary value error!")
+	v := mi.DB.GetByIterator(itPrimary)
 	_v := mi.Unpack(v)
 
 	newSecondary := _v.GetSecondaryValue(idxDB.GetIndex())
@@ -299,8 +291,7 @@ func (mi *MultiIndex) IdxUpdate(it SecondaryIterator, secondary interface{}, pay
 
 	itPrimary := mi.DB.Find(it.Primary)
 	chain.Check(itPrimary.IsOk(), "primary not found!")
-	v, err := mi.DB.GetByIterator(itPrimary)
-	chain.Check(err == nil, "get primary value error!")
+	v := mi.DB.GetByIterator(itPrimary)
 	_v := mi.Unpack(v)
 	newSecondary := _v.GetSecondaryValue(idxDB.GetIndex())
 	if IsEqual(mi.IndexTypes[idxDB.GetIndex()], newSecondary, secondary) {

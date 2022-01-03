@@ -76,10 +76,7 @@ func main() {
 		db := database.NewDBI64(code, scope, table)
 		it := db.Find(id)
 		if it.IsOk() {
-			data, err := db.GetByIterator(it)
-			if err != nil {
-				logger.Fatal(err)
-			}
+			data := db.GetByIterator(it)
 
 			if len(data) != 8 {
 				buf := [8]byte{}
@@ -101,10 +98,7 @@ func main() {
 		db := database.NewDBI64(code, scope, table)
 		it := db.Find(id)
 		if it.IsOk() {
-			value, err := db.GetByIterator(it)
-			if err != nil {
-				logger.Fatal(err)
-			}
+			value := db.GetByIterator(it)
 			n := binary.LittleEndian.Uint64(value)
 			logger.Println(len(value), n, string(value))
 		} else {
