@@ -1,4 +1,5 @@
 //go:build !eosio
+// +build !eosio
 
 package database
 
