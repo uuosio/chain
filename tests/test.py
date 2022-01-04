@@ -348,8 +348,8 @@ func main() {
         print_console(r)
 
     def test_kv(self):
-        import uuosio
-        test_dir = os.path.dirname(uuosio.__file__)
+        import ipyeos
+        test_dir = os.path.dirname(ipyeos.__file__)
         test_dir = os.path.join(test_dir, "tests/activate_kv.wasm")
         with open(os.path.join(test_dir), 'rb') as f:
             code = f.read()
@@ -423,34 +423,6 @@ func main() {
         code, abi = self.compile('testlargecode', code)
         assert code
         self.chain.deploy_contract('hello', code, abi, 0)
-        r = self.chain.push_action('hello', 'test', b'hello,world')
-        print_console(r)
-
-    def test_math(self):
-        code = '''
-#include <stdint.h>
-#include <eosio/eosio.hpp>
-
-void test_double() {
-    double a = 88888.11111111111;
-    double b = 99999.22222222222;
-    double c = 77777.33333333333;
-    eosio::check(a/b*c==a*c/b, "a/b*c ==a*c/b failed!");
-}
-
-extern "C" void apply(uint64_t a, uint64_t b, uint64_t c) {
-    uint64_t d = 0;
-    if (a == 0) {
-        d = 1;
-    }
-    eosio::print(a/d);
-//    test_double();
-//    eosio::check(a/0, "bad");
-}
-'''
-        code = wasmcompiler.compile_cpp_src('hello', code)
-        assert code
-        self.chain.deploy_contract('hello', code, b'', 0)
         r = self.chain.push_action('hello', 'test', b'hello,world')
         print_console(r)
 

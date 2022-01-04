@@ -8,8 +8,8 @@ from pyeoskit import wasmcompiler, uuosapi
 test_dir = os.path.dirname(__file__)
 sys.path.append(os.path.join(test_dir, '..'))
 
-from uuosio import log
-from uuosio.chaintester import ChainTester
+from ipyeos import log
+from ipyeos.chaintester import ChainTester
 
 logger = log.get_logger(__name__)
 
