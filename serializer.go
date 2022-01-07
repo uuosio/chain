@@ -93,11 +93,7 @@ func UnpackVarUint32(val []byte) (v uint32, n int) {
 func PackedVarUint32Length(val uint32) int {
 	n := 0
 	for {
-		b := byte(val & 0x7f)
 		val >>= 7
-		if val > 0 {
-			b |= byte(1 << 7)
-		}
 		n += 1
 		if val <= 0 {
 			break
