@@ -28,10 +28,6 @@ func (it Iterator) IsValid() bool {
 	return it.I != -1
 }
 
-func (it Iterator) IsInvalid() bool {
-	return it.I == -1
-}
-
 type SecondaryIterator struct {
 	I       int32
 	Primary uint64
@@ -48,10 +44,6 @@ func (it *SecondaryIterator) IsEnd() bool {
 
 func (it *SecondaryIterator) IsValid() bool {
 	return it.I != -1
-}
-
-func (it *SecondaryIterator) IsInvalid() bool {
-	return it.I == -1
 }
 
 type SecondaryDB interface {
