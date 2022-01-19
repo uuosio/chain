@@ -18,7 +18,7 @@ func Revert(msg string) {
 	database.GetStateManager().Revert()
 	receiver := chain.CurrentReceiver()
 	chain.NewAction(
-		chain.NewPermission(receiver, chain.ActiveName),
+		chain.NewPermissionLevel(receiver, chain.ActiveName),
 		receiver,
 		chain.NewName("revert"),
 		msg,
