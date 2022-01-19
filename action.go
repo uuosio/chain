@@ -125,11 +125,11 @@ func SetActionReturnValue(return_value []byte) {
 type Action struct {
 	Account       Name
 	Name          Name
-	Authorization []PermissionLevel
+	Authorization []*PermissionLevel
 	Data          []byte
 }
 
-func NewAction(perm PermissionLevel, account Name, name Name, args ...interface{}) *Action {
+func NewAction(perm *PermissionLevel, account Name, name Name, args ...interface{}) *Action {
 	a := &Action{}
 	a.Account = account
 	a.Name = name
@@ -179,7 +179,7 @@ func (a *Action) Pack() []byte {
 	enc.PackName(a.Name)
 	enc.PackLength(len(a.Authorization))
 	for _, v := range a.Authorization {
-		enc.Pack(&v)
+		enc.Pack(v)
 	}
 	enc.Pack(a.Data)
 	return enc.GetBytes()
@@ -201,9 +201,10 @@ func (a *Action) Unpack(b []byte) int {
 	a.Account = dec.UnpackName()
 	a.Name = dec.UnpackName()
 	length := dec.UnpackLength()
-	a.Authorization = make([]PermissionLevel, length)
+	a.Authorization = make([]*PermissionLevel, length)
 	for i := 0; i < length; i++ {
-		dec.Unpack(&a.Authorization[i])
+		a.Authorization[i] = new(PermissionLevel)
+		dec.Unpack(a.Authorization[i])
 	}
 	dec.Unpack(&a.Data)
 	return dec.Pos()
@@ -222,7 +223,7 @@ func (a *Action) Print() {
 }
 
 func (a *Action) AddPermission(actor Name, permission Name) {
-	a.Authorization = append(a.Authorization, PermissionLevel{actor, permission})
+	a.Authorization = append(a.Authorization, &PermissionLevel{actor, permission})
 }
 
 func AddNotifyToCache(a Name) {
