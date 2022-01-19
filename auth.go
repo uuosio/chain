@@ -1,30 +1,13 @@
 package chain
 
+type KeyWeight struct {
+	Key    PublicKey
+	Weight uint16
+}
+
 type PermissionLevel struct {
 	Actor      Name
 	Permission Name
-}
-
-func (t *PermissionLevel) Pack() []byte {
-	enc := NewEncoder(16)
-	enc.Pack(&t.Actor)
-	enc.Pack(&t.Permission)
-	return enc.GetBytes()
-}
-
-func NewPermission(actor Name, permission Name) PermissionLevel {
-	return PermissionLevel{actor, permission}
-}
-
-func (t *PermissionLevel) Unpack(data []byte) int {
-	dec := NewDecoder(data)
-	dec.Unpack(&t.Actor)
-	dec.Unpack(&t.Permission)
-	return dec.Pos()
-}
-
-func (t *PermissionLevel) Size() int {
-	return 16
 }
 
 type PermissionLevelWeight struct {
@@ -32,59 +15,62 @@ type PermissionLevelWeight struct {
 	Weight     uint16
 }
 
+type WaitWeight struct {
+	WaitSec uint32
+	Weight  uint16
+}
+
+type Authority struct {
+	Threshold uint32
+	Keys      []KeyWeight
+	Accounts  []PermissionLevelWeight
+	Waits     []WaitWeight
+}
+
+func NewPermissionLevel(actor Name, permission Name) *PermissionLevel {
+	return &PermissionLevel{actor, permission}
+}
+
+func (t *PermissionLevel) Pack() []byte {
+	enc := NewEncoder(t.Size())
+	enc.PackUint64(t.Actor.N)
+	enc.PackUint64(t.Permission.N)
+	return enc.GetBytes()
+}
+
+func (t *PermissionLevel) Unpack(data []byte) int {
+	dec := NewDecoder(data)
+	t.Actor = dec.UnpackName()
+	t.Permission = dec.UnpackName()
+	return dec.Pos()
+}
+
+func (t *PermissionLevel) Size() int {
+	size := 0
+	size += 8 //Actor
+	size += 8 //Permission
+	return size
+}
+
 func (t *PermissionLevelWeight) Pack() []byte {
-	enc := NewEncoder(16 + 2)
+	enc := NewEncoder(t.Size())
 	enc.Pack(&t.Permission)
-	enc.Pack(t.Weight)
+	enc.PackUint16(t.Weight)
 	return enc.GetBytes()
 }
 
 func (t *PermissionLevelWeight) Unpack(data []byte) int {
 	dec := NewDecoder(data)
-	dec.Unpack(&t.Permission)
-	dec.Unpack(&t.Weight)
+	dec.UnpackI(&t.Permission)
+	t.Weight = dec.UnpackUint16()
 	return dec.Pos()
 }
 
 func (t *PermissionLevelWeight) Size() int {
 	size := 0
-	size += t.Permission.Size()
-	size += 2
+	size += t.Permission.Size() //Permission
+	size += 2                   //Weight
 	return size
-}
-
-type KeyWeight struct {
-	Key    PublicKey
-	Weight uint16
-}
-
-func (t *KeyWeight) Pack() []byte {
-	enc := NewEncoder(t.Size())
-	enc.Pack(&t.Key)
-	enc.PackUint16(t.Weight)
-	return enc.GetBytes()
-}
-
-func (t *KeyWeight) Unpack(data []byte) int {
-	dec := NewDecoder(data)
-	dec.UnpackI(&t.Key)
-	{
-		v := dec.UnpackUint16()
-		t.Weight = v
-	}
-	return dec.Pos()
-}
-
-func (t *KeyWeight) Size() int {
-	size := 0
-	size += t.Key.Size()
-	size += 2
-	return size
-}
-
-type WaitWeight struct {
-	WaitSec uint32
-	Weight  uint16
 }
 
 func (t *WaitWeight) Pack() []byte {
@@ -96,55 +82,16 @@ func (t *WaitWeight) Pack() []byte {
 
 func (t *WaitWeight) Unpack(data []byte) int {
 	dec := NewDecoder(data)
-	{
-		v := dec.UnpackUint32()
-		t.WaitSec = v
-	}
-	{
-		v := dec.UnpackUint16()
-		t.Weight = v
-	}
+	t.WaitSec = dec.UnpackUint32()
+	t.Weight = dec.UnpackUint16()
 	return dec.Pos()
 }
 
 func (t *WaitWeight) Size() int {
 	size := 0
-	size += 4
-	size += 2
+	size += 4 //WaitSec
+	size += 2 //Weight
 	return size
-}
-
-type Authority struct {
-	Threshold uint32
-	Keys      []KeyWeight
-	Accounts  []PermissionLevelWeight
-	Waits     []WaitWeight
-}
-
-func NewAuthority(threshold int) *Authority {
-	a := &Authority{}
-	a.Threshold = uint32(threshold)
-	return a
-}
-
-func (t *Authority) SetThreshold(threshold uint32) {
-	t.Threshold = threshold
-}
-
-func (t *Authority) InitAccountWeight(size int) {
-	t.Accounts = make([]PermissionLevelWeight, 0, size)
-}
-
-func (t *Authority) AddAccountWeight(perm PermissionLevel, weight uint16) {
-	t.Accounts = append(t.Accounts, PermissionLevelWeight{perm, weight})
-}
-
-func (t *Authority) InitKeyWeight(size int) {
-	t.Accounts = make([]PermissionLevelWeight, 0, size)
-}
-
-func (t *Authority) AddKeyWeight(pub PublicKey, weight uint16) {
-	t.Keys = append(t.Keys, KeyWeight{pub, weight})
 }
 
 func (t *Authority) Pack() []byte {
@@ -156,27 +103,27 @@ func (t *Authority) Pack() []byte {
 			enc.Pack(&t.Keys[i])
 		}
 	}
+
 	{
 		enc.PackLength(len(t.Accounts))
 		for i := range t.Accounts {
 			enc.Pack(&t.Accounts[i])
 		}
 	}
+
 	{
 		enc.PackLength(len(t.Waits))
 		for i := range t.Waits {
 			enc.Pack(&t.Waits[i])
 		}
 	}
+
 	return enc.GetBytes()
 }
 
 func (t *Authority) Unpack(data []byte) int {
 	dec := NewDecoder(data)
-	{
-		v := dec.UnpackUint32()
-		t.Threshold = v
-	}
+	t.Threshold = dec.UnpackUint32()
 	{
 		length := dec.UnpackLength()
 		t.Keys = make([]KeyWeight, length)
@@ -184,6 +131,7 @@ func (t *Authority) Unpack(data []byte) int {
 			dec.UnpackI(&t.Keys[i])
 		}
 	}
+
 	{
 		length := dec.UnpackLength()
 		t.Accounts = make([]PermissionLevelWeight, length)
@@ -191,6 +139,7 @@ func (t *Authority) Unpack(data []byte) int {
 			dec.UnpackI(&t.Accounts[i])
 		}
 	}
+
 	{
 		length := dec.UnpackLength()
 		t.Waits = make([]WaitWeight, length)
@@ -198,12 +147,13 @@ func (t *Authority) Unpack(data []byte) int {
 			dec.UnpackI(&t.Waits[i])
 		}
 	}
+
 	return dec.Pos()
 }
 
 func (t *Authority) Size() int {
 	size := 0
-	size += 4
+	size += 4 //Threshold
 	size += PackedVarUint32Length(uint32(len(t.Keys)))
 
 	for i := range t.Keys {
@@ -222,57 +172,23 @@ func (t *Authority) Size() int {
 	return size
 }
 
-type UpdateAuth struct {
-	Account    Name
-	Permission Name
-	Parent     Name
-	Auth       Authority
-}
-
-func NewUpdateAuth(account Name, permission Name, parent Name, threshold int, auth ...Authority) *UpdateAuth {
-	updateAuth := &UpdateAuth{}
-	updateAuth.Account = account
-	updateAuth.Permission = permission
-	updateAuth.Parent = parent
-	if len(auth) == 1 {
-		updateAuth.Auth = auth[0]
-	}
-	updateAuth.Auth.Threshold = uint32(threshold)
-	return updateAuth
-}
-
-func (t *UpdateAuth) Pack() []byte {
+func (t *KeyWeight) Pack() []byte {
 	enc := NewEncoder(t.Size())
-	enc.PackUint64(t.Account.N)
-	enc.PackUint64(t.Permission.N)
-	enc.PackUint64(t.Parent.N)
-	enc.Pack(&t.Auth)
+	enc.Pack(&t.Key)
+	enc.PackUint16(t.Weight)
 	return enc.GetBytes()
 }
 
-func (t *UpdateAuth) Unpack(data []byte) int {
+func (t *KeyWeight) Unpack(data []byte) int {
 	dec := NewDecoder(data)
-	{
-		v := dec.UnpackName()
-		t.Account = v
-	}
-	{
-		v := dec.UnpackName()
-		t.Permission = v
-	}
-	{
-		v := dec.UnpackName()
-		t.Parent = v
-	}
-	dec.UnpackI(&t.Auth)
+	dec.UnpackI(&t.Key)
+	t.Weight = dec.UnpackUint16()
 	return dec.Pos()
 }
 
-func (t *UpdateAuth) Size() int {
+func (t *KeyWeight) Size() int {
 	size := 0
-	size += 8
-	size += 8
-	size += 8
-	size += t.Auth.Size()
+	size += t.Key.Size() //Key
+	size += 2            //Weight
 	return size
 }

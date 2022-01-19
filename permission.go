@@ -67,35 +67,3 @@ func GetAccountCreationTime(account Name) int64 {
 	ret := C.get_account_creation_time(C.uint64_t(account.N))
 	return int64(ret)
 }
-
-type NewAccount struct {
-	Creator Name
-	Name    Name
-	Owner   Authority
-	Active  Authority
-}
-
-func CreateNewAccount(creator Name, newAccount Name) *NewAccount {
-	a := &NewAccount{}
-	a.Creator = creator
-	a.Name = newAccount
-	return a
-}
-
-func (t *NewAccount) Pack() []byte {
-	enc := NewEncoder(int(unsafe.Sizeof(*t)))
-	enc.Pack(&t.Creator)
-	enc.Pack(&t.Name)
-	enc.Pack(&t.Owner)
-	enc.Pack(&t.Active)
-	return nil
-}
-
-func (t *NewAccount) Unpack(data []byte) int {
-	dec := NewDecoder(data)
-	dec.Unpack(&t.Creator)
-	dec.Unpack(&t.Name)
-	dec.Unpack(&t.Owner)
-	dec.Unpack(&t.Active)
-	return 0
-}
