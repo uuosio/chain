@@ -307,9 +307,10 @@ func (dec *Decoder) UnpackAction() *Action {
 	return a
 }
 
-func (dec *Decoder) UnpackI(unpacker Unpacker) {
+func (dec *Decoder) UnpackI(unpacker Unpacker) int {
 	n := unpacker.Unpack(dec.buf[dec.pos:])
 	dec.incPos(n)
+	return n
 }
 
 // Unpack supported type:
