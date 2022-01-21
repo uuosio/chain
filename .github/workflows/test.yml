@@ -17,18 +17,11 @@ jobs:
         # python-version: [3.9]
         # os: ['ubuntu-18.04']
       fail-fast: false
-    env:
-      PYTHON_SHARED_LIB_PATH: /opt/hostedtoolcache/Python/3.9.9/x64/lib/libpython3.9.so
-
     steps:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - name: ls
-        if: ${{ matrix.os == 'ubuntu-18.04' }}
-        run: |
-          ls /usr/lib/x86_64-linux-gnu
       - name: Install Go
         uses: actions/setup-go@v2
         with:
@@ -50,10 +43,6 @@ jobs:
         if: ${{ matrix.os != 'windows-latest' }}
         run: |
           python -m pip install ipyeos
-      - name: export PYTHON_SHARED_LIB_PATH env
-        if: ${{ matrix.os == 'ubuntu-18.04' }}
-        run: |
-          export PYTHON_SHARED_LIB_PATH=${{ env.PYTHON_SHARED_LIB_PATH }}
       - name: Test compiler
         if: ${{ matrix.os == 'windows-latest' }}
         working-directory: tests
@@ -63,4 +52,4 @@ jobs:
         if: ${{ matrix.os != 'windows-latest' }}
         working-directory: tests
         run: |
-          ./test_all.sh
+          PYTHON_SHARED_LIB_PATH=${{ env.pythonLocation }}/lib/libpython3.9.so ./test_all.sh
