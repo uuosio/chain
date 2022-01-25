@@ -134,7 +134,10 @@ func NewAction(perm *PermissionLevel, account Name, name Name, args ...interface
 	a.Account = account
 	a.Name = name
 
-	a.Authorization = append(a.Authorization, perm)
+	if perm != nil {
+		a.Authorization = append(a.Authorization, perm)
+	}
+
 	if len(args) == 0 {
 		a.Data = []byte{}
 		return a
