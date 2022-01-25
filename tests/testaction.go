@@ -27,7 +27,7 @@ func (c *ActionTest) SayHello() {
 	a := chain.Action{
 		chain.NewName("hello"), //gContractName,
 		gActionName,
-		[]chain.PermissionLevel{{gContractName, chain.ActiveName}},
+		[]*chain.PermissionLevel{&chain.PermissionLevel{gContractName, chain.ActiveName}},
 		[]byte("hello,world"),
 	}
 	a.Send()
@@ -41,7 +41,7 @@ func (c *ActionTest) SayHello2() {
 //action sayhello3
 func (c *ActionTest) SayHello3() {
 	a := chain.NewAction(
-		chain.PermissionLevel{gContractName, chain.ActiveName},
+		&chain.PermissionLevel{gContractName, chain.ActiveName},
 		chain.NewName("eosio.token"),
 		chain.NewName("transfer"),
 		chain.NewName("hello"),                           //from

@@ -56,7 +56,7 @@ func main() {
 		// a.Data = []byte("hello,world")
 
 		a := chain.NewAction(
-			chain.NewPermission(chain.NewName("hello"), chain.ActiveName),
+			chain.NewPermissionLevel(chain.NewName("hello"), chain.ActiveName),
 			chain.NewName("hello"),
 			chain.NewName("sayhello2"),
 			[]byte("hello,world"),
