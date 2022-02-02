@@ -42,6 +42,7 @@ type DBI64 struct {
 }
 
 func NewDBI64(code chain.Name, scope chain.Name, table chain.Name, unpacker DBI64Unpacker) *DBI64 {
+	chain.Assert(chain.IsAccount(code), "code account does not exists!")
 	return &DBI64{C.uint64_t(code.N), C.uint64_t(scope.N), C.uint64_t(table.N), unpacker}
 }
 
