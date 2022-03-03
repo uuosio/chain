@@ -16,7 +16,6 @@ int32_t db_idx128_end(uint64_t code, uint64_t scope, uint64_t table);
 */
 import "C"
 import (
-	"math/big"
 	"unsafe"
 
 	"github.com/uuosio/chain"
@@ -32,20 +31,28 @@ func NewIdxDB128(index int, code uint64, scope uint64, table uint64) *IdxDB128 {
 }
 
 //Store an association of a 128-bit integer secondary key to a primary key in a secondary 128-bit integer index table
-func (db *IdxDB128) Store(id uint64, secondary interface{}, payer uint64) SecondaryIterator {
+func (db *IdxDB128) Store(id uint64, secondary chain.Uint128, payer uint64) SecondaryIterator {
 	GetStateManager().OnIdxDBStore(db, id)
-	_secondary, ok := secondary.(chain.Uint128)
-	chain.Check(ok, "bad secondary type")
-	ret := C.db_idx128_store(db.scope, db.table, C.uint64_t(payer), C.uint64_t(id), (*C.uint128)(unsafe.Pointer(&_secondary)))
+	ret := C.db_idx128_store(db.scope, db.table, C.uint64_t(payer), C.uint64_t(id), (*C.uint128)(unsafe.Pointer(&secondary)))
 	return SecondaryIterator{int32(ret), id, db.dbIndex}
 }
 
-//Update an association for a 128-bit integer secondary key to a primary key in a secondary 128-bit integer index table
-func (db *IdxDB128) Update(it SecondaryIterator, secondary interface{}, payer uint64) {
-	GetStateManager().OnIdxDBUpdate(db, it, payer)
+func (db *IdxDB128) StoreEx(id uint64, secondary interface{}, payer uint64) SecondaryIterator {
 	_secondary, ok := secondary.(chain.Uint128)
 	chain.Check(ok, "bad secondary type")
-	C.db_idx128_update(C.int32_t(it.I), C.uint64_t(payer), (*C.uint128)(unsafe.Pointer(&_secondary)))
+	return db.Store(id, _secondary, payer)
+}
+
+//Update an association for a 128-bit integer secondary key to a primary key in a secondary 128-bit integer index table
+func (db *IdxDB128) Update(it SecondaryIterator, secondary chain.Uint128, payer uint64) {
+	GetStateManager().OnIdxDBUpdate(db, it, payer)
+	C.db_idx128_update(C.int32_t(it.I), C.uint64_t(payer), (*C.uint128)(unsafe.Pointer(&secondary)))
+}
+
+func (db *IdxDB128) UpdateEx(it SecondaryIterator, secondary interface{}, payer uint64) {
+	_secondary, ok := secondary.(chain.Uint128)
+	chain.Check(ok, "bad secondary type")
+	db.Update(it, _secondary, payer)
 }
 
 //Remove a table row from a secondary 128-bit integer index table
@@ -79,75 +86,36 @@ func (db *IdxDB128) FindByPrimary(primary uint64) (SecondaryIterator, interface{
 }
 
 //Find a table row in a secondary 128-bit integer index table by secondary key
-func (db *IdxDB128) Find(secondary interface{}) SecondaryIterator {
-	// var primary uint64 = 0
-	var rawSecondary chain.Uint128
-	switch v := secondary.(type) {
-	case big.Int:
-		_secondary := v.Bytes()
-		chain.Check(len(_secondary) <= 16, "Uint128 overflow")
-		copy(rawSecondary[:], _secondary)
-	case chain.Uint128:
-		rawSecondary = v
-	default:
-		panic("can not conver to uint128 type")
-	}
-	// _secondary, ok := secondary.(Uint128)
-	// chain.Check(ok, "bad secondary type")
-	// ret := C.db_idx128_find_secondary(db.code, db.scope, db.table, (*uint8)(unsafe.Pointer(&rawSecondary[0])), &primary)
-	// return SecondaryIterator{ret, primary, db.dbIndex}
+func (db *IdxDB128) Find(secondary chain.Uint128) SecondaryIterator {
 	it, value := db.Lowerbound(secondary)
 	if it.IsOk() {
-		if value.(chain.Uint128) == rawSecondary {
+		if value.(chain.Uint128) == secondary {
 			return it
 		}
 	}
 	return SecondaryIterator{-1, 0, db.dbIndex}
 }
 
+func (db *IdxDB128) FindEx(secondary interface{}) SecondaryIterator {
+	return db.Find(secondary.(chain.Uint128))
+}
+
 //Find the table row in a secondary 128-bit integer index table that matches the lowerbound condition for a given secondary key
-func (db *IdxDB128) Lowerbound(secondary interface{}) (SecondaryIterator, interface{}) {
+func (db *IdxDB128) Lowerbound(secondary chain.Uint128) (SecondaryIterator, interface{}) {
 	var primary uint64 = 0
-	_secondary, ok := secondary.(chain.Uint128)
-	chain.Assert(ok, "bad secondary type")
-	ret := C.db_idx128_lowerbound(db.code, db.scope, db.table, (*C.uint128)(unsafe.Pointer(&_secondary)), (*C.uint64_t)(&primary))
-	return SecondaryIterator{int32(ret), primary, db.dbIndex}, _secondary
+	ret := C.db_idx128_lowerbound(db.code, db.scope, db.table, (*C.uint128)(unsafe.Pointer(&secondary)), (*C.uint64_t)(&primary))
+	return SecondaryIterator{int32(ret), primary, db.dbIndex}, secondary
 }
 
 //Find the table row in a secondary 128-bit integer index table that matches the upperbound condition for a given secondary key
-func (db *IdxDB128) Upperbound(secondary interface{}) (SecondaryIterator, interface{}) {
+func (db *IdxDB128) Upperbound(secondary chain.Uint128) (SecondaryIterator, interface{}) {
 	var primary uint64 = 0
-	_secondary, ok := secondary.(chain.Uint128)
-	chain.Assert(ok, "bad secondary type")
-	ret := C.db_idx128_upperbound(db.code, db.scope, db.table, (*C.uint128)(unsafe.Pointer(&_secondary)), (*C.uint64_t)(&primary))
-	return SecondaryIterator{int32(ret), primary, db.dbIndex}, _secondary
+	ret := C.db_idx128_upperbound(db.code, db.scope, db.table, (*C.uint128)(unsafe.Pointer(&secondary)), (*C.uint64_t)(&primary))
+	return SecondaryIterator{int32(ret), primary, db.dbIndex}, secondary
 }
 
 //Get an end iterator representing just-past-the-end of the last table row of a secondary 128-bit integer index table
 func (db *IdxDB128) End() SecondaryIterator {
 	ret := C.db_idx128_end(db.code, db.scope, db.table)
 	return SecondaryIterator{int32(ret), 0, db.dbIndex}
-}
-
-type IdxDB128I struct {
-	SecondaryDB
-}
-
-func (db *IdxDB128I) FindByPrimary(primary uint64) (SecondaryIterator, chain.Uint128) {
-	it, _secondary := db.SecondaryDB.FindByPrimary(primary)
-	return it, _secondary.(chain.Uint128)
-}
-
-func (db *IdxDB128I) Find(secondary chain.Uint128) SecondaryIterator {
-	return db.SecondaryDB.Find(secondary)
-}
-
-func (db *IdxDB128I) Lowerbound(secondary chain.Uint128) (SecondaryIterator, chain.Uint128) {
-	it, _secondary := db.SecondaryDB.Lowerbound(secondary)
-	return it, _secondary.(chain.Uint128)
-}
-
-func (db *IdxDB128I) Upperbound(secondary chain.Uint128) (SecondaryIterator, chain.Uint128) {
-	it, _secondary := db.SecondaryDB.Upperbound(secondary)
-	return it, _secondary.(chain.Uint128)
 }

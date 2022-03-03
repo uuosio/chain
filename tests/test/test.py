@@ -91,20 +91,6 @@ class Test(object):
             abi = json.load(f)
         self.chain.deploy_contract('hello', code, abi, 0)
 
-        pubs = [
-            "EOS6SD6yzqaZhdPHw2LUVmZxWLeWxnp76KLnnBbqP94TsDsjNLosG",
-            "EOS4vtCi4jbaVCLVJ9Moenu9j7caHeoNSWgWY65bJgEW8MupWsRMo",
-            "EOS82JTja1SbcUjSUCK8SNLLMcMPF8W5fwUYRXmX32obtjsZMW9nx"
-        ]
-
-        hex_pubs = []
-        import base58
-        for pub in pubs:
-            h = base58.b58decode(pub[3:])[:-4].hex()
-            hex_pubs.append(h)
-            logger.info(h)
-
-
         r = self.chain.push_action('hello', 'test1', '')
         print_console(r)
         self.chain.produce_block()

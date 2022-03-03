@@ -49,15 +49,11 @@ func (it *SecondaryIterator) IsValid() bool {
 type SecondaryDB interface {
 	GetIndex() int
 	GetTable() (uint64, uint64, uint64)
-	Store(id uint64, secondary interface{}, payer uint64) SecondaryIterator
-	Update(it SecondaryIterator, secondary interface{}, payer uint64)
+	StoreEx(id uint64, secondary interface{}, payer uint64) SecondaryIterator
+	UpdateEx(it SecondaryIterator, secondary interface{}, payer uint64)
 	Remove(it SecondaryIterator)
-	Next(it SecondaryIterator) SecondaryIterator
-	Previous(it SecondaryIterator) SecondaryIterator
 	FindByPrimary(primary uint64) (SecondaryIterator, interface{})
-	Find(secondary interface{}) SecondaryIterator
-	Lowerbound(secondary interface{}) (SecondaryIterator, interface{})
-	Upperbound(secondary interface{}) (SecondaryIterator, interface{})
+	FindEx(secondary interface{}) SecondaryIterator
 	End() SecondaryIterator
 }
 

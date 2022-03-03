@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/uuosio/chain"
-	"github.com/uuosio/chain/sys"
 )
 
 //table test
@@ -18,52 +17,19 @@ type MyData2 struct {
 }
 
 func main() {
-	receiver, _, action := chain.GetApplyArgs()
-	if action == chain.NewName("revert") {
-		db := NewMyDataDB(receiver, receiver)
-		it := db.Find(1)
-		chain.Check(!it.IsOk(), "value should not exists")
+	receiver, _, _ := chain.GetApplyArgs()
 
-		idxDB := db.GetIdxDBByValue()
-		it2 := idxDB.Find(2)
-		chain.Check(!it2.IsOk(), "secondary value should not exists")
-		{
-			db := NewMyData2DB(receiver, receiver)
-			it := db.Find(1)
-			chain.Check(!it.IsOk(), "value should not exists")
+	db := NewMyDataDB(receiver, receiver)
+	db.Store(&MyData{2, 3}, receiver)
+	db.Store(&MyData{4, 5}, receiver)
 
-			value := chain.Uint128{}
-			value.SetUint64(123)
-			idxDB := db.GetIdxDBByValue()
-			it2 := idxDB.Find(value)
-			chain.Check(!it2.IsOk(), "secondary value should not exists")
-		}
-		chain.Println("revert ok")
-	} else {
-		sys.Init(nil)
-		db := NewMyDataDB(receiver, receiver)
-		db.Store(&MyData{1, 2}, receiver)
+	idxDB := db.GetIdxDBByValue()
+	a := 0
+	it, secondary := idxDB.Lowerbound(uint64(a))
+	chain.Println(it.I, secondary, a)
 
-		it := db.Find(1)
-		chain.Check(it.IsOk(), "value should exists")
+	a = 4
+	it, secondary = idxDB.Lowerbound(uint64(a))
+	chain.Println(it.I, secondary, a)
 
-		idxDB := db.GetIdxDBByValue()
-		it2 := idxDB.Find(2)
-		chain.Check(it2.IsOk(), "secondary value should exists")
-
-		{
-			db := NewMyData2DB(receiver, receiver)
-			value := chain.Uint128{}
-			value.SetUint64(123)
-			db.Store(&MyData2{1, value}, receiver)
-
-			it := db.Find(1)
-			chain.Check(it.IsOk(), "value should exists")
-
-			idxDB := db.GetIdxDBByValue()
-			it2 := idxDB.Find(value)
-			chain.Check(it2.IsOk(), "secondary value should exists")
-		}
-		chain.Check(false, "revert")
-	}
 }

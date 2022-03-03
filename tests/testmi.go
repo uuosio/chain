@@ -68,7 +68,7 @@ func (t *TestMI) test1() {
 	}
 
 	{
-		idxDB := mi.GetIdxDB("bya1")
+		idxDB := mi.GetIdxDBbya1()
 		it := idxDB.End()
 		chain.Println("+++++++++bya1", it.I)
 		if it.IsValid() {

@@ -164,9 +164,9 @@ func (s *StateManager) Revert() {
 			case OperationUpdate, OperationRemove:
 				it, _ := v.db.FindByPrimary(primary)
 				if it.IsOk() {
-					v.db.Update(it, state.data, state.payer)
+					v.db.UpdateEx(it, state.data, state.payer)
 				} else {
-					v.db.Store(primary, state.data, state.payer)
+					v.db.StoreEx(primary, state.data, state.payer)
 				}
 				break
 			}

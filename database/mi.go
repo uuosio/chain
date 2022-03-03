@@ -114,7 +114,7 @@ func (mi *MultiIndex) Store(v MultiIndexValue, payer chain.Name) Iterator {
 	it := mi.DB.Store(v.GetPrimary(), v.Pack(), payer)
 	primary := v.GetPrimary()
 	for i, db := range mi.IDXDBs {
-		db.Store(primary, v.GetSecondaryValue(i), payer.N)
+		db.StoreEx(primary, v.GetSecondaryValue(i), payer.N)
 	}
 	return it
 }
@@ -125,7 +125,7 @@ func (mi *MultiIndex) Set(primary uint64, v MultiIndexValue, payer chain.Name) {
 	if !it.IsOk() {
 		mi.DB.Store(primary, v.Pack(), payer)
 		for i, db := range mi.IDXDBs {
-			db.Store(primary, v.GetSecondaryValue(i), payer.N)
+			db.StoreEx(primary, v.GetSecondaryValue(i), payer.N)
 		}
 	} else {
 		mi.Update(it, v, payer)
@@ -219,7 +219,7 @@ func (mi *MultiIndex) Update(it Iterator, v MultiIndexValue, payer chain.Name) {
 		secondary := v.GetSecondaryValue(i)
 		if IsEqual(mi.IndexTypes[i], oldSecondary, secondary) {
 		} else {
-			db.Update(it, secondary, payer.N)
+			db.UpdateEx(it, secondary, payer.N)
 		}
 	}
 }
@@ -232,6 +232,16 @@ func (mi *MultiIndex) Remove(it Iterator) {
 		indexType := mi.GetIndexType(db.GetIndex())
 		_secondary := v.GetSecondaryValue(db.GetIndex())
 		chain.Check(IsEqual(indexType, secondary, _secondary), "mi.Remove: secondary value not the same")
+		db.Remove(it)
+	}
+}
+
+func (mi *MultiIndex) RemoveEx(primary uint64) {
+	it := mi.Find(primary)
+	chain.Assert(it.IsOk(), "primary value not found1")
+	mi.DB.Remove(it)
+	for _, db := range mi.IDXDBs {
+		it, _ := db.FindByPrimary(primary)
 		db.Remove(it)
 	}
 }
@@ -263,7 +273,7 @@ func (mi *MultiIndex) End() Iterator {
 }
 
 func (mi *MultiIndex) IdxFind(index int, secondary interface{}) SecondaryIterator {
-	return mi.IDXDBs[index].Find(secondary)
+	return mi.IDXDBs[index].FindEx(secondary)
 }
 
 func (mi *MultiIndex) UpdateSecondaryValue(idxDB SecondaryDB, primary uint64, secondary interface{}, payer chain.Name) {
@@ -283,7 +293,7 @@ func (mi *MultiIndex) UpdateSecondaryValue(idxDB SecondaryDB, primary uint64, se
 func (mi *MultiIndex) IdxFindByName(idxDBName string, secondary interface{}) SecondaryIterator {
 	chain.Check(mi.IdxDBNameToIndex != nil, "idxDBNameToIndex is nil")
 	index := mi.IdxDBNameToIndex(idxDBName)
-	return mi.IDXDBs[index].Find(secondary)
+	return mi.IDXDBs[index].FindEx(secondary)
 }
 
 func (mi *MultiIndex) IdxUpdate(it SecondaryIterator, secondary interface{}, payer chain.Name) {
@@ -299,7 +309,7 @@ func (mi *MultiIndex) IdxUpdate(it SecondaryIterator, secondary interface{}, pay
 	}
 	_v.SetSecondaryValue(idxDB.GetIndex(), secondary)
 	mi.DB.Update(itPrimary, _v.Pack(), payer)
-	idxDB.Update(it, secondary, payer.N)
+	idxDB.UpdateEx(it, secondary, payer.N)
 }
 
 func (mi *MultiIndex) IdxGet(itSecondary SecondaryIterator) interface{} {
