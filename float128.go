@@ -23,9 +23,9 @@ import "unsafe"
 
 type Float128 [16]byte
 
-func NewFloat128(v float64) *Float128 {
-	t := &Float128{}
-	C.float128_from_double((*C.float128)(unsafe.Pointer(t)), (*C.float64)(unsafe.Pointer(&v)))
+func NewFloat128(v float64) Float128 {
+	t := Float128{}
+	C.float128_from_double((*C.float128)(unsafe.Pointer(&t)), (*C.float64)(unsafe.Pointer(&v)))
 	return t
 }
 

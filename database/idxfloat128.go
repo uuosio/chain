@@ -86,7 +86,7 @@ func (db *IdxDBFloat128) Find(secondary chain.Float128) SecondaryIterator {
 	// return SecondaryIterator{ret, primary, db.dbIndex}
 	it, value := db.Lowerbound(secondary)
 	if it.IsOk() {
-		if value.(chain.Float128) == secondary {
+		if value == secondary {
 			return it
 		}
 	}
@@ -100,21 +100,17 @@ func (db *IdxDBFloat128) FindEx(secondary interface{}) SecondaryIterator {
 }
 
 //Find the table row in a secondary quadruple-precision floating-point index table that matches the lowerbound condition for a given secondary key
-func (db *IdxDBFloat128) Lowerbound(secondary interface{}) (SecondaryIterator, interface{}) {
+func (db *IdxDBFloat128) Lowerbound(secondary chain.Float128) (SecondaryIterator, chain.Float128) {
 	var primary uint64 = 0
-	_secondary, ok := secondary.(chain.Float128)
-	chain.Assert(ok, "not a float128_t value")
-	ret := C.db_idx_long_double_lowerbound(db.code, db.scope, db.table, (*C.float128_t)(unsafe.Pointer(&_secondary)), (*C.uint64_t)(&primary))
-	return SecondaryIterator{int32(ret), primary, db.dbIndex}, _secondary
+	ret := C.db_idx_long_double_lowerbound(db.code, db.scope, db.table, (*C.float128_t)(unsafe.Pointer(&secondary)), (*C.uint64_t)(&primary))
+	return SecondaryIterator{int32(ret), primary, db.dbIndex}, secondary
 }
 
 //Find the table row in a secondary quadruple-precision floating-point index table that matches the upperbound condition for a given secondary key
-func (db *IdxDBFloat128) Upperbound(secondary interface{}) (SecondaryIterator, interface{}) {
+func (db *IdxDBFloat128) Upperbound(secondary chain.Float128) (SecondaryIterator, chain.Float128) {
 	var primary uint64 = 0
-	_secondary, ok := secondary.(chain.Float128)
-	chain.Assert(ok, "not a float128_t value")
-	ret := C.db_idx_long_double_upperbound(db.code, db.scope, db.table, (*C.float128_t)(unsafe.Pointer(&_secondary)), (*C.uint64_t)(&primary))
-	return SecondaryIterator{int32(ret), primary, db.dbIndex}, _secondary
+	ret := C.db_idx_long_double_upperbound(db.code, db.scope, db.table, (*C.float128_t)(unsafe.Pointer(&secondary)), (*C.uint64_t)(&primary))
+	return SecondaryIterator{int32(ret), primary, db.dbIndex}, secondary
 }
 
 //Get an end iterator representing just-past-the-end of the last table row of a secondary quadruple-precision floating-point index table

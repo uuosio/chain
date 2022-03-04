@@ -1,9 +1,5 @@
 package chain
 
-import (
-	"encoding/binary"
-)
-
 type VarInt32 int32
 
 func (t *VarInt32) Pack() []byte {
@@ -52,15 +48,35 @@ func (t *Int128) Size() int {
 	return 16
 }
 
-type Uint256 [32]uint8
+type Uint256 [4]uint64
+
+func NewUint256(lo1, lo2, hi1, hi2 uint64) Uint256 {
+	ret := Uint256{lo1, lo2, hi1, hi2}
+	return ret
+}
+
+func (n *Uint256) SetUint64(v uint64) {
+	tmp := Uint256{}
+	copy(n[:], tmp[:]) //memset
+	n[3] = 0
+	n[2] = 0
+	n[1] = 0
+	n[0] = v
+}
 
 func (n *Uint256) Pack() []byte {
-	return n[:]
+	enc := NewEncoder(32)
+	for _, a := range n {
+		enc.PackUint64(a)
+	}
+	return enc.GetBytes()
 }
 
 func (n *Uint256) Unpack(data []byte) int {
 	dec := NewDecoder(data)
-	dec.Read(n[:])
+	for i := 0; i <= 3; i++ {
+		n[i] = dec.UnpackUint64()
+	}
 	return 32
 }
 
@@ -68,14 +84,8 @@ func (t *Uint256) Size() int {
 	return 32
 }
 
-func (n *Uint256) SetUint64(v uint64) {
-	tmp := Uint256{}
-	copy(n[:], tmp[:]) //memset
-	binary.LittleEndian.PutUint64(n[:], v)
-}
-
 func (n *Uint256) Uint64() uint64 {
-	return binary.LittleEndian.Uint64(n[:])
+	return n[0]
 }
 
 type TimePoint struct {

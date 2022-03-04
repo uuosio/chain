@@ -83,7 +83,7 @@ func (db *IdxDB64) Find(secondary uint64) SecondaryIterator {
 	// return SecondaryIterator{ret, primary, db.dbIndex}
 	it, value := db.Lowerbound(secondary)
 	if it.IsOk() {
-		if value.(uint64) == secondary {
+		if value == secondary {
 			return it
 		}
 	}
@@ -97,14 +97,14 @@ func (db *IdxDB64) FindEx(secondary interface{}) SecondaryIterator {
 }
 
 //Find the table row in a secondary 64-bit integer index table that matches the lowerbound condition for a given secondary key
-func (db *IdxDB64) Lowerbound(secondary uint64) (SecondaryIterator, interface{}) {
+func (db *IdxDB64) Lowerbound(secondary uint64) (SecondaryIterator, uint64) {
 	var primary uint64 = 0
 	ret := C.db_idx64_lowerbound(db.code, db.scope, db.table, (*C.uint64_t)(&secondary), (*C.uint64_t)(&primary))
 	return SecondaryIterator{int32(ret), primary, db.dbIndex}, secondary
 }
 
 //Find the table row in a secondary 64-bit integer index table that matches the upperbound condition for a given secondary key
-func (db *IdxDB64) Upperbound(secondary uint64) (SecondaryIterator, interface{}) {
+func (db *IdxDB64) Upperbound(secondary uint64) (SecondaryIterator, uint64) {
 	var primary uint64 = 0
 	ret := C.db_idx64_upperbound(db.code, db.scope, db.table, (*C.uint64_t)(&secondary), (*C.uint64_t)(&primary))
 	return SecondaryIterator{int32(ret), primary, db.dbIndex}, secondary
