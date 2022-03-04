@@ -20,7 +20,7 @@ import "C"
 import "unsafe"
 
 // void send_deferred(const uint128_t* sender_id, capi_name payer, const char *serialized_transaction, size_t size, uint32_t replace_existing);
-func SendDeferred(senderID *Uint128, payer Name, transaction []byte, replaceExisting bool) {
+func SendDeferred(senderID Uint128, payer Name, transaction []byte, replaceExisting bool) {
 	cReplaceExisting := C.uint32_t(0)
 	if replaceExisting {
 		cReplaceExisting = C.uint32_t(1)
@@ -161,14 +161,7 @@ func AddTransactionCache(sendId *Uint128, payer Name, transaction []byte, replac
 	gTransactionCache = append(gTransactionCache, &TransactionCache{sendId, payer, transaction, replace})
 }
 
-func SendCachedTransactions() {
-	for _, cache := range gTransactionCache {
-		SendDeferred(cache.sendId, cache.payer, cache.transaction, cache.replace)
-	}
-	gTransactionCache = nil
-}
-
-func (t *Transaction) Send(senderId *Uint128, replaceExisting bool, payer Name) {
+func (t *Transaction) Send(senderId Uint128, replaceExisting bool, payer Name) {
 	SendDeferred(senderId, payer, t.Pack(), replaceExisting)
 }
 
