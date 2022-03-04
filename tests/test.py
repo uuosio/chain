@@ -446,12 +446,3 @@ func main() {
         r = self.chain.push_action('hello', 'test', b'hello,world')
         print_console(r)
 
-    def test_revert(self):
-        with open('testrevert.go', 'r') as f:
-            code = f.read()
-        code, abi = self.compile('testrevert', code)
-        assert code
-        self.chain.deploy_contract('hello', code, abi, 0)
-        r = self.chain.push_action('hello', 'test', b'hello,world')
-        print_console(r)
-

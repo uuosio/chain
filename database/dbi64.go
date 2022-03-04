@@ -139,14 +139,12 @@ func (db *DBI64) End() Iterator {
 }
 
 func (db *DBI64) storeI64(payer uint64, id uint64, data []byte) Iterator {
-	GetStateManager().OnStore(db, id)
 	p := (*C.char)(unsafe.Pointer(&data[0]))
 	ret := C.db_store_i64(db.scope, db.table, C.uint64_t(payer), C.uint64_t(id), p, C.uint32_t(len(data)))
 	return Iterator{int32(ret)}
 }
 
 func (db *DBI64) updateI64(iterator Iterator, payer uint64, data []byte) {
-	GetStateManager().OnUpdate(db, iterator, payer)
 	p := (*C.char)(unsafe.Pointer(&data[0]))
 	C.db_update_i64(C.int32_t(iterator.I), C.uint64_t(payer), p, C.uint32_t(len(data)))
 }

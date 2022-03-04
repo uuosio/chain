@@ -30,7 +30,6 @@ def test_compiler():
         "testprivileged.go",
         "testwasm.go",
         "testkv.go",
-        "testrevert.go",
         "testlargecode.go",
         "testserializer.go"
     ]

@@ -32,7 +32,6 @@ func NewIdxDB256(index int, code uint64, scope uint64, table uint64) *IdxDB256 {
 
 //Store an association of a 256-bit secondary key to a primary key in a secondary 256-bit index table
 func (db *IdxDB256) Store(id uint64, secondary chain.Uint256, payer uint64) SecondaryIterator {
-	GetStateManager().OnIdxDBStore(db, id)
 	ret := C.db_idx256_store(db.scope, db.table, C.uint64_t(payer), C.uint64_t(id), (*C.uint128)(unsafe.Pointer(&secondary)), 2)
 	return SecondaryIterator{int32(ret), id, db.dbIndex}
 }
@@ -45,7 +44,6 @@ func (db *IdxDB256) StoreEx(id uint64, secondary interface{}, payer uint64) Seco
 
 //Update an association for a 256-bit secondary key to a primary key in a secondary 256-bit index table
 func (db *IdxDB256) Update(it SecondaryIterator, secondary chain.Uint256, payer uint64) {
-	GetStateManager().OnIdxDBUpdate(db, it, payer)
 	C.db_idx256_update(C.int32_t(it.I), C.uint64_t(payer), (*C.uint128)(unsafe.Pointer(&secondary)), 2)
 }
 
@@ -57,8 +55,6 @@ func (db *IdxDB256) UpdateEx(it SecondaryIterator, secondary interface{}, payer 
 
 //Remove a table row from a secondary 256-bit index table
 func (db *IdxDB256) Remove(it SecondaryIterator) {
-	GetStateManager().OnIdxDBRemove(db, it)
-
 	C.db_idx256_remove(C.int32_t(it.I))
 }
 

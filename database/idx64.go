@@ -32,7 +32,6 @@ func NewIdxDB64(index int, code uint64, scope uint64, table uint64) *IdxDB64 {
 func (db *IdxDB64) Store(id uint64, secondary uint64, payer uint64) SecondaryIterator {
 	chain.Check(uint64(db.code) == chain.CurrentReceiver().N, "bad code name")
 	ret := C.db_idx64_store(db.scope, db.table, C.uint64_t(payer), C.uint64_t(id), (*C.uint64_t)(&secondary))
-	GetStateManager().OnIdxDBStore(db, id)
 	return SecondaryIterator{int32(ret), id, db.dbIndex}
 }
 
@@ -44,7 +43,6 @@ func (db *IdxDB64) StoreEx(id uint64, secondary interface{}, payer uint64) Secon
 
 //Update an association for a 64-bit integer secondary key to a primary key in a secondary 64-bit integer index table
 func (db *IdxDB64) Update(it SecondaryIterator, secondary uint64, payer uint64) {
-	GetStateManager().OnIdxDBUpdate(db, it, payer)
 	C.db_idx64_update(C.int32_t(it.I), C.uint64_t(payer), (*C.uint64_t)(&secondary))
 }
 
@@ -55,7 +53,6 @@ func (db *IdxDB64) UpdateEx(it SecondaryIterator, secondary interface{}, payer u
 
 //Remove a table row from a secondary 64-bit integer index table
 func (db *IdxDB64) Remove(it SecondaryIterator) {
-	GetStateManager().OnIdxDBRemove(db, it)
 	C.db_idx64_remove(C.int32_t(it.I))
 }
 

@@ -53,11 +53,7 @@ func ActionDataSize() uint32 {
 
 //Add the specified account to set of accounts to be notified
 func RequireRecipient(name Name) {
-	if IsRevertEnabled() {
-		AddNotifyToCache(name)
-	} else {
-		C.require_recipient(C.uint64_t(name.N))
-	}
+	C.require_recipient(C.uint64_t(name.N))
 }
 
 func RequireRecipientEx(name Name) {
@@ -229,56 +225,13 @@ func (a *Action) AddPermission(actor Name, permission Name) {
 	a.Authorization = append(a.Authorization, &PermissionLevel{actor, permission})
 }
 
-func AddNotifyToCache(a Name) {
-	if !IsRevertEnabled() {
-		return
-	}
-	if gNotifyCache == nil {
-		gNotifyCache = make([]Name, 0, 5)
-	}
-	gNotifyCache = append(gNotifyCache, a)
-}
-
-func AddActionToCache(a []byte) {
-	if !IsRevertEnabled() {
-		return
-	}
-	if gActionCache == nil {
-		gActionCache = make([][]byte, 0, 5)
-	}
-	gActionCache = append(gActionCache, a)
-}
-
 func (a *Action) Send() {
 	data := a.Pack()
-	if IsRevertEnabled() {
-		AddActionToCache(data)
-	} else {
-		SendInline(data)
-	}
+	SendInline(data)
 }
 
 //send action directly, no cache
 func (a *Action) SendEx() {
 	data := a.Pack()
 	SendInline(data)
-}
-
-func SendAllActions() {
-	for _, a := range gActionCache {
-		SendInline(a)
-	}
-}
-
-func Finish() {
-	if !IsRevertEnabled() {
-		return
-	}
-
-	SendCachedTransactions()
-
-	for _, notify := range gNotifyCache {
-		C.require_recipient(C.uint64_t(notify.N))
-	}
-	SendAllActions()
 }

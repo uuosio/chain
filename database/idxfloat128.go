@@ -32,7 +32,6 @@ func NewIdxDBFloat128(index int, code uint64, scope uint64, table uint64) *IdxDB
 
 //Store an association of a quadruple-precision floating-point secondary key to a primary key in a secondary quadruple-precision floating-point index table
 func (db *IdxDBFloat128) Store(id uint64, secondary chain.Float128, payer uint64) SecondaryIterator {
-	GetStateManager().OnIdxDBStore(db, id)
 	ret := C.db_idx_long_double_store(db.scope, db.table, C.uint64_t(payer), C.uint64_t(id), (*C.float128_t)(unsafe.Pointer(&secondary)))
 	return SecondaryIterator{int32(ret), id, db.dbIndex}
 }
@@ -45,7 +44,6 @@ func (db *IdxDBFloat128) StoreEx(id uint64, secondary interface{}, payer uint64)
 
 //Update an association for a quadruple-precision floating-point secondary key to a primary key in a secondary quadruple-precision floating-point index table
 func (db *IdxDBFloat128) Update(it SecondaryIterator, secondary chain.Float128, payer uint64) {
-	GetStateManager().OnIdxDBUpdate(db, it, payer)
 	C.db_idx_long_double_update(C.int32_t(it.I), C.uint64_t(payer), (*C.float128_t)(unsafe.Pointer(&secondary)))
 }
 
@@ -57,8 +55,6 @@ func (db *IdxDBFloat128) UpdateEx(it SecondaryIterator, secondary interface{}, p
 
 //Remove a table row from a secondary quadruple-precision floating-point index table
 func (db *IdxDBFloat128) Remove(it SecondaryIterator) {
-	GetStateManager().OnIdxDBRemove(db, it)
-
 	C.db_idx_long_double_remove(C.int32_t(it.I))
 }
 

@@ -21,4 +21,3 @@ run-ipyeos -m pytest -x -s test.py -k  test_sort || exit 1
 # run-ipyeos -m pytest -x -s test.py -k  test_math || exit 1
 run-ipyeos -m pytest -x -s test.py -k  test_go_math || exit 1
 run-ipyeos -m pytest -x -s test.py -k  test_uint128 || exit 1
-run-ipyeos -m pytest -x -s test.py -k  test_revert || exit 1

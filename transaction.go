@@ -169,11 +169,7 @@ func SendCachedTransactions() {
 }
 
 func (t *Transaction) Send(senderId *Uint128, replaceExisting bool, payer Name) {
-	if IsRevertEnabled() {
-		AddTransactionCache(senderId, payer, t.Pack(), replaceExisting)
-	} else {
-		SendDeferred(senderId, payer, t.Pack(), replaceExisting)
-	}
+	SendDeferred(senderId, payer, t.Pack(), replaceExisting)
 }
 
 func (t *Transaction) Pack() []byte {

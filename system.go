@@ -17,36 +17,7 @@ import (
 	"unsafe"
 )
 
-var gRevertEnabled = false
-
-type RevertFunction func(errMsg string)
-
-var gRevertFn RevertFunction
-
-func SetRevertFn(fn RevertFunction) {
-	gRevertFn = fn
-}
-
-func GetRevertFn() RevertFunction {
-	return gRevertFn
-}
-
-func EnableRevert(b bool) {
-	gRevertEnabled = b
-}
-
-func IsRevertEnabled() bool {
-	return gRevertEnabled
-}
-
 func Check(b bool, msg string) {
-	revert := GetRevertFn()
-	if revert != nil {
-		if !b {
-			revert(msg)
-		}
-		return
-	}
 	EosioAssert(b, msg)
 }
 
