@@ -158,9 +158,9 @@ func main() {
         r = self.chain.push_action('hello', 'test1', b'hello,world')
         print_console(r)
 
-        self.chain.produce_block()
-        r = self.chain.push_action('hello', 'test2', b'hello,world')
-        print_console(r)
+        # self.chain.produce_block()
+        # r = self.chain.push_action('hello', 'test2', b'hello,world')
+        # print_console(r)
 
     def test_print(self):
         with open('testprint.go', 'r') as f:
@@ -446,3 +446,15 @@ func main() {
         r = self.chain.push_action('hello', 'test', b'hello,world')
         print_console(r)
 
+    def test_variant(self):
+        with open('testvariant.go', 'r') as f:
+            code = f.read()
+        code, abi = self.compile('testvariant', code)
+        assert code
+        print(len(code))
+        self.chain.deploy_contract('hello', code, abi, 0)
+        args = {
+            "v": ['uint64', 123]
+        }
+        r = self.chain.push_action('hello', 'testvariant', args)
+        print_console(r)
