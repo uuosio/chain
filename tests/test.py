@@ -81,7 +81,8 @@ class Test(object):
         self.chain.produce_block()
 
     def compile(cls, name, code):
-        return wasmcompiler.compile_go_src(name, code, replace=None)
+        replace = None
+        return wasmcompiler.compile_go_src(name, code, replace=replace)
 
     def test_hello(self):
         code = '''
@@ -458,3 +459,6 @@ func main() {
         }
         r = self.chain.push_action('hello', 'testvariant', args)
         print_console(r)
+        ret = self.chain.get_table_rows(True, 'hello', 'hello', 'mytable', '', '', 10)
+        logger.info("%s", ret)
+        assert ret['rows'][0]['a'] == ['uint64', 123]

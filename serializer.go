@@ -229,16 +229,16 @@ func (dec *Decoder) UnpackLength() int {
 	return int(v)
 }
 
-func (dec *Decoder) UnpackVarInt32() int32 {
+func (dec *Decoder) UnpackVarInt32() VarInt32 {
 	v, n := UnpackVarInt32(dec.buf[dec.pos:])
 	dec.incPos(n)
-	return v
+	return VarInt32(v)
 }
 
-func (dec *Decoder) UnpackVarUint32() uint32 {
+func (dec *Decoder) UnpackVarUint32() VarUint32 {
 	v, n := UnpackVarUint32(dec.buf[dec.pos:])
 	dec.incPos(n)
-	return v
+	return VarUint32(v)
 }
 
 func (dec *Decoder) UnpackInt16() int16 {
