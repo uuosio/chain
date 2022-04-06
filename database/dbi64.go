@@ -60,7 +60,7 @@ func (db *DBI64) GetTableName() uint64 {
 	return uint64(db.table)
 }
 
-func (db *DBI64) Set(id uint64, data []byte, payer chain.Name) Iterator {
+func (db *DBI64) Set(id uint64, data []byte, payer chain.Name) *Iterator {
 	it := db.Find(id)
 	if !it.IsOk() {
 		return db.storeI64(payer.N, id, data)
@@ -71,7 +71,7 @@ func (db *DBI64) Set(id uint64, data []byte, payer chain.Name) Iterator {
 }
 
 //Get a record in a primary 64-bit integer index table
-func (db *DBI64) Get(id uint64) (Iterator, []byte) {
+func (db *DBI64) Get(id uint64) (*Iterator, []byte) {
 	it := db.Find(id)
 	if !it.IsOk() {
 		return it, nil
@@ -81,75 +81,78 @@ func (db *DBI64) Get(id uint64) (Iterator, []byte) {
 	return it, raw
 }
 
-func (db *DBI64) GetByIterator(it Iterator) []byte {
+func (db *DBI64) GetByIterator(it *Iterator) []byte {
 	chain.Check(it.IsOk(), "invalid iterator")
 	raw := db.getI64(it)
 	return raw
 }
 
 //Store a record in a primary 64-bit integer index table
-func (db *DBI64) Store(primary uint64, data []byte, payer chain.Name) Iterator {
+func (db *DBI64) Store(primary uint64, data []byte, payer chain.Name) *Iterator {
 	return db.storeI64(payer.N, primary, data)
 }
 
 //Update a record in a primary 64-bit integer index table
-func (db *DBI64) Update(it Iterator, data []byte, payer chain.Name) {
+func (db *DBI64) Update(it *Iterator, data []byte, payer chain.Name) {
 	db.updateI64(it, payer.N, data)
 }
 
 //Remove a record from a primary 64-bit integer index table
-func (db *DBI64) Remove(it Iterator) {
+func (db *DBI64) Remove(it *Iterator) {
 	C.db_remove_i64(C.int32_t(it.I))
 }
 
 //Find the table row following the referenced table row in a primary 64-bit integer index table
-func (db *DBI64) Next(it Iterator) (next_iterator Iterator, primary uint64) {
+func (db *DBI64) Next(it *Iterator) (next_iterator *Iterator, primary uint64) {
 	ret := C.db_next_i64(C.int32_t(it.I), (*C.uint64_t)(unsafe.Pointer(&primary)))
-	return Iterator{int32(ret)}, primary
+	return &Iterator{int32(ret), 0, false, db}, primary
 }
 
 //Find the table row preceding the referenced table row in a primary 64-bit integer index table
-func (db *DBI64) Previous(it Iterator) (previous_iterator Iterator, primary uint64) {
+func (db *DBI64) Previous(it *Iterator) (previous_iterator *Iterator, primary uint64) {
 	ret := C.db_previous_i64(C.int32_t(it.I), (*C.uint64_t)(unsafe.Pointer(&primary)))
-	return Iterator{int32(ret)}, primary
+	return &Iterator{int32(ret), 0, false, db}, primary
 }
 
 //Find a table row in a primary 64-bit integer index table by primary key
-func (db *DBI64) Find(id uint64) Iterator {
+func (db *DBI64) Find(id uint64) *Iterator {
 	ret := C.db_find_i64(db.code, db.scope, db.table, C.uint64_t(id))
-	return Iterator{int32(ret)}
+	if ret >= 0 {
+		return &Iterator{int32(ret), id, true, db}
+	}
+	return &Iterator{int32(ret), 0, false, db}
 }
 
 //Find the table row in a primary 64-bit integer index table that matches the lowerbound condition for a given primary key
-func (db *DBI64) Lowerbound(id uint64) Iterator {
+func (db *DBI64) Lowerbound(id uint64) *Iterator {
 	ret := C.db_lowerbound_i64(db.code, db.scope, db.table, C.uint64_t(id))
-	return Iterator{int32(ret)}
+	return &Iterator{int32(ret), 0, false, db}
 }
 
 //Find the table row in a primary 64-bit integer index table that matches the upperbound condition for a given primary key
-func (db *DBI64) Upperbound(id uint64) Iterator {
+func (db *DBI64) Upperbound(id uint64) *Iterator {
 	ret := C.db_upperbound_i64(db.code, db.scope, db.table, C.uint64_t(id))
-	return Iterator{int32(ret)}
+	return &Iterator{int32(ret), 0, false, db}
 }
 
 //Get an iterator representing just-past-the-end of the last table row of a primary 64-bit integer index table
-func (db *DBI64) End() Iterator {
+func (db *DBI64) End() *Iterator {
 	ret := C.db_end_i64(db.code, db.scope, db.table)
-	return Iterator{int32(ret)}
+	return &Iterator{int32(ret), 0, false, db}
 }
 
-func (db *DBI64) storeI64(payer uint64, id uint64, data []byte) Iterator {
+func (db *DBI64) storeI64(payer uint64, id uint64, data []byte) *Iterator {
 	p := (*C.char)(unsafe.Pointer(&data[0]))
 	ret := C.db_store_i64(db.scope, db.table, C.uint64_t(payer), C.uint64_t(id), p, C.uint32_t(len(data)))
-	return Iterator{int32(ret)}
+	return &Iterator{int32(ret), 0, false, db}
 }
 
-func (db *DBI64) updateI64(iterator Iterator, payer uint64, data []byte) {
+func (db *DBI64) updateI64(iterator *Iterator, payer uint64, data []byte) {
 	p := (*C.char)(unsafe.Pointer(&data[0]))
 	C.db_update_i64(C.int32_t(iterator.I), C.uint64_t(payer), p, C.uint32_t(len(data)))
 }
 
-func (db *DBI64) getI64(it Iterator) (data []byte) {
+func (db *DBI64) getI64(it *Iterator) (data []byte) {
 	p := (*C.char)(unsafe.Pointer(uintptr(0)))
 	data_size := C.db_get_i64(C.int32_t(it.I), p, C.uint32_t(0))
 	if data_size <= 0 {

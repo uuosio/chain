@@ -19,27 +19,27 @@ type MultiIndex struct {
 }
 
 type MultiIndexInterface interface {
-	Store(v MultiIndexValue, payer chain.Name) Iterator
+	Store(v MultiIndexValue, payer chain.Name) *Iterator
 	Set(primary uint64, v MultiIndexValue, payer chain.Name)
-	Get(id uint64) (Iterator, MultiIndexValue)
-	GetByIterator(it Iterator) MultiIndexValue
-	Update(it Iterator, v MultiIndexValue, payer chain.Name)
+	Get(id uint64) (*Iterator, MultiIndexValue)
+	GetByIterator(it *Iterator) MultiIndexValue
+	Update(it *Iterator, v MultiIndexValue, payer chain.Name)
 
-	Find(primary uint64) Iterator
+	Find(primary uint64) *Iterator
 
-	Remove(it Iterator)
-	Next(it Iterator) (next_iterator Iterator, primary uint64)
-	Previous(it Iterator) (previous_iterator Iterator, primary uint64)
+	Remove(it *Iterator)
+	Next(it *Iterator) (next_iterator *Iterator, primary uint64)
+	Previous(it *Iterator) (previous_iterator *Iterator, primary uint64)
 
-	Lowerbound(id uint64) Iterator
-	Upperbound(id uint64) Iterator
-	End() Iterator
+	Lowerbound(id uint64) *Iterator
+	Upperbound(id uint64) *Iterator
+	End() *Iterator
 
-	IdxFind(index int, secondary interface{}) SecondaryIterator
-	IdxGet(itSecondary SecondaryIterator) interface{}
-	IdxFindByName(idxDBName string, secondary interface{}) SecondaryIterator
+	IdxFind(index int, secondary interface{}) *SecondaryIterator
+	IdxGet(itSecondary *SecondaryIterator) interface{}
+	IdxFindByName(idxDBName string, secondary interface{}) *SecondaryIterator
 	//	UpdateSecondaryValue(idxDB SecondaryDB, primary uint64, secondary interface{}, payer chain.Name)
-	IdxUpdate(it SecondaryIterator, secondary interface{}, payer chain.Name)
+	IdxUpdate(it *SecondaryIterator, secondary interface{}, payer chain.Name)
 	GetIdxDBByIndex(index int) SecondaryDB
 	GetIdxDB(idxDBName string) SecondaryDB
 }
@@ -110,7 +110,7 @@ func (mi *MultiIndex) SetTable(code chain.Name, scope chain.Name, table chain.Na
 	mi.table = table
 }
 
-func (mi *MultiIndex) Store(v MultiIndexValue, payer chain.Name) Iterator {
+func (mi *MultiIndex) Store(v MultiIndexValue, payer chain.Name) *Iterator {
 	it := mi.DB.Store(v.GetPrimary(), v.Pack(), payer)
 	primary := v.GetPrimary()
 	for i, db := range mi.IDXDBs {
@@ -132,14 +132,14 @@ func (mi *MultiIndex) Set(primary uint64, v MultiIndexValue, payer chain.Name) {
 	}
 }
 
-func (mi *MultiIndex) Find(primary uint64) Iterator {
+func (mi *MultiIndex) Find(primary uint64) *Iterator {
 	return mi.DB.Find(primary)
 }
 
 //Get value by primary index
 //Returns iterator and value
 //iterator can be used by MultiIndex.Update method to update value
-func (mi *MultiIndex) Get(id uint64) (Iterator, MultiIndexValue) {
+func (mi *MultiIndex) Get(id uint64) (*Iterator, MultiIndexValue) {
 	it, data := mi.DB.Get(id)
 	if !it.IsOk() {
 		return it, nil
@@ -152,7 +152,7 @@ func (mi *MultiIndex) Get(id uint64) (Iterator, MultiIndexValue) {
 }
 
 //Get value by primary Iterator
-func (mi *MultiIndex) GetByIterator(it Iterator) MultiIndexValue {
+func (mi *MultiIndex) GetByIterator(it *Iterator) MultiIndexValue {
 	v := mi.DB.GetByIterator(it)
 	vv := mi.Unpack(v)
 	return vv
@@ -203,7 +203,7 @@ func IsEqual(indexType int, a, b interface{}) bool {
 	return false
 }
 
-func (mi *MultiIndex) Update(it Iterator, v MultiIndexValue, payer chain.Name) {
+func (mi *MultiIndex) Update(it *Iterator, v MultiIndexValue, payer chain.Name) {
 	oldValue := mi.GetByIterator(it)
 
 	primary := v.GetPrimary()
@@ -224,7 +224,7 @@ func (mi *MultiIndex) Update(it Iterator, v MultiIndexValue, payer chain.Name) {
 	}
 }
 
-func (mi *MultiIndex) Remove(it Iterator) {
+func (mi *MultiIndex) Remove(it *Iterator) {
 	v := mi.GetByIterator(it)
 	mi.DB.Remove(it)
 	for _, db := range mi.IDXDBs {
@@ -251,28 +251,28 @@ func (mi *MultiIndex) GetIndexType(index int) int {
 }
 
 //Find the table row following the referenced table row in a primary 64-bit integer index table
-func (mi *MultiIndex) Next(it Iterator) (next_iterator Iterator, primary uint64) {
+func (mi *MultiIndex) Next(it *Iterator) (next_iterator *Iterator, primary uint64) {
 	return mi.DB.Next(it)
 }
 
 //Find the table row preceding the referenced table row in a primary 64-bit integer index table
-func (mi *MultiIndex) Previous(it Iterator) (previous_iterator Iterator, primary uint64) {
+func (mi *MultiIndex) Previous(it *Iterator) (previous_iterator *Iterator, primary uint64) {
 	return mi.DB.Previous(it)
 }
 
-func (mi *MultiIndex) Lowerbound(id uint64) Iterator {
+func (mi *MultiIndex) Lowerbound(id uint64) *Iterator {
 	return mi.DB.Lowerbound(id)
 }
 
-func (mi *MultiIndex) Upperbound(id uint64) Iterator {
+func (mi *MultiIndex) Upperbound(id uint64) *Iterator {
 	return mi.DB.Upperbound(id)
 }
 
-func (mi *MultiIndex) End() Iterator {
+func (mi *MultiIndex) End() *Iterator {
 	return mi.DB.End()
 }
 
-func (mi *MultiIndex) IdxFind(index int, secondary interface{}) SecondaryIterator {
+func (mi *MultiIndex) IdxFind(index int, secondary interface{}) *SecondaryIterator {
 	return mi.IDXDBs[index].FindEx(secondary)
 }
 
@@ -290,13 +290,13 @@ func (mi *MultiIndex) UpdateSecondaryValue(idxDB SecondaryDB, primary uint64, se
 	mi.DB.Update(itPrimary, _v.Pack(), payer)
 }
 
-func (mi *MultiIndex) IdxFindByName(idxDBName string, secondary interface{}) SecondaryIterator {
+func (mi *MultiIndex) IdxFindByName(idxDBName string, secondary interface{}) *SecondaryIterator {
 	chain.Check(mi.IdxDBNameToIndex != nil, "idxDBNameToIndex is nil")
 	index := mi.IdxDBNameToIndex(idxDBName)
 	return mi.IDXDBs[index].FindEx(secondary)
 }
 
-func (mi *MultiIndex) IdxUpdate(it SecondaryIterator, secondary interface{}, payer chain.Name) {
+func (mi *MultiIndex) IdxUpdate(it *SecondaryIterator, secondary interface{}, payer chain.Name) {
 	idxDB := mi.IDXDBs[it.dbIndex]
 
 	itPrimary := mi.DB.Find(it.Primary)
@@ -312,7 +312,7 @@ func (mi *MultiIndex) IdxUpdate(it SecondaryIterator, secondary interface{}, pay
 	idxDB.UpdateEx(it, secondary, payer.N)
 }
 
-func (mi *MultiIndex) IdxGet(itSecondary SecondaryIterator) interface{} {
+func (mi *MultiIndex) IdxGet(itSecondary *SecondaryIterator) interface{} {
 	idxDB := mi.IDXDBs[itSecondary.dbIndex]
 	{
 		itSecondary2, secondary := idxDB.FindByPrimary(itSecondary.Primary)

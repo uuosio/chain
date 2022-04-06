@@ -54,7 +54,7 @@ func NewMyDB(code, scope, table chain.Name) *MyDB {
 	return v
 }
 
-func (db *MyDB) Get(it database.Iterator) *MyData {
+func (db *MyDB) Get(it *database.Iterator) *MyData {
 	data := db.GetByIterator(it)
 	if len(data) <= 0 {
 		return nil
@@ -65,7 +65,7 @@ func (db *MyDB) Get(it database.Iterator) *MyData {
 	return _data
 }
 
-func (db *MyDB) TryGet(primary uint64) (itr database.Iterator, data *MyData) {
+func (db *MyDB) TryGet(primary uint64) (itr *database.Iterator, data *MyData) {
 	itr = db.Find(primary)
 	if !itr.IsOk() {
 		return itr, nil
