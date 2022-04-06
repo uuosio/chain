@@ -105,13 +105,13 @@ func (db *DBI64) Remove(it *Iterator) {
 //Find the table row following the referenced table row in a primary 64-bit integer index table
 func (db *DBI64) Next(it *Iterator) (next_iterator *Iterator, primary uint64) {
 	ret := C.db_next_i64(C.int32_t(it.I), (*C.uint64_t)(unsafe.Pointer(&primary)))
-	return &Iterator{int32(ret), 0, false, db}, primary
+	return &Iterator{int32(ret), primary, true, db}, primary
 }
 
 //Find the table row preceding the referenced table row in a primary 64-bit integer index table
 func (db *DBI64) Previous(it *Iterator) (previous_iterator *Iterator, primary uint64) {
 	ret := C.db_previous_i64(C.int32_t(it.I), (*C.uint64_t)(unsafe.Pointer(&primary)))
-	return &Iterator{int32(ret), 0, false, db}, primary
+	return &Iterator{int32(ret), primary, true, db}, primary
 }
 
 //Find a table row in a primary 64-bit integer index table by primary key
@@ -144,7 +144,7 @@ func (db *DBI64) End() *Iterator {
 func (db *DBI64) storeI64(payer uint64, id uint64, data []byte) *Iterator {
 	p := (*C.char)(unsafe.Pointer(&data[0]))
 	ret := C.db_store_i64(db.scope, db.table, C.uint64_t(payer), C.uint64_t(id), p, C.uint32_t(len(data)))
-	return &Iterator{int32(ret), 0, false, db}
+	return &Iterator{int32(ret), id, true, db}
 }
 
 func (db *DBI64) updateI64(iterator *Iterator, payer uint64, data []byte) {
