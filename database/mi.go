@@ -204,10 +204,10 @@ func IsEqual(indexType int, a, b interface{}) bool {
 }
 
 func (mi *MultiIndex) Update(it *Iterator, v MultiIndexValue, payer chain.Name) {
-	oldValue := mi.GetByIterator(it)
+	chain.Check(it.IsOk(), "mi.Update: Invalid iterator")
 
-	primary := v.GetPrimary()
-	chain.Check(oldValue.GetPrimary() == primary, "mi.Update: Can not change primary key duration update")
+	primary := it.GetPrimary()
+	chain.Check(primary == v.GetPrimary(), "mi.Update: Can not change primary key during update")
 
 	chain.Check(mi.code == chain.CurrentReceiver(), "mi.Update: Can not update other contract")
 
