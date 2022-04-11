@@ -33,7 +33,6 @@ func (c *MyContract) SayHello(name string) {
 		data := &MyData{primary, 111}
 		mydb.Store(data, payer)
 	} else {
-		data.primary += 1
 		data.n += 1
 		mydb.Update(it, data, payer)
 	}
