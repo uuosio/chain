@@ -1,5 +1,7 @@
 package chain
 
+import "encoding/binary"
+
 type VarInt32 int32
 
 func (t *VarInt32) Pack() []byte {
@@ -50,8 +52,18 @@ func (t *Int128) Size() int {
 
 type Uint256 [4]uint64
 
-func NewUint256(lo1, lo2, hi1, hi2 uint64) Uint256 {
+func NewUint256(lo1, lo2, hi1, hi2 uint64) *Uint256 {
 	ret := Uint256{lo1, lo2, hi1, hi2}
+	return &ret
+}
+
+func NewUint256FromBytes(bs []byte) *Uint256 {
+	ret := &Uint256{}
+	Check(len(bs) >= 32, "bad size")
+	ret[0] = binary.LittleEndian.Uint64(bs[0:8])
+	ret[1] = binary.LittleEndian.Uint64(bs[8:16])
+	ret[2] = binary.LittleEndian.Uint64(bs[16:24])
+	ret[3] = binary.LittleEndian.Uint64(bs[24:32])
 	return ret
 }
 
