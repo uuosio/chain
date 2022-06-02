@@ -1,7 +1,7 @@
 package main
 
 import (
-	"encoding/hex"
+	"github.com/uuosio/chain/hex"
 
 	"github.com/uuosio/chain"
 	"github.com/uuosio/chain/logger"
