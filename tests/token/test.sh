@@ -1,1 +1,1 @@
-run-uuos -m pytest -x -v test.py -k $1
+run-ipyeos -m pytest -x -v test.py -k $1

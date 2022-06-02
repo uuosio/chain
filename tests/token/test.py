@@ -3,8 +3,6 @@ import sys
 import json
 import time
 
-from pyeoskit import wasmcompiler, uuosapi
-
 test_dir = os.path.dirname(__file__)
 sys.path.append(os.path.join(test_dir, '..'))
 
@@ -82,7 +80,7 @@ class Test(object):
         logger.info('+++++++create elapsed: %s', r['elapsed'])
         self.chain.produce_block()
 
-        r = self.chain.get_table_rows(True, 'hello', 'EOS', 'stat', "", "")
+        r = self.chain.get_table_rows(True, 'hello', 'EOS', 'stat', "", "", 1)
         logger.info(r)
         assert r['rows'][0]['issuer'] == 'hello'
         assert r['rows'][0]['max_supply'] == '100.0000 EOS'
@@ -102,13 +100,13 @@ class Test(object):
         logger.info('+++++++issue elapsed: %s', r['elapsed'])
         self.chain.produce_block()
 
-        r = self.chain.get_table_rows(True, 'hello', 'EOS', 'stat', "", "")
+        r = self.chain.get_table_rows(True, 'hello', 'EOS', 'stat', "", "", 1)
         logger.info(r)
         assert r['rows'][0]['issuer'] == 'hello'
         assert r['rows'][0]['max_supply'] == '100.0000 EOS'
         assert r['rows'][0]['supply'] == '1.0000 EOS'
 
-        r = self.chain.get_table_rows(True, 'hello', 'hello', 'accounts', "", "")
+        r = self.chain.get_table_rows(True, 'hello', 'hello', 'accounts', "", "", 1)
         logger.info(r)
         assert r['rows'][0]['balance'] == '1.0000 EOS'
 
@@ -126,11 +124,11 @@ class Test(object):
 
         self.chain.produce_block()
 
-        r = self.chain.get_table_rows(True, 'hello', 'hello', 'accounts', "", "")
+        r = self.chain.get_table_rows(True, 'hello', 'hello', 'accounts', "", "", 1)
         logger.info(r)
         assert r['rows'][0]['balance'] == '0.0000 EOS'
 
-        r = self.chain.get_table_rows(True, 'hello', 'alice', 'accounts', "", "")
+        r = self.chain.get_table_rows(True, 'hello', 'alice', 'accounts', "", "", 1)
         logger.info(r)
         assert r['rows'][0]['balance'] == '1.0000 EOS'
 
@@ -145,15 +143,15 @@ class Test(object):
         r = self.chain.push_action('hello', 'retire', retire)
         logger.info('+++++++retire elapsed: %s', r['elapsed'])
 
-        r = self.chain.get_table_rows(True, 'hello', 'hello', 'accounts', "", "")
+        r = self.chain.get_table_rows(True, 'hello', 'hello', 'accounts', "", "", 1)
         assert r['rows'][0]['balance'] == '0.0000 EOS'
 
-        r = self.chain.get_table_rows(True, 'hello', 'EOS', 'stat', "", "")
+        r = self.chain.get_table_rows(True, 'hello', 'EOS', 'stat', "", "", 1)
         logger.info(r)
         assert r['rows'][0]['supply'] == '0.0000 EOS'
 
 
-        r = self.chain.get_table_rows(True, 'hello', 'helloworld11', 'accounts', "", "")
+        r = self.chain.get_table_rows(True, 'hello', 'helloworld11', 'accounts', "", "", 1)
         assert len(r['rows']) == 0
 
         #owner chain.Name, symbol chain.Symbol, ram_payer chain.Name
@@ -162,7 +160,7 @@ class Test(object):
         r = self.chain.push_action('hello', 'open', open_action)
         logger.info('+++++++open elapsed: %s', r['elapsed'])
 
-        r = self.chain.get_table_rows(True, 'hello', 'helloworld11', 'accounts', "", "")
+        r = self.chain.get_table_rows(True, 'hello', 'helloworld11', 'accounts', "", "", 1)
         assert r['rows'][0]['balance'] == '0.0000 EOS'
 
         #test close
@@ -171,5 +169,5 @@ class Test(object):
         logger.info('+++++++close elapsed: %s', r['elapsed'])
         self.chain.produce_block()
 
-        r = self.chain.get_table_rows(True, 'hello', 'helloworld11', 'accounts', "", "")
+        r = self.chain.get_table_rows(True, 'hello', 'helloworld11', 'accounts', "", "", 1)
         assert len(r['rows']) == 0
