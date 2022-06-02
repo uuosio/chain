@@ -25,16 +25,16 @@ import (
 
 type Uint128 [16]byte
 
-func NewUint128(lo uint64, hi uint64) *Uint128 {
-	a := &Uint128{}
+func NewUint128(lo uint64, hi uint64) Uint128 {
+	a := Uint128{}
 	binary.LittleEndian.PutUint64(a[:], lo)
 	binary.LittleEndian.PutUint64(a[8:], hi)
 	return a
 }
 
-func NewUint128FromBytes(bs []byte) *Uint128 {
+func NewUint128FromBytes(bs []byte) Uint128 {
 	Assert(len(bs) <= 16, "bytes too long")
-	a := &Uint128{}
+	a := Uint128{}
 	copy(a[:], bs)
 	return a
 }
