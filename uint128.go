@@ -8,13 +8,27 @@ typedef struct {
 	uint64_t hi;
 } uint128;
 
+//*a = uint128(*b)
 void uint128_from_uint64(uint128* a, uint64_t* b);
+
+//*b = uint64(*a)
 void uint128_to_uint64(uint128* a, uint64_t* b);
+
+//*c = *a + *b
 void uint128_add(uint128* a, uint128* b, uint128* c);
+
+//*c = *a - *b
 void uint128_sub(uint128* a, uint128* b, uint128* c);
-void uint128_abs(uint128* a, uint128* b);
+
+//*c = *a * *b
 void uint128_mul(uint128* a, uint128* b, uint128* c);
+
+//*c = *a / *b
 void uint128_div(uint128* a, uint128* b, uint128* c);
+
+//return 1 if *a > *b
+//return 0 if *a < *b
+//return -1 if *a == *b
 int uint128_cmp(uint128* a, uint128* b);
 */
 import "C"
