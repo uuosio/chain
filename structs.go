@@ -34,22 +34,6 @@ func (t *VarUint32) Size() int {
 	return PackedVarUint32Length(uint32(*t))
 }
 
-type Int128 [16]byte
-
-func (n *Int128) Pack() []byte {
-	return n[:]
-}
-
-func (n *Int128) Unpack(data []byte) int {
-	dec := NewDecoder(data)
-	dec.Read(n[:])
-	return 16
-}
-
-func (t *Int128) Size() int {
-	return 16
-}
-
 type Uint256 [4]uint64
 
 func NewUint256(lo1, lo2, hi1, hi2 uint64) *Uint256 {
