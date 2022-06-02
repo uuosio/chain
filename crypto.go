@@ -134,7 +134,6 @@ func AssertRecoverKey(digest Checksum256, sig Signature, pub PublicKey) {
 	C.assert_recover_key((*C.capi_checksum256)(unsafe.Pointer(&digest)), (*C.char)(unsafe.Pointer(&_sig[0])), C.size_t(len(_sig)), (*C.char)(unsafe.Pointer(&_pub[0])), C.size_t(len(_pub)))
 }
 
-//TODO: implement Signature&PublicKey struct
 type Signature struct {
 	Type uint8 // Signature type
 	Data [65]byte
