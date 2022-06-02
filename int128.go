@@ -8,8 +8,9 @@ typedef struct {
 	int64_t hi;
 } int128;
 
-void int128_from_uint64(int128* a, uint64_t* b);
-void int128_to_uint64(int128* a, uint64_t* b);
+void int128_from_int64(int128* a, int64_t* b);
+void int128_to_int64(int128* a, int64_t* b);
+
 void int128_add(int128* a, int128* b, int128* c);
 void int128_sub(int128* a, int128* b, int128* c);
 void int128_abs(int128* a, int128* b);
@@ -25,16 +26,22 @@ import (
 
 type Int128 [16]byte
 
-func NewInt128(lo int64, hi int64) *Int128 {
-	a := &Int128{}
+func NewInt128(lo uint64, hi uint64) Int128 {
+	a := Int128{}
 	binary.LittleEndian.PutUint64(a[:], uint64(lo))
 	binary.LittleEndian.PutUint64(a[8:], uint64(hi))
 	return a
 }
 
-func NewInt128FromBytes(bs []byte) *Int128 {
+func NewInt128FromInt64(n int64) Int128 {
+	a := Int128{}
+	C.int128_from_int64((*C.int128)(unsafe.Pointer(&a)), &n)
+	return a
+}
+
+func NewInt128FromBytes(bs []byte) Int128 {
 	Assert(len(bs) <= 16, "bytes too long")
-	a := &Int128{}
+	a := Int128{}
 	copy(a[:], bs)
 	return a
 }

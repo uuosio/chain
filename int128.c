@@ -3,12 +3,12 @@
 
 typedef __int128 int128;
 
-void int128_from_uint64(int128* a, uint64_t* b) {
-    *a = (int128)(*(uint64_t*)(b));
+void int128_from_int64(int128* a, int64_t* b) {
+    *a = (int128)(*(int64_t*)(b));
 }
 
-void int128_to_uint64(int128* a, uint64_t* b) {
-    *b = (uint64_t)(*(int128*)(b));
+void int128_to_int64(int128* a, int64_t* b) {
+    *b = (int64_t)(*(int128*)(b));
 }
 
 void int128_add(int128* a, int128* b, int128* c) {
