@@ -1,7 +1,5 @@
 package chain
 
-import "math/big"
-
 const MAX_AMOUNT = (1 << 62) - 1
 
 type SymbolCode struct {
@@ -19,6 +17,15 @@ func NewSymbolCode(sym string) SymbolCode {
 
 func (a *SymbolCode) IsValid() bool {
 	sym := a.Value
+
+	if sym == 0 {
+		return false
+	}
+
+	if sym>>56 != 0 {
+		return false
+	}
+
 	for i := 0; i < 7; i++ {
 		c := byte(sym & 0xFF)
 		if !('A' <= c && c <= 'Z') {
@@ -164,15 +171,15 @@ func (a *Asset) Sub(b *Asset) *Asset {
 
 func (a *Asset) Mul(b *Asset) *Asset {
 	Check(a.Symbol == b.Symbol, "Asset.Mul:Symbol not the same")
-	_a := big.NewInt(a.Amount)
-	_b := big.NewInt(b.Amount)
-	_z := big.NewInt(0)
+	_a := NewInt128(a.Amount, 0)
+	_b := NewInt128(b.Amount, 0)
+	_z := NewInt128(0, 0)
 	_z.Mul(_a, _b)
 
-	m := big.NewInt(MAX_AMOUNT)
+	m := NewInt128(MAX_AMOUNT, 0)
 	Check(m.Cmp(_z) >= 0, "multiplication overflow")
 
-	m = big.NewInt(-MAX_AMOUNT)
+	m = NewInt128(-MAX_AMOUNT, 0)
 	Check(_z.Cmp(m) >= 0, "multiplication underflow")
 	a.Amount = _z.Int64()
 	return a
