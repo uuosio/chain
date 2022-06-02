@@ -171,16 +171,16 @@ func (a *Asset) Sub(b *Asset) *Asset {
 
 func (a *Asset) Mul(b *Asset) *Asset {
 	Check(a.Symbol == b.Symbol, "Asset.Mul:Symbol not the same")
-	_a := NewInt128(a.Amount, 0)
-	_b := NewInt128(b.Amount, 0)
-	_z := NewInt128(0, 0)
-	_z.Mul(_a, _b)
+	_a := NewInt128FromInt64(a.Amount)
+	_b := NewInt128FromInt64(b.Amount)
+	_z := NewInt128FromInt64(0)
+	_z.Mul(&_a, &_b)
 
-	m := NewInt128(MAX_AMOUNT, 0)
-	Check(m.Cmp(_z) >= 0, "multiplication overflow")
+	m := NewInt128FromInt64(MAX_AMOUNT)
+	Check(m.Cmp(&_z) >= 0, "multiplication overflow")
 
-	m = NewInt128(-MAX_AMOUNT, 0)
-	Check(_z.Cmp(m) >= 0, "multiplication underflow")
+	m = NewInt128FromInt64(-MAX_AMOUNT)
+	Check(_z.Cmp(&m) >= 0, "multiplication underflow")
 	a.Amount = _z.Int64()
 	return a
 }
