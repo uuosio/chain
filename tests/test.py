@@ -85,7 +85,7 @@ class Test(object):
 
     def compile(cls, name, code):
         replace = None
-        replace = "/Users/newworld/dev/github/go-chain"
+        # replace = "/Users/newworld/dev/github/go-chain"
         return wasmcompiler.compile_go_src(name, code, replace=replace)
 
     def test_hello(self):

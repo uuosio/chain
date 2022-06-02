@@ -11,6 +11,8 @@ sys.path.append(os.path.join(test_dir, '..'))
 
 from ipyeos import log
 from ipyeos.chaintester import ChainTester
+from ipyeos import chaintester
+chaintester.chain_config['contracts_console'] = False
 
 logger = log.get_logger(__name__)
 
