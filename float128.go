@@ -56,7 +56,11 @@ func (t *Float128) ToFloat64() float64 {
 	return v
 }
 
-func (t *Float128) Add(a, b *Float128) *Float128 {
+func (t *Float128) Add(b *Float128) *Float128 {
+	return t.AddEx(t, b)
+}
+
+func (t *Float128) AddEx(a, b *Float128) *Float128 {
 	_a := unsafe.Pointer(a)
 	_b := unsafe.Pointer(b)
 	_c := unsafe.Pointer(t)
@@ -64,7 +68,11 @@ func (t *Float128) Add(a, b *Float128) *Float128 {
 	return t
 }
 
-func (t *Float128) Sub(a, b *Float128) *Float128 {
+func (t *Float128) Sub(b *Float128) *Float128 {
+	return t.SubEx(t, b)
+}
+
+func (t *Float128) SubEx(a, b *Float128) *Float128 {
 	_a := unsafe.Pointer(a)
 	_b := unsafe.Pointer(b)
 	_c := unsafe.Pointer(t)
@@ -86,7 +94,11 @@ func (t *Float128) Abs(a *Float128) *Float128 {
 	return t
 }
 
-func (t *Float128) Mul(a, b *Float128) *Float128 {
+func (t *Float128) Mul(b *Float128) *Float128 {
+	return t.MulEx(t, b)
+}
+
+func (t *Float128) MulEx(a, b *Float128) *Float128 {
 	_a := unsafe.Pointer(a)
 	_b := unsafe.Pointer(b)
 	_c := unsafe.Pointer(t)
@@ -94,7 +106,11 @@ func (t *Float128) Mul(a, b *Float128) *Float128 {
 	return t
 }
 
-func (t *Float128) Div(a, b *Float128) *Float128 {
+func (t *Float128) Div(b *Float128) *Float128 {
+	return t.DivEx(t, b)
+}
+
+func (t *Float128) DivEx(a, b *Float128) *Float128 {
 	_a := unsafe.Pointer(a)
 	_b := unsafe.Pointer(b)
 	_c := unsafe.Pointer(t)
