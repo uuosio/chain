@@ -84,7 +84,7 @@ class Test(object):
         self.chain.produce_block()
 
     def compile(cls, name, code):
-        replace = None
+        replace = os.path.join(test_dir, '..')
         return wasmcompiler.compile_go_src(name, code, replace=replace)
 
     def test_hello(self):
