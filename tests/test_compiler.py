@@ -1,12 +1,17 @@
+import os
 from pyeoskit import wasmcompiler
 
+test_dir = os.path.dirname(__file__)
+
 def compile(name, code):
-    return wasmcompiler.compile_go_src(name, code, replace=None)
+    replace = os.path.join(test_dir, '..')
+    return wasmcompiler.compile_go_src(name, code, replace=replace)
 
 def compile_file(name, go_file):
     with open(go_file, 'r') as f:
         code = f.read()
-        return wasmcompiler.compile_go_src(name, code, replace=None)
+        replace = os.path.join(test_dir, '..')
+        return wasmcompiler.compile_go_src(name, code, replace=replace)
     return None, None
 
 def test_compiler():
