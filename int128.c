@@ -19,13 +19,13 @@ void int128_sub(int128* a, int128* b, int128* c) {
     *c = *a - *b;
 }
 
-// void int128_abs(int128* a, int128* b) {
-//     if (*a > 0) {
-//         *b = *a;
-//     } else {
-//         *b = -*a;
-//     }
-// }
+void int128_abs(int128* a, int128* b) {
+    if (*a > 0) {
+        *b = *a;
+    } else {
+        *b = -*a;
+    }
+}
 
 void int128_mul(int128* a, int128* b, int128* c) {
     *c = *a * *b;
