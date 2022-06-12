@@ -21,7 +21,7 @@ type MultiIndex struct {
 type MultiIndexInterface interface {
 	Store(v MultiIndexValue, payer chain.Name) *Iterator
 	Set(primary uint64, v MultiIndexValue, payer chain.Name)
-	Get(id uint64) (*Iterator, MultiIndexValue)
+	GetByKey(id uint64) (*Iterator, MultiIndexValue)
 	GetByIterator(it *Iterator) MultiIndexValue
 	Update(it *Iterator, v MultiIndexValue, payer chain.Name)
 
@@ -140,7 +140,11 @@ func (mi *MultiIndex) Find(primary uint64) *Iterator {
 //Returns iterator and value
 //iterator can be used by MultiIndex.Update method to update value
 func (mi *MultiIndex) Get(id uint64) (*Iterator, MultiIndexValue) {
-	it, data := mi.DB.Get(id)
+	return mi.GetByKey(id)
+}
+
+func (mi *MultiIndex) GetByKey(id uint64) (*Iterator, MultiIndexValue) {
+	it, data := mi.DB.GetByKey(id)
 	if !it.IsOk() {
 		return it, nil
 	}
@@ -320,7 +324,7 @@ func (mi *MultiIndex) IdxGet(itSecondary *SecondaryIterator) interface{} {
 		return secondary
 	}
 	{
-		it, v := mi.Get(itSecondary.Primary)
+		it, v := mi.GetByKey(itSecondary.Primary)
 		chain.Check(it.IsOk(), "mi.IdxGet: primary not found!")
 
 		itSecondary2, secondary := idxDB.FindByPrimary(itSecondary.Primary)

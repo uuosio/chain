@@ -16,7 +16,7 @@ func ExampleDB() {
 	payer := code
 	mydb := NewMyDataDB(code, scope)
 	primary := uint64(1)
-	if it, data := mydb.Get(primary); it.IsOk() {
+	if it, data := mydb.GetByKey(primary); it.IsOk() {
 		data.n += 1
 		mydb.Update(it, data, payer)
 	} else {

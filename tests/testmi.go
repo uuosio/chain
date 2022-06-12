@@ -267,7 +267,7 @@ func (t *TestMI) test1() {
 		check(it.Primary == 111, "idxf128.End()")
 	}
 	// {
-	// 	it, data := mi.Get(1)
+	// 	it, data := mi.GetByKey(1)
 	// 	check(it.IsOk(), "bad value")
 	// 	check(data.primary == 1, "bad value")
 	// 	mi.Update(it, data, payer)
@@ -277,8 +277,8 @@ func (t *TestMI) test1() {
 		it := idx64.Find(1)
 		check(it.IsOk(), "idx64.Find(1)")
 		mi.IdxUpdate(it, uint64(2), payer)
-		itPrimary, data := mi.Get(it.Primary)
-		check(itPrimary.IsOk(), "mi.Get(it.Primary)")
+		itPrimary, data := mi.GetByKey(it.Primary)
+		check(itPrimary.IsOk(), "mi.GetByKey(it.Primary)")
 		check(data.primary == 1, "data.primary == 1")
 		check(data.a1 == 2, "data.a1 == 2")
 	}
@@ -288,8 +288,8 @@ func (t *TestMI) test1() {
 		it := idx128.Find(chain.NewUint128(2, 0))
 		check(it.IsOk(), "idx128.Find(chain.NewUint128(2, 0))")
 		mi.IdxUpdate(it, chain.NewUint128(3, 0), payer)
-		itPrimary, data := mi.Get(it.Primary)
-		check(itPrimary.IsOk(), "mi.Get(it.Primary)")
+		itPrimary, data := mi.GetByKey(it.Primary)
+		check(itPrimary.IsOk(), "mi.GetByKey(it.Primary)")
 		check(data.primary == 1, "data.primary == 1")
 		check(data.a2 == chain.NewUint128(3, 0), "data.a1 == 2")
 	}
@@ -299,8 +299,8 @@ func (t *TestMI) test1() {
 		it := idx256.Find(chain.NewUint256(3, 0, 0, 0))
 		check(it.IsOk(), "idx256.Find(chain.NewUint256(3, 0, 0, 0))")
 		mi.IdxUpdate(it, chain.NewUint256(4, 0, 0, 0), payer)
-		itPrimary, data := mi.Get(it.Primary)
-		check(itPrimary.IsOk(), "mi.Get(it.Primary)")
+		itPrimary, data := mi.GetByKey(it.Primary)
+		check(itPrimary.IsOk(), "mi.GetByKey(it.Primary)")
 		check(data.primary == 1, "data.primary == 1")
 		check(data.a3 == chain.NewUint256(4, 0, 0, 0), "data.a3 == chain.NewUint256(4, 0, 0, 0)")
 	}
@@ -310,8 +310,8 @@ func (t *TestMI) test1() {
 		it := idxf64.Find(4.0)
 		check(it.IsOk(), "idx64.Find(4.0)")
 		mi.IdxUpdate(it, float64(5.0), payer)
-		itPrimary, data := mi.Get(it.Primary)
-		check(itPrimary.IsOk(), "mi.Get(it.Primary)")
+		itPrimary, data := mi.GetByKey(it.Primary)
+		check(itPrimary.IsOk(), "mi.GetByKey(it.Primary)")
 		check(data.primary == 1, "data.primary == 1")
 		check(data.a4 == 5.0, "data.a4 == 5.0")
 	}
@@ -320,8 +320,8 @@ func (t *TestMI) test1() {
 		it := idxf128.Find(chain.NewFloat128(5.0))
 		check(it.IsOk(), "idx64.Find(chain.NewFloat128(5.0))")
 		mi.IdxUpdate(it, chain.NewFloat128(6.0), payer)
-		itPrimary, data := mi.Get(it.Primary)
-		check(itPrimary.IsOk(), "mi.Get(it.Primary)")
+		itPrimary, data := mi.GetByKey(it.Primary)
+		check(itPrimary.IsOk(), "mi.GetByKey(it.Primary)")
 		check(data.primary == 1, "data.primary == 1")
 		check(data.a5 == chain.NewFloat128(6.0), "data.a5 == 6.0")
 	}

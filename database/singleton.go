@@ -31,7 +31,7 @@ func (t *SingletonDB) Set(data DBValue, payer chain.Name) {
 }
 
 func (t *SingletonDB) Get() interface{} {
-	it, data := t.DBI64.Get(t.DBI64.GetTableName())
+	it, data := t.DBI64.GetByKey(t.DBI64.GetTableName())
 	if !it.IsOk() {
 		return nil
 	}

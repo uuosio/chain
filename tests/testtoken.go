@@ -47,7 +47,7 @@ func (token *Token) Create(issuer chain.Name, maximumSupply chain.Asset) {
 func (token *Token) Issue(to chain.Name, quantity chain.Asset, memo string) {
 	sym_code := quantity.Symbol.Code()
 	db := NewCurrencyStatsDB(token.code, chain.Name{sym_code})
-	it, item := db.Get(sym_code)
+	it, item := db.GetByKey(sym_code)
 	chain.Check(it.IsOk(), "token with symbol does not exist, create token before issue")
 	chain.Check(to == item.Issuer, "tokens can only be issued to issuer account")
 

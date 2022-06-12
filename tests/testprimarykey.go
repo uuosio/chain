@@ -28,7 +28,7 @@ func (c *MyContract) SayHello(name string) {
 	payer := code
 	mydb := NewMyDataDB(code, scope)
 	primary := uint64(1)
-	it, data := mydb.Get(primary)
+	it, data := mydb.GetByKey(primary)
 	if !it.IsOk() {
 		data := &MyData{primary, 111}
 		mydb.Store(data, payer)

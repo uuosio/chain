@@ -72,6 +72,10 @@ func (db *DBI64) Set(id uint64, data []byte, payer chain.Name) *Iterator {
 
 //Get a record in a primary 64-bit integer index table
 func (db *DBI64) Get(id uint64) (*Iterator, []byte) {
+	return db.GetByKey(id)
+}
+
+func (db *DBI64) GetByKey(id uint64) (*Iterator, []byte) {
 	it := db.Find(id)
 	if !it.IsOk() {
 		return it, nil
