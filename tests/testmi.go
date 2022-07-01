@@ -6,12 +6,12 @@ import (
 
 //table mydata
 type MyData struct {
-	primary uint64         //primary:t.primary
-	a1      uint64         //IDX64:bya1:t.a1:t.a1=%v
-	a2      chain.Uint128  //IDX128:bya2:t.a2:t.a2=%v
-	a3      chain.Uint256  //IDX256:bya3:t.a3:t.a3=%v
-	a4      float64        //IDXFloat64:bya4:t.a4:t.a4=%v
-	a5      chain.Float128 //IDXFloat128:bya5:t.a5:t.a5=%v
+	primary uint64         //primary
+	a1      uint64         //secondary
+	a2      chain.Uint128  //secondary
+	a3      chain.Uint256  //secondary
+	a4      float64        //secondary
+	a5      chain.Float128 //secondary
 }
 
 func check(b bool, msg string) {
@@ -128,7 +128,7 @@ func (t *TestMI) test1() {
 	}
 
 	{
-		idx64 := mi.GetIdxDBbya1()
+		idx64 := mi.GetIdxDBBya1()
 		it, secondary := idx64.Lowerbound(1)
 		check(it.IsOk(), "idx64.Lowerbound(1)")
 		check(secondary == 1, "secondary == 1")
@@ -156,7 +156,7 @@ func (t *TestMI) test1() {
 	}
 
 	{
-		idx128 := mi.GetIdxDBbya2()
+		idx128 := mi.GetIdxDBBya2()
 		it, secondary := idx128.Lowerbound(chain.NewUint128(2, 0))
 		check(it.IsOk(), "idx128.Lowerbound(1)")
 		check(secondary == chain.NewUint128(2, 0), "secondary == chain.NewUint128(2, 0)")
@@ -184,7 +184,7 @@ func (t *TestMI) test1() {
 	}
 
 	{
-		idx256 := mi.GetIdxDBbya3()
+		idx256 := mi.GetIdxDBBya3()
 		it, secondary := idx256.Lowerbound(chain.NewUint256(3, 0, 0, 0))
 		check(it.IsOk(), "idx256.Lowerbound(1)")
 		check(secondary == chain.NewUint256(3, 0, 0, 0), "secondary == chain.NewUint256(3, 0, 0, 0)")
@@ -212,7 +212,7 @@ func (t *TestMI) test1() {
 	}
 
 	{
-		idxf64 := mi.GetIdxDBbya4()
+		idxf64 := mi.GetIdxDBBya4()
 		it, secondary := idxf64.Lowerbound(4.0)
 		check(it.IsOk(), "idxf64.Lowerbound(4.0)")
 		check(secondary == 4.0, "secondary == 4.0")
@@ -240,7 +240,7 @@ func (t *TestMI) test1() {
 	}
 
 	{
-		idxf128 := mi.GetIdxDBbya5()
+		idxf128 := mi.GetIdxDBBya5()
 		it, secondary := idxf128.Lowerbound(chain.NewFloat128(5.0))
 		check(it.IsOk(), "idxf128.Lowerbound(1)")
 		check(secondary == chain.NewFloat128(5.0), "secondary == chain.NewFloat128(5.0)")
@@ -273,7 +273,7 @@ func (t *TestMI) test1() {
 	// 	mi.Update(it, data, payer)
 	// }
 	{
-		idx64 := mi.GetIdxDBbya1()
+		idx64 := mi.GetIdxDBBya1()
 		it := idx64.Find(1)
 		check(it.IsOk(), "idx64.Find(1)")
 		mi.IdxUpdate(it, uint64(2), payer)
@@ -284,7 +284,7 @@ func (t *TestMI) test1() {
 	}
 
 	{
-		idx128 := mi.GetIdxDBbya2()
+		idx128 := mi.GetIdxDBBya2()
 		it := idx128.Find(chain.NewUint128(2, 0))
 		check(it.IsOk(), "idx128.Find(chain.NewUint128(2, 0))")
 		mi.IdxUpdate(it, chain.NewUint128(3, 0), payer)
@@ -295,7 +295,7 @@ func (t *TestMI) test1() {
 	}
 
 	{
-		idx256 := mi.GetIdxDBbya3()
+		idx256 := mi.GetIdxDBBya3()
 		it := idx256.Find(chain.NewUint256(3, 0, 0, 0))
 		check(it.IsOk(), "idx256.Find(chain.NewUint256(3, 0, 0, 0))")
 		mi.IdxUpdate(it, chain.NewUint256(4, 0, 0, 0), payer)
@@ -306,7 +306,7 @@ func (t *TestMI) test1() {
 	}
 
 	{
-		idxf64 := mi.GetIdxDBbya4()
+		idxf64 := mi.GetIdxDBBya4()
 		it := idxf64.Find(4.0)
 		check(it.IsOk(), "idx64.Find(4.0)")
 		mi.IdxUpdate(it, float64(5.0), payer)
@@ -316,7 +316,7 @@ func (t *TestMI) test1() {
 		check(data.a4 == 5.0, "data.a4 == 5.0")
 	}
 	{
-		idxf128 := mi.GetIdxDBbya5()
+		idxf128 := mi.GetIdxDBBya5()
 		it := idxf128.Find(chain.NewFloat128(5.0))
 		check(it.IsOk(), "idx64.Find(chain.NewFloat128(5.0))")
 		mi.IdxUpdate(it, chain.NewFloat128(6.0), payer)
@@ -349,29 +349,29 @@ func (t *TestMI) test1() {
 	t.initTest()
 	t.clearTest()
 	{
-		idx := mi.GetIdxDBbya1()
+		idx := mi.GetIdxDBBya1()
 		it := idx.Find(1)
 		check(!it.IsOk(), "bad return")
 	}
 
 	{
-		idx := mi.GetIdxDBbya2()
+		idx := mi.GetIdxDBBya2()
 		it := idx.Find(chain.NewUint128(2, 0))
 		check(!it.IsOk(), "bad return")
 	}
 
 	{
-		idx := mi.GetIdxDBbya3()
+		idx := mi.GetIdxDBBya3()
 		it := idx.Find(chain.NewUint256(3, 0, 0, 0))
 		check(!it.IsOk(), "bad return")
 	}
 	{
-		idx := mi.GetIdxDBbya4()
+		idx := mi.GetIdxDBBya4()
 		it := idx.Find(4.0)
 		check(!it.IsOk(), "bad return")
 	}
 	{
-		idx := mi.GetIdxDBbya5()
+		idx := mi.GetIdxDBBya5()
 		it := idx.Find(chain.NewFloat128(5.0))
 		check(!it.IsOk(), "bad return")
 	}
