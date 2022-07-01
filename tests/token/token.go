@@ -44,7 +44,7 @@ func (token *Token) Create(issuer chain.Name, maximum_supply chain.Asset) {
 	chain.RequireAuth(token.receiver)
 	check(maximum_supply.Symbol.IsValid(), "invalid symbol name")
 	check(maximum_supply.IsValid(), "invalid supply")
-	check(maximum_supply.Amount > 0, "max-supply must be positive")
+	check(maximum_supply.Amount > 0, "max_supply must be positive")
 
 	sym_code := maximum_supply.Symbol.Code()
 	db := NewCurrencyStatsDB(token.receiver, chain.Name{sym_code})
