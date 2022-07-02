@@ -2,11 +2,7 @@ package chain
 
 /*
 #include <stdint.h>
-
-typedef struct {
-	uint64_t lo;
-	uint64_t hi;
-} uint128;
+#include "structs.h"
 
 //*a = uint128(*b)
 void uint128_from_uint64(uint128* a, uint64_t* b);
