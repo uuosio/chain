@@ -74,7 +74,7 @@ func main() {
 		rawTx2 := t2.Pack()
 		chain.Check(bytes.Compare(rawTx, rawTx2) == 0, "bad transaction")
 	} else if action == chain.NewName("sayhello2") {
-		db := database.NewDBI64(code, scope, table, nil)
+		db := database.NewTableI64(code, scope, table, nil)
 		it := db.Find(id)
 		if it.IsOk() {
 			data := db.GetByIterator(it)
@@ -96,7 +96,7 @@ func main() {
 			logger.Println("+++++Set")
 		}
 	} else if action == chain.NewName("sayhello3") {
-		db := database.NewDBI64(code, scope, table, nil)
+		db := database.NewTableI64(code, scope, table, nil)
 		it := db.Find(id)
 		if it.IsOk() {
 			value := db.GetByIterator(it)

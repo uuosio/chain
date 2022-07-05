@@ -19,17 +19,17 @@ type MyData2 struct {
 func main() {
 	receiver, _, _ := chain.GetApplyArgs()
 
-	db := NewMyDataDB(receiver, receiver)
+	db := NewMyDataTable(receiver, receiver)
 	db.Store(&MyData{2, 3}, receiver)
 	db.Store(&MyData{4, 5}, receiver)
 
-	idxDB := db.GetIdxDBByValue()
+	idxTable := db.GetIdxTableByValue()
 	a := 0
-	it, secondary := idxDB.Lowerbound(uint64(a))
+	it, secondary := idxTable.Lowerbound(uint64(a))
 	chain.Println(it.I, secondary, a)
 
 	a = 4
-	it, secondary = idxDB.Lowerbound(uint64(a))
+	it, secondary = idxTable.Lowerbound(uint64(a))
 	chain.Println(it.I, secondary, a)
 
 }

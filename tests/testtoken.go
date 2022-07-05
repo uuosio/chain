@@ -21,8 +21,8 @@ type Token struct {
 	receiver chain.Name
 	code     chain.Name
 	action   chain.Name
-	// statsDb CurrencyStatsDB
-	// accountDB AccountDB
+	// statsDb CurrencyStatsTable
+	// accountTable AccountTable
 }
 
 func NewContract(receiver chain.Name, firstReceiver chain.Name, action chain.Name) *Token {
@@ -32,7 +32,7 @@ func NewContract(receiver chain.Name, firstReceiver chain.Name, action chain.Nam
 //action create
 func (token *Token) Create(issuer chain.Name, maximumSupply chain.Asset) {
 	sym_code := maximumSupply.Symbol.Code()
-	db := NewCurrencyStatsDB(token.code, chain.Name{sym_code})
+	db := NewCurrencyStatsTable(token.code, chain.Name{sym_code})
 	itr := db.Find(sym_code)
 	chain.Check(!itr.IsOk(), "token with symbol already exists")
 
@@ -46,7 +46,7 @@ func (token *Token) Create(issuer chain.Name, maximumSupply chain.Asset) {
 //action issue
 func (token *Token) Issue(to chain.Name, quantity chain.Asset, memo string) {
 	sym_code := quantity.Symbol.Code()
-	db := NewCurrencyStatsDB(token.code, chain.Name{sym_code})
+	db := NewCurrencyStatsTable(token.code, chain.Name{sym_code})
 	it, item := db.GetByKey(sym_code)
 	chain.Check(it.IsOk(), "token with symbol does not exist, create token before issue")
 	chain.Check(to == item.Issuer, "tokens can only be issued to issuer account")

@@ -26,7 +26,7 @@ func (c *MyContract) SayHello(name string) {
 	code := chain.NewName("hello")
 	scope := code
 	payer := code
-	mydb := NewMyDataDB(code, scope)
+	mydb := NewMyDataTable(code, scope)
 	primary := uint64(1)
 	it, data := mydb.GetByKey(primary)
 	if !it.IsOk() {

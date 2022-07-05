@@ -10,11 +10,11 @@ type MyData struct {
 	n       uint64
 }
 
-func ExampleDB() {
+func ExampleTable() {
 	code := chain.NewName("hello")
 	scope := code
 	payer := code
-	mydb := NewMyDataDB(code, scope)
+	mydb := NewMyDataTable(code, scope)
 	primary := uint64(1)
 	if it, data := mydb.GetByKey(primary); it.IsOk() {
 		data.n += 1

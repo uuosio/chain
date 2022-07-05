@@ -22,7 +22,7 @@ import (
 	"github.com/uuosio/chain/database"
 )
 
-//func NewDBIdx64(code uint64, scope uint64, table uint64) *DBIdx64
+//func NewTableIdx64(code uint64, scope uint64, table uint64) *TableIdx64
 
 func main() {
 	code := chain.S2N("hello")
@@ -30,7 +30,7 @@ func main() {
 	table := chain.S2N("idxtablee5")
 	payer := code
 
-	db := database.NewDBIdx64(code, scope, table)
+	db := database.NewTableIdx64(code, scope, table)
 	if true {
 		it := db.End()
 		fmt.Println("++++It:", it)

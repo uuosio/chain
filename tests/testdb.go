@@ -44,17 +44,17 @@ func (d *MyData) GetSecondaryIndexes() []int {
 	return []int{0, 1, 2}
 }
 
-type MyDB struct {
-	database.DBI64
+type MyTable struct {
+	database.TableI64
 }
 
-func NewMyDB(code, scope, table chain.Name) *MyDB {
-	v := &MyDB{}
+func NewMyTable(code, scope, table chain.Name) *MyTable {
+	v := &MyTable{}
 	v.Init(code, scope, table)
 	return v
 }
 
-func (db *MyDB) Get(it *database.Iterator) *MyData {
+func (db *MyTable) Get(it *database.Iterator) *MyData {
 	data := db.GetByIterator(it)
 	if len(data) <= 0 {
 		return nil
@@ -65,7 +65,7 @@ func (db *MyDB) Get(it *database.Iterator) *MyData {
 	return _data
 }
 
-func (db *MyDB) TryGet(primary uint64) (itr *database.Iterator, data *MyData) {
+func (db *MyTable) TryGet(primary uint64) (itr *database.Iterator, data *MyData) {
 	itr = db.Find(primary)
 	if !itr.IsOk() {
 		return itr, nil
@@ -83,8 +83,8 @@ func main() {
 	table := chain.NewName("mytablee")
 	// logger.Printf("%d %d %d\n", code, scope, table)
 
-	db := NewMyDB(code, scope, table)
-	//db := database.NewDBI64(code, scope, table)
+	db := NewMyTable(code, scope, table)
+	//db := database.NewTableI64(code, scope, table)
 
 	itr := db.End()
 	logger.Println("+++end: \n", itr)

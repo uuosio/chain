@@ -30,7 +30,7 @@ func (c *MyContract) TestVariant(v MyVariant) {
 	chain.Check(*v.value.(*uint64) == 123, "bad value")
 	chain.Println("+++value:", *v.value.(*uint64))
 	payer := c.Receiver
-	db := NewMyTableDB(c.Receiver, c.Receiver)
+	db := NewMyTableTable(c.Receiver, c.Receiver)
 
 	item := MyTable{v}
 	db.Set(&item, payer)
