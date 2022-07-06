@@ -11,7 +11,7 @@ run-ipyeos -m pytest -x -s test.py -k  test_token || exit 1
 run-ipyeos -m pytest -x -s test.py -k  test_singleton || exit 1
 run-ipyeos -m pytest -x -s test.py -k  test_asset || exit 1
 run-ipyeos -m pytest -x -s test.py -k  test_serializer || exit 1
-run-ipyeos -m pytest -x -s test.py -k  test_kv || exit 1
+# run-ipyeos -m pytest -x -s test.py -k  test_kv || exit 1
 run-ipyeos -m pytest -x -s test.py -k  test_primarykey || exit 1
 run-ipyeos -m pytest -x -s test.py -k  test_float128 || exit 1
 run-ipyeos -m pytest -x -s test.py -k  test_sort || exit 1

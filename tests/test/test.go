@@ -19,7 +19,7 @@ type MyData2 struct {
 func main() {
 	receiver, _, _ := chain.GetApplyArgs()
 
-	db := NewMyDataTable(receiver, receiver)
+	db := NewMyDataTable(receiver)
 	db.Store(&MyData{2, 3}, receiver)
 	db.Store(&MyData{4, 5}, receiver)
 

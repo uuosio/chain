@@ -24,9 +24,8 @@ func NewContract(receiver, firstReceiver, action chain.Name) *MyContract {
 //action sayhello
 func (c *MyContract) SayHello(name string) {
 	code := chain.NewName("hello")
-	scope := code
 	payer := code
-	mydb := NewMyDataTable(code, scope)
+	mydb := NewMyDataTable(code)
 	primary := uint64(1)
 	it, data := mydb.GetByKey(primary)
 	if !it.IsOk() {

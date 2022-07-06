@@ -26,8 +26,7 @@ type TestMI struct {
 
 func NewContract(receiver, firstReceiver, action chain.Name) *TestMI {
 	code := receiver
-	scope := chain.NewName("helloo")
-	mi := NewMyDataTable(code, scope)
+	mi := NewMyDataTable(code)
 
 	return &TestMI{receiver, firstReceiver, action, mi}
 }

@@ -12,9 +12,8 @@ type MyData struct {
 
 func ExampleTable() {
 	code := chain.NewName("hello")
-	scope := code
 	payer := code
-	mydb := NewMyDataTable(code, scope)
+	mydb := NewMyDataTable(code)
 	primary := uint64(1)
 	if it, data := mydb.GetByKey(primary); it.IsOk() {
 		data.n += 1
