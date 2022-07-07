@@ -47,41 +47,43 @@ def print_except(tx):
         logger.info(trace['console'])
         logger.info(json.dumps(trace['except'], indent=4))
 
+def init_chain():
+    chain = ChainTester()
+    test_account1 = 'hello'
+    a = {
+        "account": test_account1,
+        "permission": "active",
+        "parent": "owner",
+        "auth": {
+            "threshold": 1,
+            "keys": [
+                {
+                    "key": 'EOS6AjF6hvF7GSuSd4sCgfPKq5uWaXvGM2aQtEUCwmEHygQaqxBSV',
+                    "weight": 1
+                }
+            ],
+            "accounts": [{"permission":{"actor":test_account1,"permission": 'eosio.code'}, "weight":1}],
+            "waits": []
+        }
+    }
+    chain.push_action('eosio', 'updateauth', a, {test_account1:'active'})
+    chain.push_action('eosio', 'setpriv', {'account':'hello', 'is_priv': True}, {'eosio':'active'})
+    return chain
+
 class Test(object):
 
     @classmethod
     def setup_class(cls):
-        cls.chain = ChainTester()
-
-        test_account1 = 'hello'
-        a = {
-            "account": test_account1,
-            "permission": "active",
-            "parent": "owner",
-            "auth": {
-                "threshold": 1,
-                "keys": [
-                    {
-                        "key": 'EOS6AjF6hvF7GSuSd4sCgfPKq5uWaXvGM2aQtEUCwmEHygQaqxBSV',
-                        "weight": 1
-                    }
-                ],
-                "accounts": [{"permission":{"actor":test_account1,"permission": 'eosio.code'}, "weight":1}],
-                "waits": []
-            }
-        }
-        cls.chain.push_action('eosio', 'updateauth', a, {test_account1:'active'})
-        cls.chain.push_action('eosio', 'setpriv', {'account':'hello', 'is_priv': True}, {'eosio':'active'})
-
+        pass
     @classmethod
     def teardown_class(cls):
-        cls.chain.free()
-
-    def setup_method(self, method):
         pass
 
+    def setup_method(self, method):
+        self.chain = init_chain()
+
     def teardown_method(self, method):
-        self.chain.produce_block()
+        self.chain.free()
 
     def compile(cls, name, code):
         replace = os.path.join(test_dir, '..')
@@ -351,6 +353,7 @@ func main() {
         r = self.chain.push_action('hello', 'testpack', '')
         print_console(r)
 
+    @pytest.mark.skip(reason="deprecated")
     def test_kv(self):
         import ipyeos
         test_dir = os.path.dirname(ipyeos.__file__)
@@ -421,6 +424,7 @@ func main() {
         hex_pubs.sort()
         logger.info(hex_pubs)
 
+    @pytest.mark.skip(reason="deprecated")
     def test_largecode(self):
         with open('testlargecode.go', 'r') as f:
             code = f.read()
@@ -462,6 +466,6 @@ func main() {
         }
         r = self.chain.push_action('hello', 'testvariant', args)
         print_console(r)
-        ret = self.chain.get_table_rows(True, 'hello', 'hello', 'mytable', '', '', 10)
+        ret = self.chain.get_table_rows(True, 'hello', '', 'mytable', '', '', 10)
         logger.info("%s", ret)
         assert ret['rows'][0]['a'] == ['uint64', 123]
