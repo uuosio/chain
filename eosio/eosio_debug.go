@@ -51,6 +51,8 @@ void printhex( const void* data, uint32_t datalen );
 import "C"
 import (
 	"context"
+
+	"github.com/learnforpractice/chaintester"
 )
 
 var ctx = context.Background()
@@ -92,6 +94,7 @@ func IsAccount(name uint64) bool {
 
 //Send an inline action in the context of this action's parent transaction
 func SendInline(data []byte) {
+	chaintester.GetVMAPI().SendInline(ctx, data)
 }
 
 //Send an inline context free action in the context of this action's parent transaction
