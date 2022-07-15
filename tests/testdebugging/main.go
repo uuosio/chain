@@ -4,6 +4,15 @@ import (
 	"github.com/uuosio/chain"
 )
 
+/*
+void say_hello();
+
+// #cgo CXXFLAGS: -Iincs
+// #cgo CFLAGS: -Iincs
+
+*/
+import "C"
+
 //contract test
 type Contract struct {
 	receiver      chain.Name
@@ -53,4 +62,8 @@ func (c *Contract) Inc(name string) {
 		db.Store(value, payer)
 		chain.Println("count: ", value.count)
 	}
+}
+
+func SayHelloFromCpp() {
+	C.say_hello()
 }

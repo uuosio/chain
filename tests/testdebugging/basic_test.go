@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"os"
 	"testing"
 
 	"github.com/learnforpractice/chaintester"
@@ -20,7 +22,8 @@ func init() {
 }
 
 func TestHello(t *testing.T) {
-
+	t.Errorf("++++++enable_debug: %v", os.Getenv("enable_debug"))
+	SayHelloFromCpp()
 	tester := chaintester.NewChainTester()
 	args := `
 	{
@@ -32,5 +35,8 @@ func TestHello(t *testing.T) {
 		"hello": "active"
 	}
 	`
-	tester.PushAction(ctx, 0, "hello", "sayhello", args, permissions)
+
+	fmt.Println("+++++++push sayhello action")
+	ret := tester.PushAction("hello", "sayhello", args, permissions)
+	t.Errorf("++++++++++ret:%s\n", string(ret))
 }
