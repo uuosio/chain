@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/uuosio/chain"
 )
+import "C"
 
 //contract test
 type Contract struct {
@@ -21,7 +22,7 @@ func NewContract(receiver, firstReceiver, action chain.Name) *Contract {
 
 //action sayhello
 func (c *Contract) SayHello(name string) {
-	check(false, "oops!")
+	// check(false, "oops!")
 	chain.Prints("++++++hellow,world")
 	chain.NewAction(
 		chain.NewPermissionLevel(chain.NewName("hello"), chain.NewName("active")),
