@@ -71,7 +71,7 @@ func PrintDf(value float64) {
 }
 
 //Prints value as quadruple-precision floating point number
-func PrintQf(value Float128) {
+func PrintQf(value [16]byte) {
 	C.printqf((*C.uint8_t)(&value[0]))
 }
 

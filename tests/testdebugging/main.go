@@ -4,15 +4,6 @@ import (
 	"github.com/uuosio/chain"
 )
 
-/*
-void say_hello();
-
-// #cgo CXXFLAGS: -Iincs
-// #cgo CFLAGS: -Iincs
-
-*/
-import "C"
-
 //contract test
 type Contract struct {
 	receiver      chain.Name
@@ -30,6 +21,7 @@ func NewContract(receiver, firstReceiver, action chain.Name) *Contract {
 
 //action sayhello
 func (c *Contract) SayHello(name string) {
+	check(false, "oops!")
 	chain.Prints("++++++hellow,world")
 	chain.NewAction(
 		chain.NewPermissionLevel(chain.NewName("hello"), chain.NewName("active")),
@@ -65,5 +57,5 @@ func (c *Contract) Inc(name string) {
 }
 
 func SayHelloFromCpp() {
-	C.say_hello()
+	// C.say_hello()
 }

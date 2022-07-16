@@ -52,6 +52,40 @@ void printhex( const void* data, uint32_t datalen );
 import "C"
 import "unsafe"
 
+type PTR unsafe.Pointer
+
+type SliceHeader struct {
+	Data uintptr
+	Len  int
+	Cap  int
+}
+
+type sliceHeader struct {
+	data unsafe.Pointer
+	len  uintptr
+	cap  uintptr
+}
+
+type stringHeader struct {
+	data unsafe.Pointer
+	len  uintptr
+}
+
+func GetStringPtr(str string) unsafe.Pointer {
+	if len(str) != 0 {
+		_str := (*stringHeader)(unsafe.Pointer(&str))
+		return _str.data
+	}
+	return unsafe.Pointer(uintptr(0))
+}
+
+func GetBytesPtr(bs []byte) unsafe.Pointer {
+	if len(bs) != 0 {
+		return unsafe.Pointer(&bs[0])
+	}
+	return unsafe.Pointer(uintptr(0))
+}
+
 //Read current action data
 func ReadActionData() []byte {
 	n := C.action_data_size()
