@@ -32,63 +32,83 @@ func CheckError(err error) {
 	}
 }
 
+//action.h
+
 //Read current action data
 func ReadActionData() []byte {
-	return nil
+	ret, err := chaintester.GetVMAPI().ReadActionData(ctx)
+	CheckError(err)
+	return ret
 }
 
 //Get the length of the current action's data field
 func ActionDataSize() uint32 {
-	return 0
+	size, err := chaintester.GetVMAPI().ActionDataSize(ctx)
+	CheckError(err)
+	return uint32(size)
 }
 
 //Add the specified account to set of accounts to be notified
 func RequireRecipient(name uint64) {
-}
-
-func RequireRecipientEx(name uint64) {
+	err := chaintester.GetVMAPI().RequireRecipient(ctx, to_raw_uint64(name))
+	CheckError(err)
 }
 
 //Verifies that name exists in the set of provided auths on a action. Throws if not found.
 func RequireAuth(name uint64) {
+	err := chaintester.GetVMAPI().RequireAuth(ctx, to_raw_uint64(name))
+	CheckError(err)
 }
 
 //Verifies that name has auth.
 func HasAuth(name uint64) bool {
-	return false
+	ret, err := chaintester.GetVMAPI().HasAuth(ctx, to_raw_uint64(name))
+	CheckError(err)
+	return ret
 }
 
 //Verifies that name exists in the set of provided auths on a action. Throws if not found.
 func RequireAuth2(name uint64, permission uint64) {
+	err := chaintester.GetVMAPI().RequireAuth2(ctx, to_raw_uint64(name), to_raw_uint64(permission))
+	CheckError(err)
 }
 
 //Verifies that name is an existing account.
 func IsAccount(name uint64) bool {
-	return false
+	ret, err := chaintester.GetVMAPI().IsAccount(ctx, to_raw_uint64(name))
+	CheckError(err)
+	return ret
 }
 
 //Send an inline action in the context of this action's parent transaction
 func SendInline(data []byte) {
-	chaintester.GetVMAPI().SendInline(ctx, data)
+	err := chaintester.GetVMAPI().SendInline(ctx, data)
+	CheckError(err)
 }
 
 //Send an inline context free action in the context of this action's parent transaction
 func SendContextFreeInline(data []byte) {
+	err := chaintester.GetVMAPI().SendContextFreeInline(ctx, data)
+	CheckError(err)
 }
 
 //Returns the time in microseconds from 1970 of the publication_time
 func PublicationTime() uint64 {
-	return 0
+	ret, err := chaintester.GetVMAPI().PublicationTime(ctx)
+	CheckError(err)
+	return from_raw_uint64(ret)
 }
 
 //Get the current receiver of the action
 func CurrentReceiver() uint64 {
-	return 0
+	ret, err := chaintester.GetVMAPI().CurrentReceiver(ctx)
+	CheckError(err)
+	return from_raw_uint64(ret)
 }
 
 //Set the action return value which will be included in the action_receipt
 func SetActionReturnValue(return_value []byte) {
-
+	panic("SetActionReturnValue not implemented")
 }
 
 //system.h
@@ -115,6 +135,7 @@ func EosioAssert(test bool, msg string) {
 
 func to_raw_uint64(value uint64) *interfaces.Uint64 {
 	ret := &interfaces.Uint64{}
+	ret.RawValue = make([]byte, 8)
 	binary.LittleEndian.PutUint64(ret.RawValue, value)
 	return ret
 }
@@ -228,4 +249,71 @@ func RecoverKey(digest [32]byte, sig []byte) []byte {
 func AssertRecoverKey(digest [32]byte, sig []byte, pub []byte) {
 	err := chaintester.GetVMAPI().AssertRecoverKey(ctx, digest[:], sig, pub)
 	CheckError(err)
+}
+
+func DBStoreI64(scope uint64, table uint64, payer uint64, id uint64, data []byte) int32 {
+	ret, err := chaintester.GetVMAPI().DbStoreI64(ctx, to_raw_uint64(scope), to_raw_uint64(table), to_raw_uint64(payer), to_raw_uint64(id), data)
+	CheckError(err)
+	return ret
+}
+
+// void db_update_i64(int32_t iterator, uint64_t payer, const char* data, uint32_t len);
+func DBUpdateI64(iterator int32, payer uint64, data []byte) {
+	err := chaintester.GetVMAPI().DbUpdateI64(ctx, iterator, to_raw_uint64(payer), data)
+	CheckError(err)
+}
+
+// void db_remove_i64(int32_t iterator);
+func DBRemoveI64(iterator int32) {
+	err := chaintester.GetVMAPI().DbRemoveI64(ctx, iterator)
+	CheckError(err)
+}
+
+// int32_t db_get_i64(int32_t iterator, const char* data, uint32_t len);
+func DBGetI64(iterator int32) []byte {
+	ret, err := chaintester.GetVMAPI().DbGetI64(ctx, iterator)
+	CheckError(err)
+	return ret
+}
+
+// int32_t db_next_i64(int32_t iterator, uint64_t* primary);
+func DBNextI64(iterator int32) (int32, uint64) {
+	ret, err := chaintester.GetVMAPI().DbNextI64(ctx, iterator)
+	CheckError(err)
+	return ret.Iterator, from_raw_uint64(ret.Primary)
+}
+
+// int32_t db_previous_i64(int32_t iterator, uint64_t* primary);
+func DBPreviousI64(iterator int32) (int32, uint64) {
+	ret, err := chaintester.GetVMAPI().DbPreviousI64(ctx, iterator)
+	CheckError(err)
+	return ret.Iterator, from_raw_uint64(ret.Primary)
+}
+
+// int32_t db_find_i64(uint64_t code, uint64_t scope, uint64_t table, uint64_t id);
+func DBFindI64(code uint64, scope uint64, table uint64, id uint64) int32 {
+	ret, err := chaintester.GetVMAPI().DbFindI64(ctx, to_raw_uint64(code), to_raw_uint64(scope), to_raw_uint64(table), to_raw_uint64(id))
+	CheckError(err)
+	return ret
+}
+
+// int32_t db_lowerbound_i64(uint64_t code, uint64_t scope, uint64_t table, uint64_t id);
+func DBLowerBoundI64(code uint64, scope uint64, table uint64, id uint64) int32 {
+	ret, err := chaintester.GetVMAPI().DbLowerboundI64(ctx, to_raw_uint64(code), to_raw_uint64(scope), to_raw_uint64(table), to_raw_uint64(id))
+	CheckError(err)
+	return ret
+}
+
+// int32_t db_upperbound_i64(uint64_t code, uint64_t scope, uint64_t table, uint64_t id);
+func DBUpperBoundI64(code uint64, scope uint64, table uint64, id uint64) int32 {
+	ret, err := chaintester.GetVMAPI().DbUpperboundI64(ctx, to_raw_uint64(code), to_raw_uint64(scope), to_raw_uint64(table), to_raw_uint64(id))
+	CheckError(err)
+	return ret
+}
+
+// int32_t db_end_i64(uint64_t code, uint64_t scope, uint64_t table);
+func DBEndI64(code uint64, scope uint64, table uint64) int32 {
+	ret, err := chaintester.GetVMAPI().DbEndI64(ctx, to_raw_uint64(code), to_raw_uint64(scope), to_raw_uint64(table))
+	CheckError(err)
+	return ret
 }

@@ -74,6 +74,18 @@ void sha512( const char* data, uint32_t length, capi_checksum512* hash );
 void ripemd160( const char* data, uint32_t length, capi_checksum160* hash );
 int recover_key( const capi_checksum256* digest, const char* sig, size_t siglen, char* pub, size_t publen );
 void assert_recover_key( const capi_checksum256* digest, const char* sig, size_t siglen, const char* pub, size_t publen );
+
+
+int32_t db_store_i64(uint64_t scope, uint64_t table, uint64_t payer, uint64_t id,  const char* data, uint32_t len);
+void db_update_i64(int32_t iterator, uint64_t payer, const char* data, uint32_t len);
+void db_remove_i64(int32_t iterator);
+int32_t db_get_i64(int32_t iterator, const char* data, uint32_t len);
+int32_t db_next_i64(int32_t iterator, uint64_t* primary);
+int32_t db_previous_i64(int32_t iterator, uint64_t* primary);
+int32_t db_find_i64(uint64_t code, uint64_t scope, uint64_t table, uint64_t id);
+int32_t db_lowerbound_i64(uint64_t code, uint64_t scope, uint64_t table, uint64_t id);
+int32_t db_upperbound_i64(uint64_t code, uint64_t scope, uint64_t table, uint64_t id);
+int32_t db_end_i64(uint64_t code, uint64_t scope, uint64_t table);
 */
 import "C"
 import "unsafe"
@@ -310,4 +322,62 @@ func RecoverKey(digest [32]byte, sig []byte) []byte {
 //Tests a given public key with the generated key from digest and the signature
 func AssertRecoverKey(digest [32]byte, sig []byte, pub []byte) {
 	C.assert_recover_key((*C.capi_checksum256)(unsafe.Pointer(&digest)), (*C.char)(unsafe.Pointer(&sig[0])), C.size_t(len(sig)), (*C.char)(unsafe.Pointer(&pub[0])), C.size_t(len(pub)))
+}
+
+// int32_t db_store_i64(uint64_t scope, uint64_t table, uint64_t payer, uint64_t id,  const char* data, uint32_t len);
+func DBStoreI64(scope uint64, table uint64, payer uint64, id uint64, data []byte) int32 {
+	return C.db_store_i64(scope, table, payer, id, (*C.char)(unsafe.Pointer(&data[0])), C.uint32_t(len(data)))
+}
+
+// void db_update_i64(int32_t iterator, uint64_t payer, const char* data, uint32_t len);
+func DBUpdateI64(iterator int32, payer uint64, data []byte) {
+	p := (*C.char)(unsafe.Pointer(&data[0]))
+	C.db_update_i64(iterator, payer, p, C.uint32_t(len(data)))
+}
+
+// void db_remove_i64(int32_t iterator);
+func DBRemoveI64(iterator int32) {
+	C.db_remove_i64(iterator)
+}
+
+// int32_t db_get_i64(int32_t iterator, const char* data, uint32_t len);
+func DBGetI64(iterator int32) []byte {
+	size := C.db_get_i64(iterator, (*C.char)(unsafe.Pointer(uintptr(0))), 0)
+	data := make([]byte, size)
+	C.db_get_i64(iterator, (*C.char)(unsafe.Pointer(&data[0])), uint32(size))
+	return data
+}
+
+// int32_t db_next_i64(int32_t iterator, uint64_t* primary);
+func DBNextI64(iterator int32) (int32, uint64) {
+	var primary uint64
+	next := C.db_next_i64(iterator, &primary)
+	return next, primary
+}
+
+// int32_t db_previous_i64(int32_t iterator, uint64_t* primary);
+func DBPreviousI64(iterator int32) (int32, uint64) {
+	var primary uint64
+	next := C.db_previous_i64(iterator, &primary)
+	return next, primary
+}
+
+// int32_t db_find_i64(uint64_t code, uint64_t scope, uint64_t table, uint64_t id);
+func DBFindI64(code uint64, scope uint64, table uint64, id uint64) int32 {
+	return C.db_find_i64(code, scope, table, id)
+}
+
+// int32_t db_lowerbound_i64(uint64_t code, uint64_t scope, uint64_t table, uint64_t id);
+func DBLowerBoundI64(code uint64, scope uint64, table uint64, id uint64) int32 {
+	return C.db_lowerbound_i64(code, scope, table, id)
+}
+
+// int32_t db_upperbound_i64(uint64_t code, uint64_t scope, uint64_t table, uint64_t id);
+func DBUpperBoundI64(code uint64, scope uint64, table uint64, id uint64) int32 {
+	return C.db_upperbound_i64(code, scope, table, id)
+}
+
+// int32_t db_end_i64(uint64_t code, uint64_t scope, uint64_t table);
+func DBEndI64(code uint64, scope uint64, table uint64) int32 {
+	return C.db_end_i64(code, scope, table)
 }

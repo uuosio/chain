@@ -1,25 +1,8 @@
 package database
 
-/*
-#include <stdint.h>
-
-int32_t db_store_i64(uint64_t scope, uint64_t table, uint64_t payer, uint64_t id,  const char* data, uint32_t len);
-void db_update_i64(int32_t iterator, uint64_t payer, const char* data, uint32_t len);
-void db_remove_i64(int32_t iterator);
-int32_t db_get_i64(int32_t iterator, const char* data, uint32_t len);
-int32_t db_next_i64(int32_t iterator, uint64_t* primary);
-int32_t db_previous_i64(int32_t iterator, uint64_t* primary);
-int32_t db_find_i64(uint64_t code, uint64_t scope, uint64_t table, uint64_t id);
-int32_t db_lowerbound_i64(uint64_t code, uint64_t scope, uint64_t table, uint64_t id);
-int32_t db_upperbound_i64(uint64_t code, uint64_t scope, uint64_t table, uint64_t id);
-int32_t db_end_i64(uint64_t code, uint64_t scope, uint64_t table);
-*/
-import "C"
-
 import (
-	"unsafe"
-
 	"github.com/uuosio/chain"
+	"github.com/uuosio/chain/eosio"
 )
 
 const (
@@ -35,29 +18,29 @@ const (
 type TableI64Unpacker func([]byte) TableValue
 
 type TableI64 struct {
-	code     C.uint64_t
-	scope    C.uint64_t
-	table    C.uint64_t
+	code     uint64
+	scope    uint64
+	table    uint64
 	unpacker TableI64Unpacker
 }
 
 func NewTableI64(code chain.Name, scope chain.Name, table chain.Name, unpacker TableI64Unpacker) *TableI64 {
 	chain.Assert(chain.IsAccount(code), "code account does not exists!")
-	return &TableI64{C.uint64_t(code.N), C.uint64_t(scope.N), C.uint64_t(table.N), unpacker}
+	return &TableI64{code.N, scope.N, table.N, unpacker}
 }
 
 func (db *TableI64) Init(code chain.Name, scope chain.Name, table chain.Name) {
-	db.code = C.uint64_t(code.N)
-	db.scope = C.uint64_t(scope.N)
-	db.table = C.uint64_t(table.N)
+	db.code = code.N
+	db.scope = scope.N
+	db.table = table.N
 }
 
 func (db *TableI64) GetTable() (uint64, uint64, uint64) {
-	return uint64(db.code), uint64(db.scope), uint64(db.table)
+	return db.code, db.scope, db.table
 }
 
 func (db *TableI64) GetTableName() uint64 {
-	return uint64(db.table)
+	return db.table
 }
 
 func (db *TableI64) Set(id uint64, data []byte, payer chain.Name) *Iterator {
@@ -103,68 +86,57 @@ func (db *TableI64) Update(it *Iterator, data []byte, payer chain.Name) {
 
 //Remove a record from a primary 64-bit integer index table
 func (db *TableI64) Remove(it *Iterator) {
-	C.db_remove_i64(C.int32_t(it.I))
+	eosio.DBRemoveI64(it.I)
 }
 
 //Find the table row following the referenced table row in a primary 64-bit integer index table
 func (db *TableI64) Next(it *Iterator) (next_iterator *Iterator, primary uint64) {
-	ret := C.db_next_i64(C.int32_t(it.I), (*C.uint64_t)(unsafe.Pointer(&primary)))
-	return &Iterator{int32(ret), primary, true, db}, primary
+	ret, primary := eosio.DBNextI64(it.I)
+	return &Iterator{ret, primary, true, db}, primary
 }
 
 //Find the table row preceding the referenced table row in a primary 64-bit integer index table
 func (db *TableI64) Previous(it *Iterator) (previous_iterator *Iterator, primary uint64) {
-	ret := C.db_previous_i64(C.int32_t(it.I), (*C.uint64_t)(unsafe.Pointer(&primary)))
-	return &Iterator{int32(ret), primary, true, db}, primary
+	ret, primary := eosio.DBPreviousI64(it.I)
+	return &Iterator{ret, primary, true, db}, primary
 }
 
 //Find a table row in a primary 64-bit integer index table by primary key
 func (db *TableI64) Find(id uint64) *Iterator {
-	ret := C.db_find_i64(db.code, db.scope, db.table, C.uint64_t(id))
+	ret := eosio.DBFindI64(db.code, db.scope, db.table, id)
 	if ret >= 0 {
-		return &Iterator{int32(ret), id, true, db}
+		return &Iterator{ret, id, true, db}
 	}
-	return &Iterator{int32(ret), 0, false, db}
+	return &Iterator{ret, 0, false, db}
 }
 
 //Find the table row in a primary 64-bit integer index table that matches the lowerbound condition for a given primary key
 func (db *TableI64) Lowerbound(id uint64) *Iterator {
-	ret := C.db_lowerbound_i64(db.code, db.scope, db.table, C.uint64_t(id))
-	return &Iterator{int32(ret), 0, false, db}
+	ret := eosio.DBLowerBoundI64(db.code, db.scope, db.table, id)
+	return &Iterator{ret, 0, false, db}
 }
 
 //Find the table row in a primary 64-bit integer index table that matches the upperbound condition for a given primary key
 func (db *TableI64) Upperbound(id uint64) *Iterator {
-	ret := C.db_upperbound_i64(db.code, db.scope, db.table, C.uint64_t(id))
-	return &Iterator{int32(ret), 0, false, db}
+	ret := eosio.DBUpperBoundI64(db.code, db.scope, db.table, id)
+	return &Iterator{ret, 0, false, db}
 }
 
 //Get an iterator representing just-past-the-end of the last table row of a primary 64-bit integer index table
 func (db *TableI64) End() *Iterator {
-	ret := C.db_end_i64(db.code, db.scope, db.table)
+	ret := eosio.DBEndI64(db.code, db.scope, db.table)
 	return &Iterator{int32(ret), 0, false, db}
 }
 
 func (db *TableI64) storeI64(payer uint64, id uint64, data []byte) *Iterator {
-	p := (*C.char)(unsafe.Pointer(&data[0]))
-	ret := C.db_store_i64(db.scope, db.table, C.uint64_t(payer), C.uint64_t(id), p, C.uint32_t(len(data)))
+	ret := eosio.DBStoreI64(db.scope, db.table, payer, id, data)
 	return &Iterator{int32(ret), id, true, db}
 }
 
 func (db *TableI64) updateI64(iterator *Iterator, payer uint64, data []byte) {
-	p := (*C.char)(unsafe.Pointer(&data[0]))
-	C.db_update_i64(C.int32_t(iterator.I), C.uint64_t(payer), p, C.uint32_t(len(data)))
+	eosio.DBUpdateI64(iterator.I, payer, data)
 }
 
-func (db *TableI64) getI64(it *Iterator) (data []byte) {
-	p := (*C.char)(unsafe.Pointer(uintptr(0)))
-	data_size := C.db_get_i64(C.int32_t(it.I), p, C.uint32_t(0))
-	if data_size <= 0 {
-		return []byte{}
-	}
-
-	data = make([]byte, data_size)
-	p = (*C.char)(unsafe.Pointer(&data[0]))
-	C.db_get_i64(C.int32_t(it.I), p, C.uint32_t(len(data)))
-	return data
+func (db *TableI64) getI64(it *Iterator) []byte {
+	return eosio.DBGetI64(it.I)
 }
