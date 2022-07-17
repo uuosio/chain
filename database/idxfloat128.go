@@ -26,13 +26,13 @@ type IdxTableFloat128 struct {
 }
 
 func NewIdxTableFloat128(index int, code uint64, scope uint64, table uint64) *IdxTableFloat128 {
-	v := &IdxTableFloat128{IdxTable{index, C.uint64_t(code), C.uint64_t(scope), C.uint64_t(table)}}
+	v := &IdxTableFloat128{IdxTable{index, code, scope, table}}
 	return v
 }
 
 //Store an association of a quadruple-precision floating-point secondary key to a primary key in a secondary quadruple-precision floating-point index table
 func (db *IdxTableFloat128) Store(id uint64, secondary chain.Float128, payer uint64) *SecondaryIterator {
-	ret := C.db_idx_long_double_store(db.scope, db.table, C.uint64_t(payer), C.uint64_t(id), (*C.float128_t)(unsafe.Pointer(&secondary)))
+	ret := C.db_idx_long_double_store(C.uint64_t(db.scope), C.uint64_t(db.table), C.uint64_t(payer), C.uint64_t(id), (*C.float128_t)(unsafe.Pointer(&secondary)))
 	return &SecondaryIterator{int32(ret), id, db.dbIndex}
 }
 
@@ -75,14 +75,14 @@ func (db *IdxTableFloat128) Previous(it *SecondaryIterator) *SecondaryIterator {
 //Find a table row in a secondary quadruple-precision floating-point index table by primary key
 func (db *IdxTableFloat128) FindByPrimary(primary uint64) (*SecondaryIterator, interface{}) {
 	var secondary chain.Float128
-	ret := C.db_idx_long_double_find_primary(db.code, db.scope, db.table, (*C.float128_t)(unsafe.Pointer(&secondary)), C.uint64_t(primary))
+	ret := C.db_idx_long_double_find_primary(C.uint64_t(db.code), C.uint64_t(db.scope), C.uint64_t(db.table), (*C.float128_t)(unsafe.Pointer(&secondary)), C.uint64_t(primary))
 	return &SecondaryIterator{int32(ret), primary, db.dbIndex}, secondary
 }
 
 //Find a table row in a secondary quadruple-precision floating-point index table by secondary key
 func (db *IdxTableFloat128) Find(secondary chain.Float128) *SecondaryIterator {
 	// var primary uint64 = 0
-	// ret := C.db_idx_long_double_find_secondary(db.code, db.scope, db.table, (*C.float128_t)(unsafe.Pointer(&_secondary)), &primary)
+	// ret := C.db_idx_long_double_find_secondary(C.uint64_t(db.code), C.uint64_t(db.scope), C.uint64_t(db.table), (*C.float128_t)(unsafe.Pointer(&_secondary)), &primary)
 	// return &SecondaryIterator{ret, primary, db.dbIndex}
 	it, value := db.Lowerbound(secondary)
 	if it.IsOk() {
@@ -102,19 +102,19 @@ func (db *IdxTableFloat128) FindEx(secondary interface{}) *SecondaryIterator {
 //Find the table row in a secondary quadruple-precision floating-point index table that matches the lowerbound condition for a given secondary key
 func (db *IdxTableFloat128) Lowerbound(secondary chain.Float128) (*SecondaryIterator, chain.Float128) {
 	var primary uint64 = 0
-	ret := C.db_idx_long_double_lowerbound(db.code, db.scope, db.table, (*C.float128_t)(unsafe.Pointer(&secondary)), (*C.uint64_t)(&primary))
+	ret := C.db_idx_long_double_lowerbound(C.uint64_t(db.code), C.uint64_t(db.scope), C.uint64_t(db.table), (*C.float128_t)(unsafe.Pointer(&secondary)), (*C.uint64_t)(&primary))
 	return &SecondaryIterator{int32(ret), primary, db.dbIndex}, secondary
 }
 
 //Find the table row in a secondary quadruple-precision floating-point index table that matches the upperbound condition for a given secondary key
 func (db *IdxTableFloat128) Upperbound(secondary chain.Float128) (*SecondaryIterator, chain.Float128) {
 	var primary uint64 = 0
-	ret := C.db_idx_long_double_upperbound(db.code, db.scope, db.table, (*C.float128_t)(unsafe.Pointer(&secondary)), (*C.uint64_t)(&primary))
+	ret := C.db_idx_long_double_upperbound(C.uint64_t(db.code), C.uint64_t(db.scope), C.uint64_t(db.table), (*C.float128_t)(unsafe.Pointer(&secondary)), (*C.uint64_t)(&primary))
 	return &SecondaryIterator{int32(ret), primary, db.dbIndex}, secondary
 }
 
 //Get an end iterator representing just-past-the-end of the last table row of a secondary quadruple-precision floating-point index table
 func (db *IdxTableFloat128) End() *SecondaryIterator {
-	ret := C.db_idx_long_double_end(db.code, db.scope, db.table)
+	ret := C.db_idx_long_double_end(C.uint64_t(db.code), C.uint64_t(db.scope), C.uint64_t(db.table))
 	return &SecondaryIterator{int32(ret), 0, db.dbIndex}
 }

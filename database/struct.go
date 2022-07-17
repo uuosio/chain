@@ -7,9 +7,9 @@ import "C"
 
 type IdxTable struct {
 	dbIndex int
-	code    C.uint64_t
-	scope   C.uint64_t
-	table   C.uint64_t
+	code    uint64
+	scope   uint64
+	table   uint64
 }
 
 func (db *IdxTable) GetIndex() int {

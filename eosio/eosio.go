@@ -86,6 +86,28 @@ int32_t db_find_i64(uint64_t code, uint64_t scope, uint64_t table, uint64_t id);
 int32_t db_lowerbound_i64(uint64_t code, uint64_t scope, uint64_t table, uint64_t id);
 int32_t db_upperbound_i64(uint64_t code, uint64_t scope, uint64_t table, uint64_t id);
 int32_t db_end_i64(uint64_t code, uint64_t scope, uint64_t table);
+
+int32_t db_idx64_store(uint64_t scope, uint64_t table, uint64_t payer, uint64_t id, const uint64_t* secondary);
+void db_idx64_update(int32_t iterator, uint64_t payer, const uint64_t* secondary);
+void db_idx64_remove(int32_t iterator);
+int32_t db_idx64_next(int32_t iterator, uint64_t* primary);
+int32_t db_idx64_previous(int32_t iterator, uint64_t* primary);
+int32_t db_idx64_find_primary(uint64_t code, uint64_t scope, uint64_t table, uint64_t* secondary, uint64_t primary);
+int32_t db_idx64_find_secondary(uint64_t code, uint64_t scope, uint64_t table, const uint64_t* secondary, uint64_t* primary);
+int32_t db_idx64_lowerbound(uint64_t code, uint64_t scope, uint64_t table, uint64_t* secondary, uint64_t* primary);
+int32_t db_idx64_upperbound(uint64_t code, uint64_t scope, uint64_t table, uint64_t* secondary, uint64_t* primary);
+int32_t db_idx64_end(uint64_t code, uint64_t scope, uint64_t table);
+
+int32_t db_idx128_store(uint64_t scope, uint64_t table, uint64_t payer, uint64_t id, const uint128* secondary);
+void db_idx128_update(int32_t iterator, uint64_t payer, const uint128* secondary);
+void db_idx128_remove(int32_t iterator);
+int32_t db_idx128_next(int32_t iterator, uint64_t* primary);
+int32_t db_idx128_previous(int32_t iterator, uint64_t* primary);
+int32_t db_idx128_find_primary(uint64_t code, uint64_t scope, uint64_t table, uint128* secondary, uint64_t primary);
+int32_t db_idx128_find_secondary(uint64_t code, uint64_t scope, uint64_t table, const uint128* secondary, uint64_t* primary);
+int32_t db_idx128_lowerbound(uint64_t code, uint64_t scope, uint64_t table, uint128* secondary, uint64_t* primary);
+int32_t db_idx128_upperbound(uint64_t code, uint64_t scope, uint64_t table, uint128* secondary, uint64_t* primary);
+int32_t db_idx128_end(uint64_t code, uint64_t scope, uint64_t table);
 */
 import "C"
 import "unsafe"
@@ -380,4 +402,144 @@ func DBUpperBoundI64(code uint64, scope uint64, table uint64, id uint64) int32 {
 // int32_t db_end_i64(uint64_t code, uint64_t scope, uint64_t table);
 func DBEndI64(code uint64, scope uint64, table uint64) int32 {
 	return C.db_end_i64(code, scope, table)
+}
+
+// int32_t db_idx64_store(uint64_t scope, uint64_t table, uint64_t payer, uint64_t id, const uint64_t* secondary);
+func DBIdx64Store(scope uint64, table uint64, id uint64, secondary uint64, payer uint64) int32 {
+	return C.db_idx64_store(scope, table, payer, id, &secondary)
+}
+
+// void db_idx64_update(int32_t iterator, uint64_t payer, const uint64_t* secondary);
+func DBIdx64Update(it int32, secondary uint64, payer uint64) {
+	C.db_idx64_update(it, payer, &secondary)
+}
+
+// void db_idx64_remove(int32_t iterator);
+func DBIdx64Remove(it int32) {
+	C.db_idx64_remove(it)
+}
+
+// int32_t db_idx64_next(int32_t iterator, uint64_t* primary);
+func DBIdx64Next(it int32) (int32, uint64) {
+	var primary uint64 = 0
+	ret := C.db_idx64_next(it, &primary)
+	return ret, primary
+}
+
+// int32_t db_idx64_previous(int32_t iterator, uint64_t* primary);
+func DBIdx64Previous(it int32) (int32, uint64) {
+	var primary uint64 = 0
+	ret := C.db_idx64_previous(it, &primary)
+	return ret, primary
+}
+
+// int32_t db_idx64_find_primary(uint64_t code, uint64_t scope, uint64_t table, uint64_t* secondary, uint64_t primary);
+func DBIdx64FindByPrimary(code uint64, scope uint64, table uint64, primary uint64) (int32, uint64) {
+	var secondary uint64 = 0
+	ret := C.db_idx64_find_primary(code, scope, table, (*C.uint64_t)(&secondary), C.uint64_t(primary))
+	return ret, secondary
+}
+
+// int32_t db_idx64_find_secondary(uint64_t code, uint64_t scope, uint64_t table, const uint64_t* secondary, uint64_t* primary);
+func DBIdx64Find(code uint64, scope uint64, table uint64, secondary uint64) (int32, uint64) {
+	it, _secondary, _ := DBIdx64Lowerbound(code, scope, table, secondary)
+	if it >= 0 {
+		if _secondary == secondary {
+			return it, _secondary
+		}
+	}
+	return -1, 0
+}
+
+// int32_t db_idx64_lowerbound(uint64_t code, uint64_t scope, uint64_t table, uint64_t* secondary, uint64_t* primary);
+func DBIdx64Lowerbound(code uint64, scope uint64, table uint64, secondary uint64) (int32, uint64, uint64) {
+	var primary uint64 = 0
+	ret := C.db_idx64_lowerbound(code, scope, table, (*C.uint64_t)(&secondary), (*C.uint64_t)(&primary))
+	return ret, secondary, primary
+}
+
+// int32_t db_idx64_upperbound(uint64_t code, uint64_t scope, uint64_t table, uint64_t* secondary, uint64_t* primary);
+func DBIdx64Upperbound(code uint64, scope uint64, table uint64, secondary uint64) (int32, uint64, uint64) {
+	var primary uint64 = 0
+	ret := C.db_idx64_upperbound(code, scope, table, (*C.uint64_t)(&secondary), (*C.uint64_t)(&primary))
+	return ret, secondary, primary
+}
+
+// int32_t db_idx64_end(uint64_t code, uint64_t scope, uint64_t table);
+func DBIdx64End(code uint64, scope uint64, table uint64) int32 {
+	return C.db_idx64_end(code, scope, table)
+}
+
+// int32_t db_idx128_store(uint64_t scope, uint64_t table, uint64_t payer, uint64_t id, const uint128* secondary);
+func DBIdx128Store(scope uint64, table uint64, id uint64, secondary [16]byte, payer uint64) int32 {
+	return C.db_idx128_store(C.uint64_t(scope), C.uint64_t(table), C.uint64_t(payer), C.uint64_t(id), (*C.uint128)(unsafe.Pointer(&secondary)))
+}
+
+// void db_idx128_update(int32_t iterator, uint64_t payer, const uint128* secondary);
+func DBIdx128Update(it int32, secondary [16]byte, payer uint64) {
+	C.db_idx128_update(C.int32_t(it.I), C.uint64_t(payer), (*C.uint128)(unsafe.Pointer(&secondary)))
+}
+
+// void db_idx128_remove(int32_t iterator);
+func DBIdx64Remove(it int32) {
+	C.db_idx128_remove(C.int32_t(it))
+}
+
+// int32_t db_idx128_next(int32_t iterator, uint64_t* primary);
+func DBIdx128Next(it int32) (int32, uint64) {
+	var primary uint64 = 0
+	ret := C.db_idx128_next(C.int32_t(it), (*C.uint64_t)(&primary))
+	return ret, primary
+}
+
+// int32_t db_idx128_previous(int32_t iterator, uint64_t* primary);
+func DBIdx128Previous(it int32) (int32, uint64) {
+	var primary uint64 = 0
+	ret := C.db_idx128_previous(C.int32_t(it), (*C.uint64_t)(&primary))
+	return ret, primary
+}
+
+// int32_t db_idx128_find_primary(uint64_t code, uint64_t scope, uint64_t table, uint128* secondary, uint64_t primary);
+func DBIdx128FindByPrimary(code uint64, scope uint64, table uint64, primary uint64) (it, [16]byte) {
+	var secondary [16]byte
+	ret := C.db_idx128_find_primary(C.uint64_t(code), C.uint64_t(scope), C.uint64_t(table), (*C.uint128)(unsafe.Pointer(&secondary)), C.uint64_t(primary))
+	return ret, secondary
+}
+
+// int32_t db_idx128_find_secondary(uint64_t code, uint64_t scope, uint64_t table, const uint128* secondary, uint64_t* primary);
+func DBIdx128Find(code uint64, scope uint64, table uint64, secondary [16]byte) (int32, [16]byte, uint64) {
+	it, _secondary, primary := DBIdx128Lowerbound(code, scope, table, secondary)
+	if it >= 0 {
+		if value == secondary {
+			return it, _secondary, primary
+		}
+	}
+	return it, _secondary, 0
+}
+
+// int32_t db_idx128_lowerbound(uint64_t code, uint64_t scope, uint64_t table, uint128* secondary, uint64_t* primary);
+func DBIdx128Lowerbound(code uint64, scope uint64, table uint64, secondary [16]byte) (int32, [16]byte, uint64) {
+	var primary uint64 = 0
+	ret := C.db_idx128_lowerbound(C.uint64_t(code), C.uint64_t(scope), C.uint64_t(table), (*C.uint128)(unsafe.Pointer(&secondary)), (*C.uint64_t)(&primary))
+	if ret >= 0 {
+		return ret, secondary, primary
+	} else {
+		return ret, [16]byte{}, 0
+	}
+}
+
+// int32_t db_idx128_upperbound(uint64_t code, uint64_t scope, uint64_t table, uint128* secondary, uint64_t* primary);
+func DBIdx128Upperbound(code uint64, scope uint64, table uint64, secondary [16]byte) (int32, [16]byte, uint64) {
+	var primary uint64 = 0
+	ret := C.db_idx128_upperbound(C.uint64_t(code), C.uint64_t(scope), C.uint64_t(table), (*C.uint128)(unsafe.Pointer(&secondary)), (*C.uint64_t)(&primary))
+	if ret >= 0 {
+		return ret, secondary, primary
+	} else {
+		return ret, [16]byte{}, 0
+	}
+}
+
+// int32_t db_idx128_end(uint64_t code, uint64_t scope, uint64_t table);
+func DBIdx128End(code uint64, scope uint64, table uint64) int32 {
+	return C.db_idx128_end(C.uint64_t(code), C.uint64_t(scope), C.uint64_t(table))
 }

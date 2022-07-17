@@ -317,3 +317,153 @@ func DBEndI64(code uint64, scope uint64, table uint64) int32 {
 	CheckError(err)
 	return ret
 }
+
+// int32_t db_idx64_store(uint64_t scope, uint64_t table, uint64_t payer, uint64_t id, const uint64_t* secondary);
+func DBIdx64Store(scope uint64, table uint64, id uint64, secondary uint64, payer uint64) int32 {
+	ret, err := chaintester.GetVMAPI().DbIdx64Store(ctx, to_raw_uint64(scope), to_raw_uint64(table), to_raw_uint64(payer), to_raw_uint64(id), to_raw_uint64(secondary))
+	CheckError(err)
+	return ret
+}
+
+// void db_idx64_update(int32_t iterator, uint64_t payer, const uint64_t* secondary);
+func DBIdx64Update(it int32, secondary uint64, payer uint64) {
+	err := chaintester.GetVMAPI().DbIdx64Update(ctx, it, to_raw_uint64(payer), to_raw_uint64(secondary))
+	CheckError(err)
+}
+
+// void db_idx64_remove(int32_t iterator);
+func DBIdx64Remove(it int32) {
+	err := chaintester.GetVMAPI().DbIdx64Remove(ctx, it)
+	CheckError(err)
+}
+
+// int32_t db_idx64_next(int32_t iterator, uint64_t* primary);
+func DBIdx64Next(it int32) (int32, uint64) {
+	ret, err := chaintester.GetVMAPI().DbIdx64Next(ctx, it)
+	CheckError(err)
+	return ret.Iterator, from_raw_uint64(ret.Primary)
+}
+
+// int32_t db_idx64_previous(int32_t iterator, uint64_t* primary);
+func DBIdx64Previous(it int32) (int32, uint64) {
+	ret, err := chaintester.GetVMAPI().DbIdx64Previous(ctx, it)
+	CheckError(err)
+	return ret.Iterator, from_raw_uint64(ret.Primary)
+}
+
+// int32_t db_idx64_find_primary(uint64_t code, uint64_t scope, uint64_t table, uint64_t* secondary, uint64_t primary);
+func DBIdx64FindByPrimary(code uint64, scope uint64, table uint64, primary uint64) (int32, uint64) {
+	ret, err := chaintester.GetVMAPI().DbIdx64FindPrimary(ctx, to_raw_uint64(code), to_raw_uint64(scope), to_raw_uint64(table), to_raw_uint64(primary))
+	CheckError(err)
+	return ret.Iterator, binary.LittleEndian.Uint64(ret.Secondary)
+}
+
+// int32_t db_idx64_find_secondary(uint64_t code, uint64_t scope, uint64_t table, const uint64_t* secondary, uint64_t* primary);
+func DBIdx64Find(code uint64, scope uint64, table uint64, secondary uint64) (int32, uint64) {
+	it, _, _secondary := DBIdx64Lowerbound(code, scope, table, secondary)
+	if it >= 0 {
+		if _secondary == secondary {
+			return it, secondary
+		}
+	}
+	return -1, 0
+}
+
+// int32_t db_idx64_lowerbound(uint64_t code, uint64_t scope, uint64_t table, uint64_t* secondary, uint64_t* primary);
+func DBIdx64Lowerbound(code uint64, scope uint64, table uint64, secondary uint64) (int32, uint64, uint64) {
+	var primary uint64 = 0
+	ret, err := chaintester.GetVMAPI().DbIdx64Lowerbound(ctx, to_raw_uint64(code), to_raw_uint64(scope), to_raw_uint64(table), to_raw_uint64(secondary), to_raw_uint64(primary))
+	CheckError(err)
+	return ret.Iterator, binary.LittleEndian.Uint64(ret.Secondary), from_raw_uint64(ret.Primary)
+}
+
+// int32_t db_idx64_upperbound(uint64_t code, uint64_t scope, uint64_t table, uint64_t* secondary, uint64_t* primary);
+func DBIdx64Upperbound(code uint64, scope uint64, table uint64, secondary uint64) (int32, uint64, uint64) {
+	var primary uint64 = 0
+	ret, err := chaintester.GetVMAPI().DbIdx64Upperbound(ctx, to_raw_uint64(code), to_raw_uint64(scope), to_raw_uint64(table), to_raw_uint64(secondary), to_raw_uint64(primary))
+	CheckError(err)
+	return ret.Iterator, binary.LittleEndian.Uint64(ret.Secondary), from_raw_uint64(ret.Primary)
+}
+
+// int32_t db_idx64_end(uint64_t code, uint64_t scope, uint64_t table);
+func DBIdx64End(code uint64, scope uint64, table uint64) int32 {
+	ret, err := chaintester.GetVMAPI().DbIdx64End(ctx, to_raw_uint64(code), to_raw_uint64(scope), to_raw_uint64(table))
+	CheckError(err)
+	return ret
+}
+
+// int32_t db_idx128_store(uint64_t scope, uint64_t table, uint64_t payer, uint64_t id, const uint128* secondary);
+func DBIdx128Store(scope uint64, table uint64, id uint64, secondary [16]byte, payer uint64) int32 {
+	it, err := chaintester.GetVMAPI().DbIdx128Store(ctx, to_raw_uint64(scope), to_raw_uint64(table), to_raw_uint64(payer), to_raw_uint64(id), secondary[:])
+	CheckError(err)
+	return it
+}
+
+// void db_idx128_update(int32_t iterator, uint64_t payer, const uint128* secondary);
+func DBIdx128Update(it int32, secondary [16]byte, payer uint64) {
+	err := chaintester.GetVMAPI().DbIdx128Update(ctx, it, to_raw_uint64(payer), secondary[:])
+	CheckError(err)
+}
+
+// void db_idx128_remove(int32_t iterator);
+func DBIdx128Remove(it int32) {
+	err := chaintester.GetVMAPI().DbIdx128Remove(ctx, it)
+	CheckError(err)
+}
+
+// int32_t db_idx128_next(int32_t iterator, uint64_t* primary);
+func DBIdx128Next(it int32) (int32, uint64) {
+	ret, err := chaintester.GetVMAPI().DbIdx128Next(ctx, it)
+	CheckError(err)
+	return ret.Iterator, from_raw_uint64(ret.Primary)
+}
+
+// int32_t db_idx128_previous(int32_t iterator, uint64_t* primary);
+func DBIdx128Previous(it int32) (int32, uint64) {
+	ret, err := chaintester.GetVMAPI().DbIdx128Previous(ctx, it)
+	CheckError(err)
+	return ret.Iterator, from_raw_uint64(ret.Primary)
+}
+
+// int32_t db_idx128_find_primary(uint64_t code, uint64_t scope, uint64_t table, uint128* secondary, uint64_t primary);
+func DBIdx128FindByPrimary(code uint64, scope uint64, table uint64, primary uint64) (int32, [16]byte) {
+	ret, err := chaintester.GetVMAPI().DbIdx128FindPrimary(ctx, to_raw_uint64(code), to_raw_uint64(scope), to_raw_uint64(table), to_raw_uint64(primary))
+	CheckError(err)
+	var _secondary [16]byte
+	copy(_secondary[:], ret.Secondary)
+	return ret.Iterator, _secondary
+}
+
+// int32_t db_idx128_find_secondary(uint64_t code, uint64_t scope, uint64_t table, const uint128* secondary, uint64_t* primary);
+func DBIdx128Find(code uint64, scope uint64, table uint64, secondary [16]byte) (int32, [16]byte, uint64) {
+	it, _secondary, primary := DBIdx128Lowerbound(code, scope, table, secondary)
+	if it >= 0 {
+		if _secondary == secondary {
+			return it, _secondary, primary
+		}
+	}
+	return it, _secondary, 0
+}
+
+// int32_t db_idx128_lowerbound(uint64_t code, uint64_t scope, uint64_t table, uint128* secondary, uint64_t* primary);
+func DBIdx128Lowerbound(code uint64, scope uint64, table uint64, secondary [16]byte) (int32, [16]byte, uint64) {
+	ret, err := chaintester.GetVMAPI().DbIdx128Lowerbound(ctx, to_raw_uint64(code), to_raw_uint64(scope), to_raw_uint64(table), secondary[:], to_raw_uint64(0))
+	CheckError(err)
+	copy(secondary[:], ret.Secondary)
+	return ret.Iterator, secondary, from_raw_uint64(ret.Primary)
+}
+
+// int32_t db_idx128_upperbound(uint64_t code, uint64_t scope, uint64_t table, uint128* secondary, uint64_t* primary);
+func DBIdx128Upperbound(code uint64, scope uint64, table uint64, secondary [16]byte) (int32, [16]byte, uint64) {
+	ret, err := chaintester.GetVMAPI().DbIdx128Upperbound(ctx, to_raw_uint64(code), to_raw_uint64(scope), to_raw_uint64(table), secondary[:], to_raw_uint64(0))
+	CheckError(err)
+	copy(secondary[:], ret.Secondary)
+	return ret.Iterator, secondary, from_raw_uint64(ret.Primary)
+}
+
+// int32_t db_idx128_end(uint64_t code, uint64_t scope, uint64_t table);
+func DBIdx128End(code uint64, scope uint64, table uint64) int32 {
+	it, err := chaintester.GetVMAPI().DbIdx128End(ctx, to_raw_uint64(code), to_raw_uint64(scope), to_raw_uint64(table))
+	CheckError(err)
+	return it
+}

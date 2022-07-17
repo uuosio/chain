@@ -27,13 +27,13 @@ type IdxTableFloat64 struct {
 }
 
 func NewIdxTableFloat64(index int, code uint64, scope uint64, table uint64) *IdxTableFloat64 {
-	v := &IdxTableFloat64{IdxTable{index, C.uint64_t(code), C.uint64_t(scope), C.uint64_t(table)}}
+	v := &IdxTableFloat64{IdxTable{index, code, scope, table}}
 	return v
 }
 
 // Store an association of a double-precision floating-point secondary key to a primary key in a secondary double-precision floating-point index table
 func (db *IdxTableFloat64) Store(id uint64, secondary float64, payer uint64) *SecondaryIterator {
-	ret := C.db_idx_double_store(db.scope, db.table, C.uint64_t(payer), C.uint64_t(id), (*C.Double)(&secondary))
+	ret := C.db_idx_double_store(C.uint64_t(db.scope), C.uint64_t(db.table), C.uint64_t(payer), C.uint64_t(id), (*C.Double)(&secondary))
 	return &SecondaryIterator{int32(ret), id, db.dbIndex}
 }
 
@@ -76,7 +76,7 @@ func (db *IdxTableFloat64) Previous(it *SecondaryIterator) *SecondaryIterator {
 //Find a table row in a secondary double-precision floating-point index table by primary key
 func (db *IdxTableFloat64) FindByPrimary(primary uint64) (*SecondaryIterator, interface{}) {
 	var secondary float64
-	ret := C.db_idx_double_find_primary(db.code, db.scope, db.table, (*C.Double)(unsafe.Pointer(&secondary)), C.uint64_t(primary))
+	ret := C.db_idx_double_find_primary(C.uint64_t(db.code), C.uint64_t(db.scope), C.uint64_t(db.table), (*C.Double)(unsafe.Pointer(&secondary)), C.uint64_t(primary))
 	return &SecondaryIterator{int32(ret), primary, db.dbIndex}, secondary
 }
 
@@ -101,19 +101,19 @@ func (db *IdxTableFloat64) FindEx(secondary interface{}) *SecondaryIterator {
 //Find the table row in a secondary double-precision floating-point index table that matches the lowerbound condition for a given secondary key
 func (db *IdxTableFloat64) Lowerbound(secondary float64) (*SecondaryIterator, float64) {
 	var primary uint64 = 0
-	ret := C.db_idx_double_lowerbound(db.code, db.scope, db.table, (*C.Double)(&secondary), (*C.uint64_t)(&primary))
+	ret := C.db_idx_double_lowerbound(C.uint64_t(db.code), C.uint64_t(db.scope), C.uint64_t(db.table), (*C.Double)(&secondary), (*C.uint64_t)(&primary))
 	return &SecondaryIterator{int32(ret), primary, db.dbIndex}, secondary
 }
 
 //Find the table row in a secondary double-precision floating-point index table that matches the upperbound condition for a given secondary key
 func (db *IdxTableFloat64) Upperbound(secondary float64) (*SecondaryIterator, float64) {
 	var primary uint64 = 0
-	ret := C.db_idx_double_upperbound(db.code, db.scope, db.table, (*C.Double)(&secondary), (*C.uint64_t)(&primary))
+	ret := C.db_idx_double_upperbound(C.uint64_t(db.code), C.uint64_t(db.scope), C.uint64_t(db.table), (*C.Double)(&secondary), (*C.uint64_t)(&primary))
 	return &SecondaryIterator{int32(ret), primary, db.dbIndex}, secondary
 }
 
 //Get an end iterator representing just-past-the-end of the last table row of a secondary double-precision floating-point index table
 func (db *IdxTableFloat64) End() *SecondaryIterator {
-	ret := C.db_idx_double_end(db.code, db.scope, db.table)
+	ret := C.db_idx_double_end(C.uint64_t(db.code), C.uint64_t(db.scope), C.uint64_t(db.table))
 	return &SecondaryIterator{int32(ret), 0, db.dbIndex}
 }

@@ -1,22 +1,8 @@
 package database
 
-/*
-#include <stdint.h>
-
-int32_t db_idx64_store(uint64_t scope, uint64_t table, uint64_t payer, uint64_t id, const uint64_t* secondary);
-void db_idx64_update(int32_t iterator, uint64_t payer, const uint64_t* secondary);
-void db_idx64_remove(int32_t iterator);
-int32_t db_idx64_next(int32_t iterator, uint64_t* primary);
-int32_t db_idx64_previous(int32_t iterator, uint64_t* primary);
-int32_t db_idx64_find_primary(uint64_t code, uint64_t scope, uint64_t table, uint64_t* secondary, uint64_t primary);
-int32_t db_idx64_find_secondary(uint64_t code, uint64_t scope, uint64_t table, const uint64_t* secondary, uint64_t* primary);
-int32_t db_idx64_lowerbound(uint64_t code, uint64_t scope, uint64_t table, uint64_t* secondary, uint64_t* primary);
-int32_t db_idx64_upperbound(uint64_t code, uint64_t scope, uint64_t table, uint64_t* secondary, uint64_t* primary);
-int32_t db_idx64_end(uint64_t code, uint64_t scope, uint64_t table);
-*/
-import "C"
 import (
 	"github.com/uuosio/chain"
+	"github.com/uuosio/chain/eosio"
 )
 
 type IdxTable64 struct {
@@ -24,14 +10,14 @@ type IdxTable64 struct {
 }
 
 func NewIdxTable64(index int, code uint64, scope uint64, table uint64) *IdxTable64 {
-	v := &IdxTable64{IdxTable{index, C.uint64_t(code), C.uint64_t(scope), C.uint64_t(table)}}
+	v := &IdxTable64{IdxTable{index, code, scope, table}}
 	return v
 }
 
 //Store an association of a 64-bit integer secondary key to a primary key in a secondary 64-bit integer index table
 func (db *IdxTable64) Store(id uint64, secondary uint64, payer uint64) *SecondaryIterator {
 	chain.Check(uint64(db.code) == chain.CurrentReceiver().N, "bad code name")
-	ret := C.db_idx64_store(db.scope, db.table, C.uint64_t(payer), C.uint64_t(id), (*C.uint64_t)(&secondary))
+	ret := eosio.DBIdx64Store(db.scope, db.table, id, secondary, payer)
 	return &SecondaryIterator{int32(ret), id, db.dbIndex}
 }
 
@@ -43,7 +29,7 @@ func (db *IdxTable64) StoreEx(id uint64, secondary interface{}, payer uint64) *S
 
 //Update an association for a 64-bit integer secondary key to a primary key in a secondary 64-bit integer index table
 func (db *IdxTable64) Update(it *SecondaryIterator, secondary uint64, payer uint64) {
-	C.db_idx64_update(C.int32_t(it.I), C.uint64_t(payer), (*C.uint64_t)(&secondary))
+	eosio.DBIdx64Update(it.I, secondary, payer)
 }
 
 func (db *IdxTable64) UpdateEx(it *SecondaryIterator, secondary interface{}, payer uint64) {
@@ -53,28 +39,30 @@ func (db *IdxTable64) UpdateEx(it *SecondaryIterator, secondary interface{}, pay
 
 //Remove a table row from a secondary 64-bit integer index table
 func (db *IdxTable64) Remove(it *SecondaryIterator) {
-	C.db_idx64_remove(C.int32_t(it.I))
+	eosio.DBIdx64Remove(it.I)
 }
 
 //Find the table row following the referenced table row in a secondary 64-bit integer index table
 func (db *IdxTable64) Next(it *SecondaryIterator) *SecondaryIterator {
-	var primary uint64 = 0
-	ret := C.db_idx64_next(C.int32_t(it.I), (*C.uint64_t)(&primary))
-	return &SecondaryIterator{int32(ret), primary, db.dbIndex}
+	i, primary := eosio.DBIdx64Next(it.I)
+	return &SecondaryIterator{i, primary, db.dbIndex}
 }
 
 //Find the table row preceding the referenced table row in a secondary 64-bit integer index table
 func (db *IdxTable64) Previous(it *SecondaryIterator) *SecondaryIterator {
-	var primary uint64 = 0
-	ret := C.db_idx64_previous(C.int32_t(it.I), (*C.uint64_t)(&primary))
-	return &SecondaryIterator{int32(ret), primary, db.dbIndex}
+	i, primary := eosio.DBIdx64Previous(it.I)
+	return &SecondaryIterator{i, primary, db.dbIndex}
 }
 
 //Find a table row in a secondary 64-bit integer index table by primary key
 func (db *IdxTable64) FindByPrimary(primary uint64) (*SecondaryIterator, interface{}) {
 	var secondary uint64 = 0
-	ret := C.db_idx64_find_primary(db.code, db.scope, db.table, (*C.uint64_t)(&secondary), C.uint64_t(primary))
-	return &SecondaryIterator{int32(ret), primary, db.dbIndex}, secondary
+	it, secondary := eosio.DBIdx64FindByPrimary(db.code, db.scope, db.table, primary)
+	if it >= 0 {
+		return &SecondaryIterator{int32(it), primary, db.dbIndex}, secondary
+	} else {
+		return &SecondaryIterator{it, 0, db.dbIndex}, 0
+	}
 }
 
 //Find a table row in a secondary 64-bit integer index table by secondary key
@@ -98,20 +86,18 @@ func (db *IdxTable64) FindEx(secondary interface{}) *SecondaryIterator {
 
 //Find the table row in a secondary 64-bit integer index table that matches the lowerbound condition for a given secondary key
 func (db *IdxTable64) Lowerbound(secondary uint64) (*SecondaryIterator, uint64) {
-	var primary uint64 = 0
-	ret := C.db_idx64_lowerbound(db.code, db.scope, db.table, (*C.uint64_t)(&secondary), (*C.uint64_t)(&primary))
-	return &SecondaryIterator{int32(ret), primary, db.dbIndex}, secondary
+	it, secondary, primary := eosio.DBIdx64Lowerbound(db.code, db.scope, db.table, secondary)
+	return &SecondaryIterator{int32(it), primary, db.dbIndex}, secondary
 }
 
 //Find the table row in a secondary 64-bit integer index table that matches the upperbound condition for a given secondary key
 func (db *IdxTable64) Upperbound(secondary uint64) (*SecondaryIterator, uint64) {
-	var primary uint64 = 0
-	ret := C.db_idx64_upperbound(db.code, db.scope, db.table, (*C.uint64_t)(&secondary), (*C.uint64_t)(&primary))
-	return &SecondaryIterator{int32(ret), primary, db.dbIndex}, secondary
+	it, secondary, primary := eosio.DBIdx64Upperbound(db.code, db.scope, db.table, secondary)
+	return &SecondaryIterator{int32(it), primary, db.dbIndex}, secondary
 }
 
 //Get an end iterator representing just-past-the-end of the last table row of a secondary 64-bit integer index table
 func (db *IdxTable64) End() *SecondaryIterator {
-	ret := C.db_idx64_end(db.code, db.scope, db.table)
+	ret := eosio.DBIdx64End(db.code, db.scope, db.table)
 	return &SecondaryIterator{int32(ret), 0, db.dbIndex}
 }

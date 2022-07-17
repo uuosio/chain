@@ -26,13 +26,13 @@ type IdxTable256 struct {
 }
 
 func NewIdxTable256(index int, code uint64, scope uint64, table uint64) *IdxTable256 {
-	v := &IdxTable256{IdxTable{index, C.uint64_t(code), C.uint64_t(scope), C.uint64_t(table)}}
+	v := &IdxTable256{IdxTable{index, code, scope, table}}
 	return v
 }
 
 //Store an association of a 256-bit secondary key to a primary key in a secondary 256-bit index table
 func (db *IdxTable256) Store(id uint64, secondary chain.Uint256, payer uint64) *SecondaryIterator {
-	ret := C.db_idx256_store(db.scope, db.table, C.uint64_t(payer), C.uint64_t(id), (*C.uint128)(unsafe.Pointer(&secondary)), 2)
+	ret := C.db_idx256_store(C.uint64_t(db.scope), C.uint64_t(db.table), C.uint64_t(payer), C.uint64_t(id), (*C.uint128)(unsafe.Pointer(&secondary)), 2)
 	return &SecondaryIterator{int32(ret), id, db.dbIndex}
 }
 
@@ -75,7 +75,7 @@ func (db *IdxTable256) Previous(it *SecondaryIterator) *SecondaryIterator {
 //Find a table row in a secondary 128-bit integer index table by primary key
 func (db *IdxTable256) FindByPrimary(primary uint64) (*SecondaryIterator, interface{}) {
 	var secondary chain.Uint256
-	ret := C.db_idx256_find_primary(db.code, db.scope, db.table, (*C.uint128)(unsafe.Pointer(&secondary)), 2, C.uint64_t(primary))
+	ret := C.db_idx256_find_primary(C.uint64_t(db.scope), C.uint64_t(db.scope), C.uint64_t(db.table), (*C.uint128)(unsafe.Pointer(&secondary)), 2, C.uint64_t(primary))
 	return &SecondaryIterator{int32(ret), primary, db.dbIndex}, secondary
 }
 
@@ -97,19 +97,19 @@ func (db *IdxTable256) FindEx(secondary interface{}) *SecondaryIterator {
 //Find the table row in a secondary 256-bit index table that matches the lowerbound condition for a given secondary key
 func (db *IdxTable256) Lowerbound(secondary chain.Uint256) (*SecondaryIterator, chain.Uint256) {
 	var primary uint64 = 0
-	ret := C.db_idx256_lowerbound(db.code, db.scope, db.table, (*C.uint128)(unsafe.Pointer(&secondary)), 2, (*C.uint64_t)(&primary))
+	ret := C.db_idx256_lowerbound(C.uint64_t(db.scope), C.uint64_t(db.scope), C.uint64_t(db.table), (*C.uint128)(unsafe.Pointer(&secondary)), 2, (*C.uint64_t)(&primary))
 	return &SecondaryIterator{int32(ret), primary, db.dbIndex}, secondary
 }
 
 //Find the table row in a secondary 256-bit index table that matches the upperbound condition for a given secondary key
 func (db *IdxTable256) Upperbound(secondary chain.Uint256) (*SecondaryIterator, chain.Uint256) {
 	var primary uint64 = 0
-	ret := C.db_idx256_upperbound(db.code, db.scope, db.table, (*C.uint128)(unsafe.Pointer(&secondary)), 2, (*C.uint64_t)(&primary))
+	ret := C.db_idx256_upperbound(C.uint64_t(db.scope), C.uint64_t(db.scope), C.uint64_t(db.table), (*C.uint128)(unsafe.Pointer(&secondary)), 2, (*C.uint64_t)(&primary))
 	return &SecondaryIterator{int32(ret), primary, db.dbIndex}, secondary
 }
 
 //Get an end iterator representing just-past-the-end of the last table row of a secondary 256-bit index table
 func (db *IdxTable256) End() *SecondaryIterator {
-	ret := C.db_idx256_end(db.code, db.scope, db.table)
+	ret := C.db_idx256_end(C.uint64_t(db.scope), C.uint64_t(db.scope), C.uint64_t(db.table))
 	return &SecondaryIterator{int32(ret), 0, db.dbIndex}
 }
