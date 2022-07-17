@@ -10,7 +10,7 @@ package eosio
 typedef float Float;
 typedef double Double;
 
-#include "chain.h"
+#include "../chain.h"
 
 uint32_t read_action_data( void* msg, uint32_t len );
 
@@ -210,6 +210,11 @@ func Assert(test bool, msg string) {
 	}
 }
 
+type StringHeader struct {
+	data unsafe.Pointer
+	len  uintptr
+}
+
 //Aborts processing of this action and unwinds all pending changes if the test condition is true
 func EosioAssert(test bool, msg string) {
 	if !test {
@@ -226,23 +231,8 @@ func EosioAssertCode(test bool, code uint64) {
 }
 
 //Returns the time in microseconds from 1970 of the current block
-func CurrentTime() TimePoint {
-	return TimePoint{uint64(C.current_time())}
-}
-
-//Returns the time in microseconds from 1970 of the current block
-func Now() TimePoint {
-	return CurrentTime()
-}
-
-func NowSeconds() uint32 {
-	t := CurrentTime().Elapsed / 1000000
-	return uint32(t)
-}
-
-func CurrentTimeSeconds() uint32 {
-	t := CurrentTime().Elapsed / 1000000
-	return uint32(t)
+func CurrentTime() uint64 {
+	return uint64(C.current_time())
 }
 
 //Check if specified protocol feature has been activated
@@ -313,7 +303,7 @@ func Ripemd160(data []byte) [20]byte {
 func RecoverKey(digest [32]byte, sig []byte) []byte {
 	//TODO: handle webauth signature
 	var pub [34]byte //34
-	ret := C.recover_key((*C.capi_checksum256)(unsafe.Pointer(&digest)), (*C.char)(unsafe.Pointer(&sig[0])), C.size_t(len(sig)), (*C.char)(unsafe.Pointer(&pub[0])), C.size_t(len(pub)))
+	C.recover_key((*C.capi_checksum256)(unsafe.Pointer(&digest)), (*C.char)(unsafe.Pointer(&sig[0])), C.size_t(len(sig)), (*C.char)(unsafe.Pointer(&pub[0])), C.size_t(len(pub)))
 	return pub[:]
 }
 
