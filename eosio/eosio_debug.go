@@ -3,59 +3,34 @@
 
 package eosio
 
-/*
-#include <stddef.h>
-#include <stdint.h>
-#define bool char
-typedef float Float;
-typedef double Double;
-
-uint32_t read_action_data( void* msg, uint32_t len );
-
-uint32_t action_data_size( void );
-
-void require_recipient( uint64_t name );
-
-void require_auth( uint64_t name );
-
-char has_auth( uint64_t name );
-
-void require_auth2( uint64_t name, uint64_t permission );
-
-char is_account( uint64_t name );
-void send_inline(char *serialized_action, size_t size);
-
-void send_context_free_inline(char *serialized_action, size_t size);
-uint64_t  publication_time( void );
-
-uint64_t current_receiver( void );
-void set_action_return_value(char *return_value, size_t size);
-
-void prints( const char* cstr );
-void prints_l( const char* cstr, uint32_t len);
-void printi( int64_t value );
-void printui( uint64_t value );
-//void printi128( const int128_t* value );
-void printi128( const uint8_t* value );
-
-//void printui128( const uint128* value );
-void printui128( const uint8_t* value );
-void printsf(Float value);
-void printdf(Double value);
-//void printqf(const long double* value);
-void printqf(const uint8_t* value);
-void printn( uint64_t name );
-void printhex( const void* data, uint32_t datalen );
-
-*/
 import "C"
 import (
 	"context"
+	"encoding/binary"
 
 	"github.com/learnforpractice/chaintester"
+	"github.com/learnforpractice/chaintester/interfaces"
 )
 
 var ctx = context.Background()
+
+type AssertError struct {
+	Err error
+}
+
+func (err *AssertError) Error() string {
+	return err.Err.Error()
+}
+
+func NewAssertError(err error) *AssertError {
+	return &AssertError{err}
+}
+
+func CheckError(err error) {
+	if err != nil {
+		panic(NewAssertError(err))
+	}
+}
 
 //Read current action data
 func ReadActionData() []byte {
@@ -114,4 +89,143 @@ func CurrentReceiver() uint64 {
 //Set the action return value which will be included in the action_receipt
 func SetActionReturnValue(return_value []byte) {
 
+}
+
+//system.h
+func Check(b bool, msg string) {
+	if !b {
+		EosioAssert(false, msg)
+	}
+}
+
+//Aborts processing of this action and unwinds all pending changes if the test condition is true
+func Assert(test bool, msg string) {
+	if !test {
+		EosioAssert(false, msg)
+	}
+}
+
+//Aborts processing of this action and unwinds all pending changes if the test condition is true
+func EosioAssert(test bool, msg string) {
+	if !test {
+		err := chaintester.GetVMAPI().EosioAssertMessage(ctx, false, []byte(msg))
+		CheckError(err)
+	}
+}
+
+func to_raw_uint64(value uint64) *interfaces.Uint64 {
+	ret := &interfaces.Uint64{}
+	binary.LittleEndian.PutUint64(ret.RawValue, value)
+	return ret
+}
+
+func from_raw_uint64(value *interfaces.Uint64) uint64 {
+	return binary.LittleEndian.Uint64(value.RawValue)
+}
+
+//Aborts processing of this action and unwinds all pending changes if the test condition is true
+func EosioAssertCode(test bool, code uint64) {
+	if !test {
+		err := chaintester.GetVMAPI().EosioAssertCode(ctx, false, to_raw_uint64(code))
+		CheckError(err)
+	}
+}
+
+//Returns the time in microseconds from 1970 of the current block
+func CurrentTime() uint64 {
+	ret, err := chaintester.GetVMAPI().CurrentTime(ctx)
+	CheckError(err)
+	return from_raw_uint64(ret)
+}
+
+//TODO:
+//Check if specified protocol feature has been activated
+func IsFeatureActivated(featureDigest [32]byte) bool {
+	panic("IsFeatureActivated not implemented")
+	return false
+}
+
+//Return name of account that sent current inline action
+func GetSender() uint64 {
+	ret, err := chaintester.GetVMAPI().GetSender(ctx)
+	CheckError(err)
+	return from_raw_uint64(ret)
+}
+
+func Exit() {
+	err := chaintester.GetVMAPI().EosioExit(ctx, 0)
+	CheckError(err)
+}
+
+//Tests if the sha256 hash generated from data matches the provided checksum.
+func AssertSha256(data []byte, hash [32]byte) {
+	err := chaintester.GetVMAPI().AssertSha256(ctx, data, hash[:])
+	CheckError(err)
+}
+
+//Tests if the sha1 hash generated from data matches the provided checksum.
+func AssertSha1(data []byte, hash [20]byte) {
+	err := chaintester.GetVMAPI().AssertSha1(ctx, data, hash[:])
+	CheckError(err)
+}
+
+//Tests if the sha512 hash generated from data matches the provided checksum.
+func AssertSha512(data []byte, hash [64]byte) {
+	err := chaintester.GetVMAPI().AssertSha512(ctx, data, hash[:])
+	CheckError(err)
+}
+
+//Tests if the ripemod160 hash generated from data matches the provided checksum.
+func AssertRipemd160(data []byte, hash [20]byte) {
+	err := chaintester.GetVMAPI().AssertRipemd160(ctx, data, hash[:])
+	CheckError(err)
+}
+
+//Hashes data using sha256 and return hash value.
+func Sha256(data []byte) [32]byte {
+	_ret, err := chaintester.GetVMAPI().Sha256(ctx, data[:])
+	CheckError(err)
+	var ret [32]byte
+	copy(ret[:], _ret)
+	return ret
+}
+
+//Hashes data using sha1 and return hash value.
+func Sha1(data []byte) [20]byte {
+	_ret, err := chaintester.GetVMAPI().Sha1(ctx, data[:])
+	CheckError(err)
+	var ret [20]byte
+	copy(ret[:], _ret)
+	return ret
+}
+
+//Hashes data using sha512 and return hash value.
+func Sha512(data []byte) [64]byte {
+	_ret, err := chaintester.GetVMAPI().Sha512(ctx, data[:])
+	CheckError(err)
+	var ret [64]byte
+	copy(ret[:], _ret)
+	return ret
+}
+
+//Hashes data using ripemd160 and return hash value.
+func Ripemd160(data []byte) [20]byte {
+	_ret, err := chaintester.GetVMAPI().Ripemd160(ctx, data[:])
+	CheckError(err)
+	var ret [20]byte
+	copy(ret[:], _ret)
+	return ret
+}
+
+//Recover the public key from digest and signature
+func RecoverKey(digest [32]byte, sig []byte) []byte {
+	ret, err := chaintester.GetVMAPI().RecoverKey(ctx, digest[:], sig)
+	CheckError(err)
+	return ret
+}
+
+//Tests a given public key with the generated key from digest and the signature
+func AssertRecoverKey(digest [32]byte, sig []byte, pub []byte) {
+	err := chaintester.GetVMAPI().AssertRecoverKey(ctx, digest[:], sig, pub)
+	CheckError(err)
 }

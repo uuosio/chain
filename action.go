@@ -1,32 +1,5 @@
 package chain
 
-/*
-#include <stddef.h>
-#include <stdint.h>
-#define bool char
-
-uint32_t read_action_data( void* msg, uint32_t len );
-
-uint32_t action_data_size( void );
-
-void require_recipient( uint64_t name );
-
-void require_auth( uint64_t name );
-
-char has_auth( uint64_t name );
-
-void require_auth2( uint64_t name, uint64_t permission );
-
-char is_account( uint64_t name );
-void send_inline(char *serialized_action, size_t size);
-
-void send_context_free_inline(char *serialized_action, size_t size);
-uint64_t  publication_time( void );
-
-uint64_t current_receiver( void );
-void set_action_return_value(char *return_value, size_t size);
-*/
-import "C"
 import (
 	"unsafe"
 

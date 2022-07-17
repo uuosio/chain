@@ -109,6 +109,9 @@ func TestHello(t *testing.T) {
 	ret = tester.PushAction("hello", "sayhello", args, permissions2)
 	tester.ProduceBlock()
 
+	// ret = tester.PushAction("hello", "inc", "", permissions2)
+	// tester.ProduceBlock()
+
 	value := &chaintester.JsonValue{}
 	err := json.Unmarshal(ret, value)
 	if err != nil {

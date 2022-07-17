@@ -10,6 +10,8 @@ package eosio
 typedef float Float;
 typedef double Double;
 
+#include "chain.h"
+
 uint32_t read_action_data( void* msg, uint32_t len );
 
 uint32_t action_data_size( void );
@@ -48,6 +50,30 @@ void printdf(Double value);
 void printqf(const uint8_t* value);
 void printn( uint64_t name );
 void printhex( const void* data, uint32_t datalen );
+
+
+//system.h
+void  eosio_assert( uint32_t test, const char* msg );
+void  eosio_assert_message( uint32_t test, const char* msg, uint32_t msg_len );
+void  eosio_assert_code( uint32_t test, uint64_t code );
+
+void eosio_exit( int32_t code );
+uint64_t  current_time( void );
+char is_feature_activated( const uint8_t* feature_digest ); //checksum 32 bytes
+uint64_t get_sender( void );
+
+
+//crypto.h
+void assert_sha256( const char* data, uint32_t length, const capi_checksum256* hash );
+void assert_sha1( const char* data, uint32_t length, const capi_checksum160* hash );
+void assert_sha512( const char* data, uint32_t length, const capi_checksum512* hash );
+void assert_ripemd160( const char* data, uint32_t length, const capi_checksum160* hash );
+void sha256( const char* data, uint32_t length, capi_checksum256* hash );
+void sha1( const char* data, uint32_t length, capi_checksum160* hash );
+void sha512( const char* data, uint32_t length, capi_checksum512* hash );
+void ripemd160( const char* data, uint32_t length, capi_checksum160* hash );
+int recover_key( const capi_checksum256* digest, const char* sig, size_t siglen, char* pub, size_t publen );
+void assert_recover_key( const capi_checksum256* digest, const char* sig, size_t siglen, const char* pub, size_t publen );
 */
 import "C"
 import "unsafe"
@@ -168,4 +194,130 @@ func CurrentReceiver() uint64 {
 func SetActionReturnValue(return_value []byte) {
 	a := (*SliceHeader)(unsafe.Pointer(&return_value))
 	C.set_action_return_value((*C.char)(unsafe.Pointer(a.Data)), C.size_t(a.Len))
+}
+
+//system.h
+func Check(b bool, msg string) {
+	if !b {
+		EosioAssert(false, msg)
+	}
+}
+
+//Aborts processing of this action and unwinds all pending changes if the test condition is true
+func Assert(test bool, msg string) {
+	if !test {
+		EosioAssert(false, msg)
+	}
+}
+
+//Aborts processing of this action and unwinds all pending changes if the test condition is true
+func EosioAssert(test bool, msg string) {
+	if !test {
+		_msg := (*StringHeader)(unsafe.Pointer(&msg))
+		C.eosio_assert_message(C.uint32_t(0), (*C.char)(_msg.data), C.uint32_t(len(msg)))
+	}
+}
+
+//Aborts processing of this action and unwinds all pending changes if the test condition is true
+func EosioAssertCode(test bool, code uint64) {
+	if !test {
+		C.eosio_assert_code(C.uint32_t(0), C.uint64_t(code))
+	}
+}
+
+//Returns the time in microseconds from 1970 of the current block
+func CurrentTime() TimePoint {
+	return TimePoint{uint64(C.current_time())}
+}
+
+//Returns the time in microseconds from 1970 of the current block
+func Now() TimePoint {
+	return CurrentTime()
+}
+
+func NowSeconds() uint32 {
+	t := CurrentTime().Elapsed / 1000000
+	return uint32(t)
+}
+
+func CurrentTimeSeconds() uint32 {
+	t := CurrentTime().Elapsed / 1000000
+	return uint32(t)
+}
+
+//Check if specified protocol feature has been activated
+func IsFeatureActivated(featureDigest [32]byte) bool {
+	_featureDigest := (*C.uint8_t)(unsafe.Pointer(&featureDigest[0]))
+	return C.is_feature_activated(_featureDigest) != 0
+}
+
+//Return name of account that sent current inline action
+func GetSender() uint64 {
+	return uint64(C.get_sender())
+}
+
+func Exit() {
+	C.eosio_exit(0)
+}
+
+//crypto.h
+//Tests if the sha256 hash generated from data matches the provided checksum.
+func AssertSha256(data []byte, hash [32]byte) {
+	C.assert_sha256((*C.char)(unsafe.Pointer(&data[0])), C.uint32_t(len(data)), (*C.capi_checksum256)(unsafe.Pointer(&hash)))
+}
+
+//Tests if the sha1 hash generated from data matches the provided checksum.
+func AssertSha1(data []byte, hash [20]byte) {
+	C.assert_sha1((*C.char)(unsafe.Pointer(&data[0])), C.uint32_t(len(data)), (*C.capi_checksum160)(unsafe.Pointer(&hash)))
+}
+
+//Tests if the sha512 hash generated from data matches the provided checksum.
+func AssertSha512(data []byte, hash [64]byte) {
+	C.assert_sha512((*C.char)(unsafe.Pointer(&data[0])), C.uint32_t(len(data)), (*C.capi_checksum512)(unsafe.Pointer(&hash)))
+}
+
+//Tests if the ripemod160 hash generated from data matches the provided checksum.
+func AssertRipemd160(data []byte, hash [20]byte) {
+	C.assert_ripemd160((*C.char)(unsafe.Pointer(&data[0])), C.uint32_t(len(data)), (*C.capi_checksum160)(unsafe.Pointer(&hash)))
+}
+
+//Hashes data using sha256 and return hash value.
+func Sha256(data []byte) [32]byte {
+	var hash [32]byte
+	C.sha256((*C.char)(unsafe.Pointer(&data[0])), C.uint32_t(len(data)), (*C.capi_checksum256)(unsafe.Pointer(&hash)))
+	return hash
+}
+
+//Hashes data using sha1 and return hash value.
+func Sha1(data []byte) [20]byte {
+	var hash [20]byte
+	C.sha1((*C.char)(unsafe.Pointer(&data[0])), C.uint32_t(len(data)), (*C.capi_checksum160)(unsafe.Pointer(&hash)))
+	return hash
+}
+
+//Hashes data using sha512 and return hash value.
+func Sha512(data []byte) [64]byte {
+	var hash [64]byte
+	C.sha512((*C.char)(unsafe.Pointer(&data[0])), C.uint32_t(len(data)), (*C.capi_checksum512)(unsafe.Pointer(&hash)))
+	return hash
+}
+
+//Hashes data using ripemd160 and return hash value.
+func Ripemd160(data []byte) [20]byte {
+	var hash [20]byte
+	C.ripemd160((*C.char)(unsafe.Pointer(&data[0])), C.uint32_t(len(data)), (*C.capi_checksum160)(unsafe.Pointer(&hash)))
+	return hash
+}
+
+//Recover the public key from digest and signature
+func RecoverKey(digest [32]byte, sig []byte) []byte {
+	//TODO: handle webauth signature
+	var pub [34]byte //34
+	ret := C.recover_key((*C.capi_checksum256)(unsafe.Pointer(&digest)), (*C.char)(unsafe.Pointer(&sig[0])), C.size_t(len(sig)), (*C.char)(unsafe.Pointer(&pub[0])), C.size_t(len(pub)))
+	return pub[:]
+}
+
+//Tests a given public key with the generated key from digest and the signature
+func AssertRecoverKey(digest [32]byte, sig []byte, pub []byte) {
+	C.assert_recover_key((*C.capi_checksum256)(unsafe.Pointer(&digest)), (*C.char)(unsafe.Pointer(&sig[0])), C.size_t(len(sig)), (*C.char)(unsafe.Pointer(&pub[0])), C.size_t(len(pub)))
 }
