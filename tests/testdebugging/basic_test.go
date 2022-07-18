@@ -3,20 +3,17 @@ package main
 import (
 	"context"
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"os"
 	"testing"
 
 	"github.com/learnforpractice/chaintester"
-	"github.com/uuosio/chain"
 )
 
 var ctx = context.Background()
 
 func OnApply(receiver, firstReceiver, action uint64) {
-	chaintester.GetVMAPI() // connect to vm api server
-	contract_apply(chain.Name{receiver}, chain.Name{firstReceiver}, chain.Name{action})
+	contract_apply(receiver, firstReceiver, action)
 }
 
 func init() {
@@ -73,7 +70,10 @@ func TestHello(t *testing.T) {
 		string(hexWasm),
 	)
 
-	ret := tester.PushAction("eosio", "setcode", setCodeArgs, permissions)
+	ret, err := tester.PushAction("eosio", "setcode", setCodeArgs, permissions)
+	if err != nil {
+		panic(err)
+	}
 	tester.ProduceBlock()
 
 	rawAbi, _ := tester.PackAbi(string(abi))
@@ -89,7 +89,7 @@ func TestHello(t *testing.T) {
 		"hello",
 		string(hexRawAbi),
 	)
-	ret = tester.PushAction("eosio", "setabi", setAbiArgs, permissions)
+	ret, err = tester.PushAction("eosio", "setabi", setAbiArgs, permissions)
 
 	args := `
 	{
@@ -98,7 +98,7 @@ func TestHello(t *testing.T) {
 	`
 	permissions2 := string(permissions)
 	for i := 0; i < 1; i++ {
-		ret = tester.PushAction("hello", "sayhello", args, permissions)
+		ret, err = tester.PushAction("hello", "sayhello", args, permissions)
 		tester.PackAbi(string(abi))
 		tester.ProduceBlock()
 	}
@@ -106,21 +106,17 @@ func TestHello(t *testing.T) {
 	// defer chaintester.GetApplyRequestServer().Stop()
 	// defer chaintester.CloseVMAPI()
 
-	ret = tester.PushAction("hello", "sayhello", args, permissions2)
+	ret, err = tester.PushAction("hello", "sayhello", args, permissions2)
 	tester.ProduceBlock()
 
-	for i := 0; i < 10; i++ {
-		ret = tester.PushAction("hello", "inc", "", permissions2)
-		tester.ProduceBlock()
-	}
-
-	value := &chaintester.JsonValue{}
-	err := json.Unmarshal(ret, value)
+	ret, err = tester.PushAction("hello", "inc", "", permissions2)
 	if err != nil {
 		panic(err)
 	}
+	// panic(ret.ToString())
+	tester.ProduceBlock()
 
-	id, _ := value.GetString("receipt", "cpu_usage_us")
+	id, _ := ret.GetString("receipt", "cpu_usage_us")
 	// t.Logf("++++++++++ret:%s\n", string(ret))
 	t.Logf("++++++++++id:%s\n", id)
 }

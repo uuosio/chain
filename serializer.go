@@ -133,14 +133,14 @@ func (dec *Decoder) Pos() int {
 
 func (dec *Decoder) checkPos(n int) {
 	if dec.pos+n > len(dec.buf) {
-		panic("checkPos: buffer overflow in Decoder")
+		Check(false, "checkPos: buffer overflow in Decoder")
 	}
 }
 
 func (dec *Decoder) incPos(n int) {
 	dec.pos += n
 	if dec.pos > len(dec.buf) {
-		panic("incPos: buffer overflow in Decoder")
+		Check(false, "incPos: buffer overflow in Decoder")
 	}
 }
 
@@ -390,7 +390,7 @@ func (dec *Decoder) Unpack(i interface{}) int {
 		// if DEBUG {
 		// 	panic(fmt.Sprintf("unknown Unpack type <%v>", i))
 		// }
-		panic("unknown type in Unpack")
+		Check(false, "unknown type in Unpack")
 	}
 	return 0
 }
@@ -476,7 +476,7 @@ func (enc *Encoder) Pack(i interface{}) error {
 		// if DEBUG {
 		// 	panic(fmt.Sprintf("Unknow Pack type <%v>", i))
 		// }
-		panic("Unknown Pack type")
+		Check(false, "Unknown Pack type")
 		//		return errors.New("Unknow Pack type")
 	}
 	return nil
@@ -650,7 +650,7 @@ func CalcPackedSize(i interface{}) int {
 	case Asset:
 		return 16
 	default:
-		panic("Unknow type in CalcPackedSize")
+		Check(false, "Unknow type in CalcPackedSize")
 	}
 	return 0
 }

@@ -22,7 +22,6 @@ func NewContract(receiver, firstReceiver, action chain.Name) *Contract {
 
 //action sayhello
 func (c *Contract) SayHello(name string) {
-	// check(false, "oops!")
 	chain.Prints("++++++hellow,world")
 	chain.NewAction(
 		chain.NewPermissionLevel(chain.NewName("hello"), chain.NewName("active")),
@@ -34,12 +33,12 @@ func (c *Contract) SayHello(name string) {
 
 //action saygoodbye
 func (c *Contract) SayGoodbye(name string) {
-	chain.Prints("+++++++goodbyte word")
+	chain.Prints("+++++++goodbye world")
 }
 
 //action inc
 func (c *Contract) Inc(name string) {
-	chain.PrintSf(3344.5566)
+	// check(false, "oops!")
 	db := NewCounterTable(c.receiver, c.receiver)
 	it := db.Find(1)
 	payer := c.receiver

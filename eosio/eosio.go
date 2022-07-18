@@ -11,6 +11,7 @@ typedef float Float;
 typedef double Double;
 
 #include "../chain.h"
+#include "../structs.h"
 
 uint32_t read_action_data( void* msg, uint32_t len );
 
@@ -108,6 +109,41 @@ int32_t db_idx128_find_secondary(uint64_t code, uint64_t scope, uint64_t table, 
 int32_t db_idx128_lowerbound(uint64_t code, uint64_t scope, uint64_t table, uint128* secondary, uint64_t* primary);
 int32_t db_idx128_upperbound(uint64_t code, uint64_t scope, uint64_t table, uint128* secondary, uint64_t* primary);
 int32_t db_idx128_end(uint64_t code, uint64_t scope, uint64_t table);
+
+int32_t db_idx256_store(uint64_t scope, uint64_t table, uint64_t payer, uint64_t id, const uint128* data, uint32_t data_len );
+void db_idx256_update(int32_t iterator, uint64_t payer, const uint128* data, uint32_t data_len);
+void db_idx256_remove(int32_t iterator);
+int32_t db_idx256_next(int32_t iterator, uint64_t* primary);
+int32_t db_idx256_previous(int32_t iterator, uint64_t* primary);
+int32_t db_idx256_find_primary(uint64_t code, uint64_t scope, uint64_t table, uint128* data, uint32_t data_len, uint64_t primary);
+int32_t db_idx256_find_secondary(uint64_t code, uint64_t scope, uint64_t table, const uint128* data, uint32_t data_len, uint64_t* primary);
+int32_t db_idx256_lowerbound(uint64_t code, uint64_t scope, uint64_t table, uint128* data, uint32_t data_len, uint64_t* primary);
+int32_t db_idx256_upperbound(uint64_t code, uint64_t scope, uint64_t table, uint128* data, uint32_t data_len, uint64_t* primary);
+int32_t db_idx256_end(uint64_t code, uint64_t scope, uint64_t table);
+
+typedef double Double;
+
+int32_t db_idx_double_store(uint64_t scope, uint64_t table, uint64_t payer, uint64_t id, const Double* secondary);
+void db_idx_double_update(int32_t iterator, uint64_t payer, const Double* secondary);
+void db_idx_double_remove(int32_t iterator);
+int32_t db_idx_double_next(int32_t iterator, uint64_t* primary);
+int32_t db_idx_double_previous(int32_t iterator, uint64_t* primary);
+int32_t db_idx_double_find_primary(uint64_t code, uint64_t scope, uint64_t table, Double* secondary, uint64_t primary);
+int32_t db_idx_double_find_secondary(uint64_t code, uint64_t scope, uint64_t table, const Double* secondary, uint64_t* primary);
+int32_t db_idx_double_lowerbound(uint64_t code, uint64_t scope, uint64_t table, Double* secondary, uint64_t* primary);
+int32_t db_idx_double_upperbound(uint64_t code, uint64_t scope, uint64_t table, Double* secondary, uint64_t* primary);
+int32_t db_idx_double_end(uint64_t code, uint64_t scope, uint64_t table);
+
+int32_t db_idx_long_double_store(uint64_t scope, uint64_t table, uint64_t payer, uint64_t id, const float128_t* secondary);
+void db_idx_long_double_update(int32_t iterator, uint64_t payer, const float128_t* secondary);
+void db_idx_long_double_remove(int32_t iterator);
+int32_t db_idx_long_double_next(int32_t iterator, uint64_t* primary);
+int32_t db_idx_long_double_previous(int32_t iterator, uint64_t* primary);
+int32_t db_idx_long_double_find_primary(uint64_t code, uint64_t scope, uint64_t table, float128_t* secondary, uint64_t primary);
+int32_t db_idx_long_double_find_secondary(uint64_t code, uint64_t scope, uint64_t table, const float128_t* secondary, uint64_t* primary);
+int32_t db_idx_long_double_lowerbound(uint64_t code, uint64_t scope, uint64_t table, float128_t* secondary, uint64_t* primary);
+int32_t db_idx_long_double_upperbound(uint64_t code, uint64_t scope, uint64_t table, float128_t* secondary, uint64_t* primary);
+int32_t db_idx_long_double_end(uint64_t code, uint64_t scope, uint64_t table);
 */
 import "C"
 import "unsafe"
@@ -477,11 +513,11 @@ func DBIdx128Store(scope uint64, table uint64, id uint64, secondary [16]byte, pa
 
 // void db_idx128_update(int32_t iterator, uint64_t payer, const uint128* secondary);
 func DBIdx128Update(it int32, secondary [16]byte, payer uint64) {
-	C.db_idx128_update(C.int32_t(it.I), C.uint64_t(payer), (*C.uint128)(unsafe.Pointer(&secondary)))
+	C.db_idx128_update(C.int32_t(it), C.uint64_t(payer), (*C.uint128)(unsafe.Pointer(&secondary)))
 }
 
 // void db_idx128_remove(int32_t iterator);
-func DBIdx64Remove(it int32) {
+func DBIdx128Remove(it int32) {
 	C.db_idx128_remove(C.int32_t(it))
 }
 
@@ -500,7 +536,7 @@ func DBIdx128Previous(it int32) (int32, uint64) {
 }
 
 // int32_t db_idx128_find_primary(uint64_t code, uint64_t scope, uint64_t table, uint128* secondary, uint64_t primary);
-func DBIdx128FindByPrimary(code uint64, scope uint64, table uint64, primary uint64) (it, [16]byte) {
+func DBIdx128FindByPrimary(code uint64, scope uint64, table uint64, primary uint64) (int32, [16]byte) {
 	var secondary [16]byte
 	ret := C.db_idx128_find_primary(C.uint64_t(code), C.uint64_t(scope), C.uint64_t(table), (*C.uint128)(unsafe.Pointer(&secondary)), C.uint64_t(primary))
 	return ret, secondary
@@ -510,7 +546,7 @@ func DBIdx128FindByPrimary(code uint64, scope uint64, table uint64, primary uint
 func DBIdx128Find(code uint64, scope uint64, table uint64, secondary [16]byte) (int32, [16]byte, uint64) {
 	it, _secondary, primary := DBIdx128Lowerbound(code, scope, table, secondary)
 	if it >= 0 {
-		if value == secondary {
+		if _secondary == secondary {
 			return it, _secondary, primary
 		}
 	}
@@ -542,4 +578,214 @@ func DBIdx128Upperbound(code uint64, scope uint64, table uint64, secondary [16]b
 // int32_t db_idx128_end(uint64_t code, uint64_t scope, uint64_t table);
 func DBIdx128End(code uint64, scope uint64, table uint64) int32 {
 	return C.db_idx128_end(C.uint64_t(code), C.uint64_t(scope), C.uint64_t(table))
+}
+
+// int32_t db_idx256_store(uint64_t scope, uint64_t table, uint64_t payer, uint64_t id, const uint128* data, uint32_t data_len );
+func DBIdx256Store(scope uint64, table uint64, id uint64, secondary [32]byte, payer uint64) int32 {
+	return C.db_idx256_store(C.uint64_t(scope), C.uint64_t(table), C.uint64_t(payer), C.uint64_t(id), (*C.uint128)(unsafe.Pointer(&secondary)), 2)
+}
+
+// void db_idx256_update(int32_t iterator, uint64_t payer, const uint128* data, uint32_t data_len);
+func DBIdx256Update(it int32, secondary [32]byte, payer uint64) {
+	C.db_idx256_update(C.int32_t(it), C.uint64_t(payer), (*C.uint128)(unsafe.Pointer(&secondary)), 2)
+}
+
+// void db_idx256_remove(int32_t iterator);
+func DBIdx256Remove(it int32) {
+	C.db_idx256_remove(C.int32_t(it))
+}
+
+// int32_t db_idx256_next(int32_t iterator, uint64_t* primary);
+func DBIdx256Next(it int32) (int32, uint64) {
+	var primary uint64 = 0
+	ret := C.db_idx256_next(C.int32_t(it), (*C.uint64_t)(&primary))
+	return ret, primary
+}
+
+// int32_t db_idx256_previous(int32_t iterator, uint64_t* primary);
+func DBIdx256Previous(it int32) (int32, uint64) {
+	var primary uint64 = 0
+	ret := C.db_idx256_previous(C.int32_t(it), (*C.uint64_t)(&primary))
+	return ret, primary
+}
+
+// int32_t db_idx256_find_primary(uint64_t code, uint64_t scope, uint64_t table, uint128* data, uint32_t data_len, uint64_t primary);
+func DBIdx256FindByPrimary(code uint64, scope uint64, table uint64, primary uint64) (int32, [32]byte) {
+	var secondary [32]byte
+	ret := C.db_idx256_find_primary(C.uint64_t(code), C.uint64_t(scope), C.uint64_t(table), (*C.uint128)(unsafe.Pointer(&secondary)), 2, C.uint64_t(primary))
+	return ret, secondary
+}
+
+// int32_t db_idx256_find_secondary(uint64_t code, uint64_t scope, uint64_t table, const uint128* data, uint32_t data_len, uint64_t* primary);
+func DBIdx256Find(code uint64, scope uint64, table uint64, secondary [32]byte) (int32, [32]byte, uint64) {
+	it, _secondary, primary := DBIdx256Lowerbound(code, scope, table, secondary)
+	if it >= 0 {
+		if _secondary == secondary {
+			return it, _secondary, primary
+		}
+	}
+	return it, _secondary, 0
+}
+
+// int32_t db_idx256_lowerbound(uint64_t code, uint64_t scope, uint64_t table, uint128* data, uint32_t data_len, uint64_t* primary);
+func DBIdx256Lowerbound(code uint64, scope uint64, table uint64, secondary [32]byte) (int32, [32]byte, uint64) {
+	var primary uint64 = 0
+	ret := C.db_idx256_lowerbound(C.uint64_t(code), C.uint64_t(scope), C.uint64_t(table), (*C.uint128)(unsafe.Pointer(&secondary)), 2, (*C.uint64_t)(&primary))
+	if ret >= 0 {
+		return ret, secondary, primary
+	} else {
+		return ret, [32]byte{}, 0
+	}
+}
+
+// int32_t db_idx256_upperbound(uint64_t code, uint64_t scope, uint64_t table, uint128* data, uint32_t data_len, uint64_t* primary);
+func DBIdx256Upperbound(code uint64, scope uint64, table uint64, secondary [32]byte) (int32, [32]byte, uint64) {
+	var primary uint64 = 0
+	ret := C.db_idx256_upperbound(C.uint64_t(code), C.uint64_t(scope), C.uint64_t(table), (*C.uint128)(unsafe.Pointer(&secondary)), 2, (*C.uint64_t)(&primary))
+	if ret >= 0 {
+		return ret, secondary, primary
+	} else {
+		return ret, [32]byte{}, 0
+	}
+}
+
+// int32_t db_idx256_end(uint64_t code, uint64_t scope, uint64_t table);
+func DBIdx256End(code uint64, scope uint64, table uint64) int32 {
+	return C.db_idx256_end(C.uint64_t(code), C.uint64_t(scope), C.uint64_t(table))
+}
+
+// int32_t db_idx_double_store(uint64_t scope, uint64_t table, uint64_t payer, uint64_t id, const Double* secondary);
+func DBIdxFloat64Store(scope uint64, table uint64, id uint64, secondary float64, payer uint64) int32 {
+	ret := C.db_idx_double_store(C.uint64_t(scope), C.uint64_t(table), C.uint64_t(payer), C.uint64_t(id), (*C.Double)(&secondary))
+	return ret
+}
+
+// void db_idx_double_update(int32_t iterator, uint64_t payer, const Double* secondary);
+func DBIdxFloat64Update(it int32, secondary float64, payer uint64) {
+	C.db_idx_double_update(C.int32_t(it), C.uint64_t(payer), (*C.Double)(&secondary))
+}
+
+// void db_idx_double_remove(int32_t iterator);
+func DBIdxFloat64Remove(it int32) {
+	C.db_idx_double_remove(C.int32_t(it))
+}
+
+// int32_t db_idx_double_next(int32_t iterator, uint64_t* primary);
+func DBIdxFloat64Next(it int32) (int32, uint64) {
+	var primary uint64 = 0
+	ret := C.db_idx_double_next(C.int32_t(it), (*C.uint64_t)(&primary))
+	return ret, primary
+}
+
+// int32_t db_idx_double_previous(int32_t iterator, uint64_t* primary);
+func DBIdxFloat64Previous(it int32) (int32, uint64) {
+	var primary uint64 = 0
+	ret := C.db_idx_double_previous(C.int32_t(it), (*C.uint64_t)(&primary))
+	return ret, primary
+}
+
+// int32_t db_idx_double_find_primary(uint64_t code, uint64_t scope, uint64_t table, Double* secondary, uint64_t primary);
+func DBIdxFloat64FindByPrimary(code uint64, scope uint64, table uint64, primary uint64) (int32, float64) {
+	var secondary float64
+	ret := C.db_idx_double_find_primary(C.uint64_t(code), C.uint64_t(scope), C.uint64_t(table), (*C.Double)(unsafe.Pointer(&secondary)), C.uint64_t(primary))
+	return ret, secondary
+}
+
+// int32_t db_idx_double_find_secondary(uint64_t code, uint64_t scope, uint64_t table, const Double* secondary, uint64_t* primary);
+func DBIdxFloat64Find(code uint64, scope uint64, table uint64, secondary float64) int32 {
+	// var primary uint64 = 0
+	it, _secondary, _ := DBIdxFloat64Lowerbound(code, scope, table, secondary)
+	if it >= 0 {
+		if _secondary == secondary {
+			return it
+		}
+	}
+	return -1
+}
+
+// int32_t db_idx_double_lowerbound(uint64_t code, uint64_t scope, uint64_t table, Double* secondary, uint64_t* primary);
+func DBIdxFloat64Lowerbound(code uint64, scope uint64, table uint64, secondary float64) (int32, float64, uint64) {
+	var primary uint64 = 0
+	ret := C.db_idx_double_lowerbound(C.uint64_t(code), C.uint64_t(scope), C.uint64_t(table), (*C.Double)(&secondary), (*C.uint64_t)(&primary))
+	return ret, secondary, primary
+}
+
+// int32_t db_idx_double_upperbound(uint64_t code, uint64_t scope, uint64_t table, Double* secondary, uint64_t* primary);
+func DBIdxFloat64Upperbound(code uint64, scope uint64, table uint64, secondary float64) (int32, float64, uint64) {
+	var primary uint64 = 0
+	ret := C.db_idx_double_upperbound(C.uint64_t(code), C.uint64_t(scope), C.uint64_t(table), (*C.Double)(&secondary), (*C.uint64_t)(&primary))
+	return ret, secondary, primary
+}
+
+// int32_t db_idx_double_end(uint64_t code, uint64_t scope, uint64_t table);
+func DBIdxFloat64End(code uint64, scope uint64, table uint64) int32 {
+	return C.db_idx_double_end(C.uint64_t(code), C.uint64_t(scope), C.uint64_t(table))
+}
+
+// void db_idx_long_double_update(int32_t iterator, uint64_t payer, const float128_t* secondary);
+func DBIdxFloat128Store(scope uint64, table uint64, id uint64, secondary [16]byte, payer uint64) int32 {
+	ret := C.db_idx_long_double_store(C.uint64_t(scope), C.uint64_t(table), C.uint64_t(payer), C.uint64_t(id), (*C.float128_t)(unsafe.Pointer(&secondary[0])))
+	return ret
+}
+
+// int32_t db_idx_long_double_store(uint64_t scope, uint64_t table, uint64_t payer, uint64_t id, const float128_t* secondary);
+func DBIdxFloat128Update(it int32, secondary [16]byte, payer uint64) {
+	C.db_idx_long_double_update(C.int32_t(it), C.uint64_t(payer), (*C.float128_t)(unsafe.Pointer(&secondary[0])))
+}
+
+// void db_idx_long_double_remove(int32_t iterator);
+func DBIdxFloat128Remove(it int32) {
+	C.db_idx_long_double_remove(C.int32_t(it))
+}
+
+// int32_t db_idx_long_double_next(int32_t iterator, uint64_t* primary);
+func DBIdxFloat128Next(it int32) (int32, uint64) {
+	var primary uint64 = 0
+	ret := C.db_idx_long_double_next(C.int32_t(it), (*C.uint64_t)(&primary))
+	return ret, primary
+}
+
+// int32_t db_idx_long_double_previous(int32_t iterator, uint64_t* primary);
+func DBIdxFloat128Previous(it int32) (int32, uint64) {
+	var primary uint64 = 0
+	ret := C.db_idx_long_double_previous(C.int32_t(it), (*C.uint64_t)(&primary))
+	return ret, primary
+}
+
+// int32_t db_idx_long_double_find_primary(uint64_t code, uint64_t scope, uint64_t table, float128_t* secondary, uint64_t primary);
+func DBIdxFloat128FindByPrimary(code uint64, scope uint64, table uint64, primary uint64) (int32, [16]byte) {
+	var secondary [16]byte
+	ret := C.db_idx_long_double_find_primary(C.uint64_t(code), C.uint64_t(scope), C.uint64_t(table), (*C.float128_t)(unsafe.Pointer(&secondary)), C.uint64_t(primary))
+	return ret, secondary
+}
+
+// int32_t db_idx_long_double_find_secondary(uint64_t code, uint64_t scope, uint64_t table, const float128_t* secondary, uint64_t* primary);
+func DBIdxFloat128Find(code uint64, scope uint64, table uint64, secondary [16]byte) int32 {
+	// var primary uint64 = 0
+	it, _secondary, _ := DBIdxFloat128Lowerbound(code, scope, table, secondary)
+	if it >= 0 {
+		if _secondary == secondary {
+			return it
+		}
+	}
+	return -1
+}
+
+// int32_t db_idx_long_double_lowerbound(uint64_t code, uint64_t scope, uint64_t table, float128_t* secondary, uint64_t* primary);
+func DBIdxFloat128Lowerbound(code uint64, scope uint64, table uint64, secondary [16]byte) (int32, [16]byte, uint64) {
+	var primary uint64 = 0
+	ret := C.db_idx_long_double_lowerbound(C.uint64_t(code), C.uint64_t(scope), C.uint64_t(table), (*C.float128_t)(unsafe.Pointer(&secondary[0])), (*C.uint64_t)(&primary))
+	return ret, secondary, primary
+}
+
+// int32_t db_idx_long_double_upperbound(uint64_t code, uint64_t scope, uint64_t table, float128_t* secondary, uint64_t* primary);
+func DBIdxFloat128Upperbound(code uint64, scope uint64, table uint64, secondary [16]byte) (int32, [16]byte, uint64) {
+	var primary uint64 = 0
+	ret := C.db_idx_long_double_upperbound(C.uint64_t(code), C.uint64_t(scope), C.uint64_t(table), (*C.float128_t)(unsafe.Pointer(&secondary[0])), (*C.uint64_t)(&primary))
+	return ret, secondary, primary
+}
+
+// int32_t db_idx_long_double_end(uint64_t code, uint64_t scope, uint64_t table);
+func DBIdxFloat128End(code uint64, scope uint64, table uint64) int32 {
+	return C.db_idx_long_double_end(C.uint64_t(code), C.uint64_t(scope), C.uint64_t(table))
 }

@@ -1,25 +1,8 @@
 package database
 
-/*
-#include "../structs.h"
-typedef double Double;
-
-int32_t db_idx_double_store(uint64_t scope, uint64_t table, uint64_t payer, uint64_t id, const Double* secondary);
-void db_idx_double_update(int32_t iterator, uint64_t payer, const Double* secondary);
-void db_idx_double_remove(int32_t iterator);
-int32_t db_idx_double_next(int32_t iterator, uint64_t* primary);
-int32_t db_idx_double_previous(int32_t iterator, uint64_t* primary);
-int32_t db_idx_double_find_primary(uint64_t code, uint64_t scope, uint64_t table, Double* secondary, uint64_t primary);
-int32_t db_idx_double_find_secondary(uint64_t code, uint64_t scope, uint64_t table, const Double* secondary, uint64_t* primary);
-int32_t db_idx_double_lowerbound(uint64_t code, uint64_t scope, uint64_t table, Double* secondary, uint64_t* primary);
-int32_t db_idx_double_upperbound(uint64_t code, uint64_t scope, uint64_t table, Double* secondary, uint64_t* primary);
-int32_t db_idx_double_end(uint64_t code, uint64_t scope, uint64_t table);
-*/
-import "C"
 import (
-	"unsafe"
-
 	"github.com/uuosio/chain"
+	"github.com/uuosio/chain/eosio"
 )
 
 type IdxTableFloat64 struct {
@@ -33,7 +16,7 @@ func NewIdxTableFloat64(index int, code uint64, scope uint64, table uint64) *Idx
 
 // Store an association of a double-precision floating-point secondary key to a primary key in a secondary double-precision floating-point index table
 func (db *IdxTableFloat64) Store(id uint64, secondary float64, payer uint64) *SecondaryIterator {
-	ret := C.db_idx_double_store(C.uint64_t(db.scope), C.uint64_t(db.table), C.uint64_t(payer), C.uint64_t(id), (*C.Double)(&secondary))
+	ret := eosio.DBIdxFloat64Store(db.scope, db.table, id, secondary, payer)
 	return &SecondaryIterator{int32(ret), id, db.dbIndex}
 }
 
@@ -45,7 +28,7 @@ func (db *IdxTableFloat64) StoreEx(id uint64, secondary interface{}, payer uint6
 
 //Update an association for a double-precision floating-point secondary key to a primary key in a secondary double-precision floating-point index table
 func (db *IdxTableFloat64) Update(it *SecondaryIterator, secondary float64, payer uint64) {
-	C.db_idx_double_update(C.int32_t(it.I), C.uint64_t(payer), (*C.Double)(&secondary))
+	eosio.DBIdxFloat64Update(it.I, secondary, payer)
 }
 
 func (db *IdxTableFloat64) UpdateEx(it *SecondaryIterator, secondary interface{}, payer uint64) {
@@ -56,28 +39,25 @@ func (db *IdxTableFloat64) UpdateEx(it *SecondaryIterator, secondary interface{}
 
 //Remove a table row from a secondary double-precision floating-point index table
 func (db *IdxTableFloat64) Remove(it *SecondaryIterator) {
-	C.db_idx_double_remove(C.int32_t(it.I))
+	eosio.DBIdxFloat64Remove(it.I)
 }
 
 //Find the table row following the referenced table row in a secondary double-precision floating-point index table
 func (db *IdxTableFloat64) Next(it *SecondaryIterator) *SecondaryIterator {
-	var primary uint64 = 0
-	ret := C.db_idx_double_next(C.int32_t(it.I), (*C.uint64_t)(&primary))
-	return &SecondaryIterator{int32(ret), primary, db.dbIndex}
+	i, primary := eosio.DBIdxFloat64Next(it.I)
+	return &SecondaryIterator{i, primary, db.dbIndex}
 }
 
 //Find the table row preceding the referenced table row in a secondary double-precision floating-point index table
 func (db *IdxTableFloat64) Previous(it *SecondaryIterator) *SecondaryIterator {
-	var primary uint64 = 0
-	ret := C.db_idx_double_previous(C.int32_t(it.I), (*C.uint64_t)(&primary))
-	return &SecondaryIterator{int32(ret), primary, db.dbIndex}
+	i, primary := eosio.DBIdxFloat64Previous(it.I)
+	return &SecondaryIterator{i, primary, db.dbIndex}
 }
 
 //Find a table row in a secondary double-precision floating-point index table by primary key
 func (db *IdxTableFloat64) FindByPrimary(primary uint64) (*SecondaryIterator, interface{}) {
-	var secondary float64
-	ret := C.db_idx_double_find_primary(C.uint64_t(db.code), C.uint64_t(db.scope), C.uint64_t(db.table), (*C.Double)(unsafe.Pointer(&secondary)), C.uint64_t(primary))
-	return &SecondaryIterator{int32(ret), primary, db.dbIndex}, secondary
+	i, secondary := eosio.DBIdxFloat64FindByPrimary(db.code, db.scope, db.table, primary)
+	return &SecondaryIterator{i, primary, db.dbIndex}, secondary
 }
 
 //Find a table row in a secondary double-precision floating-point index table by secondary key
@@ -100,20 +80,18 @@ func (db *IdxTableFloat64) FindEx(secondary interface{}) *SecondaryIterator {
 
 //Find the table row in a secondary double-precision floating-point index table that matches the lowerbound condition for a given secondary key
 func (db *IdxTableFloat64) Lowerbound(secondary float64) (*SecondaryIterator, float64) {
-	var primary uint64 = 0
-	ret := C.db_idx_double_lowerbound(C.uint64_t(db.code), C.uint64_t(db.scope), C.uint64_t(db.table), (*C.Double)(&secondary), (*C.uint64_t)(&primary))
-	return &SecondaryIterator{int32(ret), primary, db.dbIndex}, secondary
+	i, secondary, primary := eosio.DBIdxFloat64Lowerbound(db.code, db.scope, db.table, secondary)
+	return &SecondaryIterator{i, primary, db.dbIndex}, secondary
 }
 
 //Find the table row in a secondary double-precision floating-point index table that matches the upperbound condition for a given secondary key
 func (db *IdxTableFloat64) Upperbound(secondary float64) (*SecondaryIterator, float64) {
-	var primary uint64 = 0
-	ret := C.db_idx_double_upperbound(C.uint64_t(db.code), C.uint64_t(db.scope), C.uint64_t(db.table), (*C.Double)(&secondary), (*C.uint64_t)(&primary))
-	return &SecondaryIterator{int32(ret), primary, db.dbIndex}, secondary
+	i, secondary, primary := eosio.DBIdxFloat64Upperbound(db.code, db.scope, db.table, secondary)
+	return &SecondaryIterator{i, primary, db.dbIndex}, secondary
 }
 
 //Get an end iterator representing just-past-the-end of the last table row of a secondary double-precision floating-point index table
 func (db *IdxTableFloat64) End() *SecondaryIterator {
-	ret := C.db_idx_double_end(C.uint64_t(db.code), C.uint64_t(db.scope), C.uint64_t(db.table))
-	return &SecondaryIterator{int32(ret), 0, db.dbIndex}
+	i := eosio.DBIdxFloat64End(db.code, db.scope, db.table)
+	return &SecondaryIterator{i, 0, db.dbIndex}
 }

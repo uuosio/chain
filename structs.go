@@ -34,45 +34,39 @@ func (t *VarUint32) Size() int {
 	return PackedVarUint32Length(uint32(*t))
 }
 
-type Uint256 [4]uint64
+type Uint256 [32]byte
 
 func NewUint256(lo1, lo2, hi1, hi2 uint64) Uint256 {
-	ret := Uint256{lo1, lo2, hi1, hi2}
+	ret := Uint256{}
+	binary.LittleEndian.PutUint64(ret[:8], lo1)
+	binary.LittleEndian.PutUint64(ret[8:16], lo2)
+	binary.LittleEndian.PutUint64(ret[16:24], hi1)
+	binary.LittleEndian.PutUint64(ret[24:32], hi2)
 	return ret
 }
 
 func NewUint256FromBytes(bs []byte) Uint256 {
 	ret := Uint256{}
 	Check(len(bs) >= 32, "bad size")
-	ret[0] = binary.LittleEndian.Uint64(bs[0:8])
-	ret[1] = binary.LittleEndian.Uint64(bs[8:16])
-	ret[2] = binary.LittleEndian.Uint64(bs[16:24])
-	ret[3] = binary.LittleEndian.Uint64(bs[24:32])
+	copy(ret[:], bs)
 	return ret
 }
 
 func (n *Uint256) SetUint64(v uint64) {
 	tmp := Uint256{}
 	copy(n[:], tmp[:]) //memset
-	n[3] = 0
-	n[2] = 0
-	n[1] = 0
-	n[0] = v
+	binary.LittleEndian.PutUint64(n[:8], v)
 }
 
 func (n *Uint256) Pack() []byte {
 	enc := NewEncoder(32)
-	for _, a := range n {
-		enc.PackUint64(a)
-	}
+	enc.Write(n[:])
 	return enc.GetBytes()
 }
 
 func (n *Uint256) Unpack(data []byte) int {
 	dec := NewDecoder(data)
-	for i := 0; i <= 3; i++ {
-		n[i] = dec.UnpackUint64()
-	}
+	dec.Read(n[:])
 	return 32
 }
 
@@ -81,7 +75,7 @@ func (t *Uint256) Size() int {
 }
 
 func (n *Uint256) Uint64() uint64 {
-	return n[0]
+	return binary.LittleEndian.Uint64(n[:8])
 }
 
 type TimePoint struct {
