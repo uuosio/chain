@@ -27,7 +27,6 @@ func TestHello(t *testing.T) {
 		"hello": "active"
 	}
 	`
-	SayHelloFromCpp()
 
 	tester := chaintester.NewChainTester()
 	defer tester.FreeChain()
@@ -110,6 +109,13 @@ func TestHello(t *testing.T) {
 	tester.ProduceBlock()
 
 	ret, err = tester.PushAction("hello", "inc", "", permissions2)
+	if err != nil {
+		panic(err)
+	}
+	// panic(ret.ToString())
+	tester.ProduceBlock()
+
+	ret, err = tester.PushAction("hello", "test1", "", permissions2)
 	if err != nil {
 		panic(err)
 	}
