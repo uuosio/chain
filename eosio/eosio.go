@@ -76,6 +76,17 @@ void ripemd160( const char* data, uint32_t length, capi_checksum160* hash );
 int recover_key( const capi_checksum256* digest, const char* sig, size_t siglen, char* pub, size_t publen );
 void assert_recover_key( const capi_checksum256* digest, const char* sig, size_t siglen, const char* pub, size_t publen );
 
+//transaction.h
+void send_deferred(const uint128* sender_id, capi_name payer, const char *serialized_transaction, size_t size, uint32_t replace_existing);
+int cancel_deferred(const uint128* sender_id);
+size_t read_transaction(char *buffer, size_t size);
+size_t transaction_size( void );
+int tapos_block_num( void );
+int tapos_block_prefix( void );
+uint32_t expiration( void );
+int get_action( uint32_t type, uint32_t index, char* buff, size_t size );
+int get_context_free_data( uint32_t index, char* buff, size_t size );
+
 
 int32_t db_store_i64(uint64_t scope, uint64_t table, uint64_t payer, uint64_t id,  const char* data, uint32_t len);
 void db_update_i64(int32_t iterator, uint64_t payer, const char* data, uint32_t len);
@@ -788,4 +799,71 @@ func DBIdxFloat128Upperbound(code uint64, scope uint64, table uint64, secondary 
 // int32_t db_idx_long_double_end(uint64_t code, uint64_t scope, uint64_t table);
 func DBIdxFloat128End(code uint64, scope uint64, table uint64) int32 {
 	return C.db_idx_long_double_end(C.uint64_t(code), C.uint64_t(scope), C.uint64_t(table))
+}
+
+// void send_deferred(const uint128_t* sender_id, capi_name payer, const char *serialized_transaction, size_t size, uint32_t replace_existing);
+func SendDeferred(senderID [16]byte, payer Name, transaction []byte, replaceExisting bool) {
+	cReplaceExisting := C.uint32_t(0)
+	if replaceExisting {
+		cReplaceExisting = C.uint32_t(1)
+	}
+
+	C.send_deferred((*C.uint128)(unsafe.Pointer(&senderID[0])), C.uint64_t(payer.N), (*C.char)(unsafe.Pointer(&transaction[0])), C.size_t(len(transaction)), C.uint32_t(cReplaceExisting))
+}
+
+// int cancel_deferred(const uint128_t* sender_id);
+func CancelDeferred(senderID [16]byte) int32 {
+	ret := C.cancel_deferred((*C.uint128)(unsafe.Pointer(&senderID[0])))
+	return int32(ret)
+}
+
+// size_t read_transaction(char *buffer, size_t size);
+func ReadTransaction() []byte {
+	ret := C.read_transaction((*C.char)(unsafe.Pointer(uintptr(0))), 0)
+	buffer := make([]byte, ret)
+	C.read_transaction((*C.char)(unsafe.Pointer(&buffer[0])), C.size_t(len(buffer)))
+	return buffer
+}
+
+// __attribute__((eosio_wasm_import))
+// size_t transaction_size( void );
+func TransactionSize() int32 {
+	ret := C.transaction_size()
+	return int32(ret)
+}
+
+// int tapos_block_num( void );
+func TaposBlockNum() int32 {
+	return int32(C.tapos_block_num())
+}
+
+// int tapos_block_prefix( void );
+func TaposBlockPrefix() int32 {
+	return int32(C.tapos_block_prefix())
+}
+
+// uint32_t expiration( void );
+func Expiration() uint32 {
+	ret := C.expiration()
+	return uint32(ret)
+}
+
+// int get_action( uint32_t type, uint32_t index, char* buff, size_t size );
+func GetAction(_type uint32, index uint32) []byte {
+	var buff []byte
+	ret := C.get_action(C.uint32_t(_type), C.uint32_t(index), (*C.char)(unsafe.Pointer(uintptr(0))), 0)
+
+	buf := make([]byte, ret)
+	C.get_action(C.uint32_t(_type), C.uint32_t(index), (*C.char)(unsafe.Pointer(&buff[0])), C.size_t(len(buff)))
+	return buf
+}
+
+// int get_context_free_data( uint32_t index, char* buff, size_t size );
+func GetContextFreeData(index uint32) []byte {
+	var buff []byte
+	ret := C.get_context_free_data(C.uint32_t(index), (*C.char)(unsafe.Pointer(uintptr(0))), 0)
+
+	buf := make([]byte, ret)
+	C.get_context_free_data(C.uint32_t(index), (*C.char)(unsafe.Pointer(&buff[0])), C.size_t(len(buff)))
+	return buf
 }

@@ -1,10 +1,5 @@
 package database
 
-/*
-#include "../structs.h"
-*/
-import "C"
-
 type IdxTable struct {
 	dbIndex int
 	code    uint64

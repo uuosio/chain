@@ -3,7 +3,6 @@
 
 package eosio
 
-import "C"
 import (
 	"context"
 	"encoding/binary"
@@ -690,6 +689,75 @@ func DBIdxFloat128Upperbound(code uint64, scope uint64, table uint64, secondary 
 // int32_t db_idx_long_double_end(uint64_t code, uint64_t scope, uint64_t table);
 func DBIdxFloat128End(code uint64, scope uint64, table uint64) int32 {
 	ret, err := chaintester.GetVMAPI().DbIdxLongDoubleEnd(ctx, to_raw_uint64(code), to_raw_uint64(scope), to_raw_uint64(table))
+	CheckError(err)
+	return ret
+}
+
+// void send_deferred(const uint128_t* sender_id, capi_name payer, const char *serialized_transaction, size_t size, uint32_t replace_existing);
+func SendDeferred(senderID [16]byte, payer uint64, transaction []byte, replaceExisting bool) {
+	var _replaceExisting int32
+	if replaceExisting {
+		_replaceExisting = 1
+	} else {
+		_replaceExisting = 0
+	}
+	err := chaintester.GetVMAPI().SendDeferred(ctx, senderID[:], to_raw_uint64(payer), transaction, _replaceExisting)
+	CheckError(err)
+}
+
+// int cancel_deferred(const uint128_t* sender_id);
+func CancelDeferred(senderID [16]byte) int32 {
+	ret, err := chaintester.GetVMAPI().CancelDeferred(ctx, senderID[:])
+	CheckError(err)
+	return ret
+}
+
+// size_t read_transaction(char *buffer, size_t size);
+func ReadTransaction() []byte {
+	ret, err := chaintester.GetVMAPI().ReadTransaction(ctx)
+	CheckError(err)
+	return ret
+}
+
+// __attribute__((eosio_wasm_import))
+// size_t transaction_size( void );
+func TransactionSize() int32 {
+	ret, err := chaintester.GetVMAPI().TransactionSize(ctx)
+	CheckError(err)
+	return ret
+}
+
+// int tapos_block_num( void );
+func TaposBlockNum() int32 {
+	ret, err := chaintester.GetVMAPI().TaposBlockNum(ctx)
+	CheckError(err)
+	return ret
+}
+
+// int tapos_block_prefix( void );
+func TaposBlockPrefix() int32 {
+	ret, err := chaintester.GetVMAPI().TaposBlockPrefix(ctx)
+	CheckError(err)
+	return ret
+}
+
+// uint32_t expiration( void );
+func Expiration() uint32 {
+	ret, err := chaintester.GetVMAPI().Expiration((ctx))
+	CheckError(err)
+	return uint32(ret)
+}
+
+// int get_action( uint32_t type, uint32_t index, char* buff, size_t size );
+func GetAction(_type uint32, index uint32) []byte {
+	ret, err := chaintester.GetVMAPI().GetAction(ctx, int32(_type), int32(index))
+	CheckError(err)
+	return ret
+}
+
+// int get_context_free_data( uint32_t index, char* buff, size_t size );
+func GetContextFreeData(index uint32) []byte {
+	ret, err := chaintester.GetVMAPI().GetContextFreeData(ctx, int32(index))
 	CheckError(err)
 	return ret
 }
