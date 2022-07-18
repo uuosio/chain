@@ -180,12 +180,12 @@ func IsEqual(indexType int, a, b interface{}) bool {
 	case IDX256:
 		_a, ok := a.(chain.Uint256)
 		if !ok {
-			panic("not a Uint256 value")
+			panic("not a Uint256 value 1")
 		}
 
 		_b, ok := b.(chain.Uint256)
 		if !ok {
-			panic("not a Uint256 value")
+			panic("not a Uint256 value 2")
 		}
 		return _a == _b
 	case IDXFloat64:
@@ -193,12 +193,12 @@ func IsEqual(indexType int, a, b interface{}) bool {
 	case IDXFloat128:
 		_a, ok := a.(chain.Float128)
 		if !ok {
-			panic("not a Uint256 value")
+			panic("not a IDXFloat128 value 1")
 		}
 
 		_b, ok := b.(chain.Float128)
 		if !ok {
-			panic("not a Uint256 value")
+			panic("not a IDXFloat128 value 2")
 		}
 		return _a == _b
 	default:
