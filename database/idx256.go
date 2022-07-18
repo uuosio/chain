@@ -57,7 +57,7 @@ func (db *IdxTable256) Previous(it *SecondaryIterator) *SecondaryIterator {
 //Find a table row in a secondary 128-bit integer index table by primary key
 func (db *IdxTable256) FindByPrimary(primary uint64) (*SecondaryIterator, interface{}) {
 	it, secondary := eosio.DBIdx256FindByPrimary(db.code, db.scope, db.table, primary)
-	return &SecondaryIterator{it, primary, db.dbIndex}, secondary
+	return &SecondaryIterator{it, primary, db.dbIndex}, chain.Uint256(secondary)
 }
 
 // Find a table row in a secondary 256-bit index table by secondary key
@@ -83,7 +83,7 @@ func (db *IdxTable256) Lowerbound(secondary chain.Uint256) (*SecondaryIterator, 
 
 //Find the table row in a secondary 256-bit index table that matches the upperbound condition for a given secondary key
 func (db *IdxTable256) Upperbound(secondary chain.Uint256) (*SecondaryIterator, chain.Uint256) {
-	it, secondary, primary := eosio.DBIdx256Lowerbound(db.code, db.scope, db.table, secondary)
+	it, secondary, primary := eosio.DBIdx256Upperbound(db.code, db.scope, db.table, secondary)
 	return &SecondaryIterator{it, primary, db.dbIndex}, secondary
 }
 
