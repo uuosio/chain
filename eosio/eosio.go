@@ -802,13 +802,13 @@ func DBIdxFloat128End(code uint64, scope uint64, table uint64) int32 {
 }
 
 // void send_deferred(const uint128_t* sender_id, capi_name payer, const char *serialized_transaction, size_t size, uint32_t replace_existing);
-func SendDeferred(senderID [16]byte, payer Name, transaction []byte, replaceExisting bool) {
+func SendDeferred(senderID [16]byte, payer uint64, transaction []byte, replaceExisting bool) {
 	cReplaceExisting := C.uint32_t(0)
 	if replaceExisting {
 		cReplaceExisting = C.uint32_t(1)
 	}
 
-	C.send_deferred((*C.uint128)(unsafe.Pointer(&senderID[0])), C.uint64_t(payer.N), (*C.char)(unsafe.Pointer(&transaction[0])), C.size_t(len(transaction)), C.uint32_t(cReplaceExisting))
+	C.send_deferred((*C.uint128)(unsafe.Pointer(&senderID[0])), C.uint64_t(payer), (*C.char)(unsafe.Pointer(&transaction[0])), C.size_t(len(transaction)), C.uint32_t(cReplaceExisting))
 }
 
 // int cancel_deferred(const uint128_t* sender_id);
