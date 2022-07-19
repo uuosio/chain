@@ -2,9 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/hex"
-	"fmt"
-	"os"
 	"testing"
 
 	"github.com/learnforpractice/chaintester"
@@ -51,44 +48,11 @@ func TestHello(t *testing.T) {
 	}`
 	tester.PushAction("eosio", "updateauth", updateAuthArgs, permissions)
 
-	wasm, _ := os.ReadFile("test.wasm")
-	abi, _ := os.ReadFile("test.abi")
-
-	hexWasm := make([]byte, len(wasm)*2)
-	hex.Encode(hexWasm, wasm)
-	setCodeArgs := fmt.Sprintf(
-		`
-		{
-			"account": "%s",
-			"vmtype": 0,
-			"vmversion": 0,
-			"code": "%s"
-		 }
-		`,
-		"hello",
-		string(hexWasm),
-	)
-
-	ret, err := tester.PushAction("eosio", "setcode", setCodeArgs, permissions)
+	err := tester.DeployContract("hello", "test.wasm", "test.abi")
 	if err != nil {
 		panic(err)
 	}
 	tester.ProduceBlock()
-
-	rawAbi, _ := tester.PackAbi(string(abi))
-	hexRawAbi := make([]byte, len(rawAbi)*2)
-	hex.Encode(hexRawAbi, rawAbi)
-	setAbiArgs := fmt.Sprintf(
-		`
-		{
-			"account": "%s",
-			"abi": "%s"
-		 }
-		`,
-		"hello",
-		string(hexRawAbi),
-	)
-	ret, err = tester.PushAction("eosio", "setabi", setAbiArgs, permissions)
 
 	args := `
 	{
@@ -97,15 +61,17 @@ func TestHello(t *testing.T) {
 	`
 	permissions2 := string(permissions)
 	for i := 0; i < 1; i++ {
-		ret, err = tester.PushAction("hello", "sayhello", args, permissions)
-		tester.PackAbi(string(abi))
+		_, err = tester.PushAction("hello", "sayhello", args, permissions)
+		if err != nil {
+			panic(err)
+		}
 		tester.ProduceBlock()
 	}
 
 	// defer chaintester.GetApplyRequestServer().Stop()
 	// defer chaintester.CloseVMAPI()
 
-	ret, err = tester.PushAction("hello", "sayhello", args, permissions2)
+	ret, err := tester.PushAction("hello", "sayhello", args, permissions2)
 	tester.ProduceBlock()
 
 	ret, err = tester.PushAction("hello", "inc", "", permissions2)
