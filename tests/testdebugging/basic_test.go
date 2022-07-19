@@ -92,7 +92,7 @@ func TestHello(t *testing.T) {
 
 	args := `
 	{
-		"name": "rust"
+		"name": "Go"
 	}
 	`
 	permissions2 := string(permissions)

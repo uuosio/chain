@@ -48,7 +48,6 @@ func (c *Contract) SayGoodbye(name string) {
 
 //action inc
 func (c *Contract) Inc(name string) {
-	// check(false, "oops!")
 	db := NewCounterTable(c.receiver, c.receiver)
 	it := db.Find(1)
 	payer := c.receiver
