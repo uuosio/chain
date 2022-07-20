@@ -82,7 +82,7 @@ class Test(object):
         self.chain.produce_block()
 
     def compile(cls, name, code):
-        replace = '/Users/newworld/dev/github/go-chain'
+        replace = ''
         return wasmcompiler.compile_go_src(name, code, replace=replace)
 
 

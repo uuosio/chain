@@ -6,7 +6,7 @@ package eosio
 import (
 	"unsafe"
 
-	"github.com/learnforpractice/chaintester"
+	"github.com/uuosio/chaintester"
 )
 
 //Prints string

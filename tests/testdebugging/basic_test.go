@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/learnforpractice/chaintester"
+	"github.com/uuosio/chaintester"
 )
 
 var ctx = context.Background()

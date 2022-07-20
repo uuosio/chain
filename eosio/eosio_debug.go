@@ -8,8 +8,8 @@ import (
 	"encoding/binary"
 	"unsafe"
 
-	"github.com/learnforpractice/chaintester"
-	"github.com/learnforpractice/chaintester/interfaces"
+	"github.com/uuosio/chaintester"
+	"github.com/uuosio/chaintester/interfaces"
 )
 
 var ctx = context.Background()

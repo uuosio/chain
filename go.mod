@@ -2,6 +2,4 @@ module github.com/uuosio/chain
 
 go 1.16
 
-replace github.com/learnforpractice/chaintester => /Users/newworld/dev/gscdk/chaintester
-
-require github.com/learnforpractice/chaintester v0.0.0-20220711072919-951ecab8775b
+require github.com/uuosio/chaintester v0.0.0-20220720033226-d528e3affc43
