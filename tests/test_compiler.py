@@ -34,8 +34,8 @@ def test_compiler():
         "testfloat128.go",
         "testprivileged.go",
         "testwasm.go",
-        "testkv.go",
-        "testlargecode.go",
+        # "testkv.go",
+        # "testlargecode.go",
         "testserializer.go"
     ]
 
