@@ -2,8 +2,6 @@
 #include <stdint.h>
 #include <stdio.h>
 
-extern void print_stack_trace();
-
 typedef struct {
     int64_t low;
     int64_t high;
@@ -35,7 +33,6 @@ typedef struct {
 } capi_checksum160;
 
 static void go_panic(char* funcName) {
-    print_stack_trace();
     printf("%s\n not implemented", funcName);
     char *a = 0;
     *a = 0;
