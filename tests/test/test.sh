@@ -1,1 +1,1 @@
-run-ipyeos -m pytest -x -s test.py -k $1
+ipyeos -m pytest -x -s test.py -k $1
