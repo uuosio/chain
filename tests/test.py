@@ -99,7 +99,7 @@ func main() {
 '''
         code, abi = self.compile('hello', code)
         assert code
-        self.chain.deploy_contract('hello', code, b'', 0)
+        self.chain.deploy_contract('hello', code, '', 0)
         r = self.chain.push_action('hello', 'sayhello', b'hello,world')
         print_console(r)
 
@@ -108,7 +108,7 @@ func main() {
             code = f.read()
         code, abi = self.compile('hello', code)
         assert code
-        self.chain.deploy_contract('hello', code, b'', 0)
+        self.chain.deploy_contract('hello', code, '', 0)
         r = self.chain.push_action('hello', 'sayhello', b'hello,world')
         print_console(r)
 
@@ -117,7 +117,7 @@ func main() {
             code = f.read()
         code, abi = self.compile('hello', code)
         assert code
-        self.chain.deploy_contract('hello', code, b'', 0)
+        self.chain.deploy_contract('hello', code, '', 0)
         try:
             r = self.chain.push_action('hello', 'sayhello', b'hello,world')
             print_console(r)
@@ -160,7 +160,7 @@ func main() {
         code, abi = self.compile('testmi', code)
         logger.info("++++++++++code size %f", len(code)/1024)
         assert code
-        self.chain.deploy_contract('hello', code, b'', 0)
+        self.chain.deploy_contract('hello', code, '', 0)
         r = self.chain.push_action('hello', 'test1', b'hello,world')
         print_console(r)
 
@@ -173,7 +173,7 @@ func main() {
             code = f.read()
         code, abi = self.compile('hello', code)
         assert code
-        self.chain.deploy_contract('hello', code, b'', 0)
+        self.chain.deploy_contract('hello', code, '', 0)
         r = self.chain.push_action('hello', 'sayhello', b'hello,world')
         print_console(r)
 
@@ -182,7 +182,7 @@ func main() {
             code = f.read()
         code, abi = self.compile('hello', code)
         assert code
-        self.chain.deploy_contract('hello', code, b'', 0)
+        self.chain.deploy_contract('hello', code, '', 0)
         r = self.chain.push_action('hello', 'sayhello', b'hello,world')
         print_console(r)
 
@@ -191,7 +191,7 @@ func main() {
             code = f.read()
         code, abi = self.compile('testtransaction', code)
         assert code
-        self.chain.deploy_contract('hello', code, b'', 0)
+        self.chain.deploy_contract('hello', code, '', 0)
         r = self.chain.push_action('hello', 'sayhello1', b'hello,world')
         print_console(r)
 
@@ -207,7 +207,7 @@ func main() {
             code = f.read()
         code, abi = self.compile('testdb', code)
         assert code
-        self.chain.deploy_contract('hello', code, b'', 0)
+        self.chain.deploy_contract('hello', code, '', 0)
         r = self.chain.push_action('hello', 'sayhello', b'hello,world')
         print_console(r)
 
@@ -216,7 +216,7 @@ func main() {
             code = f.read()
         code, abi = self.compile('testtoken', code)
         assert code
-        self.chain.deploy_contract('hello', code, b'', 0)
+        self.chain.deploy_contract('hello', code, '', 0)
         r = self.chain.push_action('hello', 'sayhello', b'hello,world')
         print_console(r)
 
@@ -225,7 +225,7 @@ func main() {
             code = f.read()
         code, abi = self.compile('testsingleton', code)
         assert code
-        self.chain.deploy_contract('hello', code, b'', 0)
+        self.chain.deploy_contract('hello', code, '', 0)
 
         # for i in range(4):
         #     r = self.chain.push_action('hello', 'sayhello', b'hello,world')
@@ -237,7 +237,7 @@ func main() {
             code = f.read()
         code, abi = self.compile('testasset', code)
         assert code
-        self.chain.deploy_contract('hello', code, b'', 0)
+        self.chain.deploy_contract('hello', code, '', 0)
 
         try:
             r = self.chain.push_action('hello', 'test1', b'hello,world')
@@ -360,7 +360,7 @@ func main() {
         test_dir = os.path.join(test_dir, "tests/activate_kv.wasm")
         with open(os.path.join(test_dir), 'rb') as f:
             code = f.read()
-            self.chain.deploy_contract('alice', code, b'')
+            self.chain.deploy_contract('alice', code, '')
         self.chain.push_action('eosio', 'setpriv', {'account':'alice', 'is_priv':True})
         self.chain.push_action('alice', 'setkvparams', b'')
         self.chain.push_action('eosio', 'setpriv', {'account':'alice', 'is_priv':False})
