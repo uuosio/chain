@@ -23,13 +23,12 @@ package main
 
 import (
 	"context"
+	"encoding/hex"
+	"github.com/uuosio/chain"
+	"github.com/uuosio/chaintester"
 	"os"
 	"os/exec"
 	"testing"
-
-	"github.com/uuosio/chain"
-	"github.com/uuosio/chain/tests/testaction"
-	"github.com/uuosio/chaintester"
 )
 
 var ctx = context.Background()
@@ -37,7 +36,6 @@ var ctx = context.Background()
 func OnApply(receiver, firstReceiver, action uint64) {
 	println(chain.N2S(receiver), chain.N2S(firstReceiver), chain.N2S(action))
 	contract_apply(receiver, firstReceiver, action)
-	testaction.ContractApply(receiver, firstReceiver, action)
 	println("++++++++apply end!")
 }
 
@@ -92,14 +90,13 @@ func TestHello(t *testing.T) {
 		panic(err)
 	}
 	tester.ProduceBlock()
-	return
 
-	args := `
-	{
-		"name": "Go"
+	ret, err := tester.PushAction("hello", "settest", hex.EncodeToString([]byte("testhello")), permissions)
+	if err != nil {
+		panic(err)
 	}
-	`
-	ret, err := tester.PushAction("hello", "sayhello", args, permissions)
+
+	ret, err = tester.PushAction("hello", "sayhello", "", permissions)
 	if err != nil {
 		panic(err)
 	}

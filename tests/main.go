@@ -71,7 +71,10 @@ func contract_apply(_receiver, _firstReceiver, _action uint64) {
 	raw := table.GetByIterator(it)
 	curTest = string(raw)
 
-	if curTest == "testaction" {
+	if curTest == "testhello" {
+		chain.Println("Hello, World!!!")
+		return
+	} else if curTest == "testaction" {
 		testaction.ContractApply(_receiver, _firstReceiver, _action)
 	} else if curTest == "testasset" {
 		testasset.ContractApply(_receiver, _firstReceiver, _action)
