@@ -60,6 +60,7 @@ jobs:
         if: ${{ matrix.os != 'windows-latest' }}
         working-directory: tests
         run: |
+          go generate
           go-contract build -o tests.wasm
           go test -coverprofile=coverage.out -v
           curl -S -f https://codecov.io/bash -o codecov

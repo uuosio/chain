@@ -14,6 +14,7 @@
 //go:generate bash gencode.sh testvariant
 //go:generate bash gencode.sh testlargecode
 //go:generate bash gencode.sh testprivileged
+//go:generate bash gencode.sh testtransaction
 
 //export GENCODE=TRUE &&
 ////go:generate go test -run TestGenCode -v
