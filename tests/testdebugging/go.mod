@@ -2,7 +2,9 @@ module test
 
 go 1.17
 
-require github.com/uuosio/chaintester v0.0.0-20220720033226-d528e3affc43
+replace github.com/uuosio/chain => ../..
+
+require github.com/uuosio/chaintester v0.0.0-20220901072011-ec7fae17d476
 
 require (
 	github.com/apache/thrift v0.16.0 // indirect

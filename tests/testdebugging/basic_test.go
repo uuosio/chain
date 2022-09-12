@@ -4,13 +4,16 @@ import (
 	"context"
 	"testing"
 
+	"github.com/uuosio/chain"
 	"github.com/uuosio/chaintester"
 )
 
 var ctx = context.Background()
 
 func OnApply(receiver, firstReceiver, action uint64) {
+	println(chain.N2S(receiver), chain.N2S(firstReceiver), chain.N2S(action))
 	contract_apply(receiver, firstReceiver, action)
+	println("++++++++apply end!")
 }
 
 func init() {
@@ -61,10 +64,12 @@ func TestHello(t *testing.T) {
 	`
 	permissions2 := string(permissions)
 	for i := 0; i < 1; i++ {
-		_, err = tester.PushAction("hello", "sayhello", args, permissions)
+		ret, err := tester.PushAction("hello", "sayhello", args, permissions)
 		if err != nil {
 			panic(err)
 		}
+		elapsed, _ := ret.GetString("elapsed")
+		t.Logf("++++++++%v", elapsed)
 		tester.ProduceBlock()
 	}
 

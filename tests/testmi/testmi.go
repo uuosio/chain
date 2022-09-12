@@ -1,9 +1,8 @@
-package main
+package testmi
 
 import (
 	"github.com/uuosio/chain"
 )
-import "C"
 
 //table mydata
 type MyData struct {
@@ -15,61 +14,27 @@ type MyData struct {
 	a5      chain.Float128 //secondary
 }
 
-//contract test
-type Contract struct {
-	receiver      chain.Name
-	firstReceiver chain.Name
-	action        chain.Name
+func check(b bool, msg string) {
+	chain.Check(b, msg)
 }
 
-func NewContract(receiver, firstReceiver, action chain.Name) *Contract {
-	return &Contract{
-		receiver,
-		firstReceiver,
-		action,
-	}
+//contract testmi
+type TestMI struct {
+	receiver, firstReceiver, action chain.Name
+	mi                              *MyDataTable
 }
 
-//action sayhello
-func (c *Contract) SayHello(name string) {
-	chain.Prints("++++++hello,world")
-	chain.NewAction(
-		chain.NewPermissionLevel(chain.NewName("hello"), chain.NewName("active")),
-		chain.NewName("hello"),
-		chain.NewName("saygoodbye"),
-		"+++++++++++goodbye, world",
-	).Send()
+func NewContract(receiver, firstReceiver, action chain.Name) *TestMI {
+	code := receiver
+	mi := NewMyDataTable(code)
+
+	return &TestMI{receiver, firstReceiver, action, mi}
 }
 
-//action saygoodbye
-func (c *Contract) SayGoodbye(name string) {
-	chain.Prints("+++++++goodbye world")
-}
-
-//action inc
-func (c *Contract) Inc(name string) {
-	db := NewCounterTable(c.receiver, c.receiver)
-	it := db.Find(1)
-	payer := c.receiver
-	if it.IsOk() {
-		value := db.GetByIterator(it)
-		value.count += 1
-		db.Update(it, value, payer)
-		chain.Println("count: ", value.count)
-	} else {
-		value := &Counter{
-			key:   1,
-			count: 1,
-		}
-		db.Store(value, payer)
-		chain.Println("count: ", value.count)
-	}
-}
-
-func (t *Contract) initTest() *MyDataTable {
+func (t *TestMI) initTest() *MyDataTable {
 	payer := t.receiver
 
-	mi := NewMyDataTable(t.receiver)
+	mi := t.mi
 
 	data := &MyData{}
 	data.primary = 1
@@ -100,8 +65,18 @@ func (t *Contract) initTest() *MyDataTable {
 	return mi
 }
 
+func (t *TestMI) clearTest() {
+	for {
+		it := t.mi.Lowerbound(0)
+		if !it.IsOk() {
+			break
+		}
+		t.mi.Remove(it)
+	}
+}
+
 //action test1
-func (t *Contract) test1() {
+func (t *TestMI) test1() {
 	payer := t.receiver
 	mi := t.initTest()
 	{
@@ -369,8 +344,34 @@ func (t *Contract) test1() {
 		it = mi.Find(111)
 		check(!it.IsOk(), "bad")
 	}
+
+	t.initTest()
+	t.clearTest()
+	{
+		idx := mi.GetIdxTableBya1()
+		it := idx.Find(1)
+		check(!it.IsOk(), "bad return")
+	}
+
+	{
+		idx := mi.GetIdxTableBya2()
+		it := idx.Find(chain.NewUint128(2, 0))
+		check(!it.IsOk(), "bad return")
+	}
+
+	{
+		idx := mi.GetIdxTableBya3()
+		it := idx.Find(chain.NewUint256(3, 0, 0, 0))
+		check(!it.IsOk(), "bad return")
+	}
+	{
+		idx := mi.GetIdxTableBya4()
+		it := idx.Find(4.0)
+		check(!it.IsOk(), "bad return")
+	}
+	{
+		idx := mi.GetIdxTableBya5()
+		it := idx.Find(chain.NewFloat128(5.0))
+		check(!it.IsOk(), "bad return")
+	}
 }
-
-// func apply(a uint64, b uint64, c uint64) {
-
-// }
