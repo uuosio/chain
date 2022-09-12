@@ -53,9 +53,9 @@ jobs:
       #   run: |
       #     python -m pytest -x -s test_compiler.py -k test_compiler
       - name: Run eos-debugger
-        if: ${{ matrix.os == 'windows-latest' }}
+        if: ${{ matrix.os != 'windows-latest' }}
         run: |
-          PYTHON_SHARED_LIB_PATH=${{ env.pythonLocation }}/lib/libpython3.9.so eos-debugger &
+          PYTHON_SHARED_LIB_PATH=${{ env.pythonLocation }}/lib/libpython3.9.so python3 -m ipyeos eos-debugger &
       - name: Test execution
         if: ${{ matrix.os != 'windows-latest' }}
         working-directory: tests
