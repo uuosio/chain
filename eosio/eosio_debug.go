@@ -761,3 +761,13 @@ func GetContextFreeData(index uint32) []byte {
 	CheckError(err)
 	return ret
 }
+
+func GetActiveProducers() []uint64 {
+	ret, err := chaintester.GetVMAPI().GetActiveProducers(ctx)
+	producers := make([]uint64, 0, len(ret)/8)
+	for i := 0; i < len(ret)/8; i += 8 {
+		producers = append(producers, binary.LittleEndian.Uint64(ret[i:i+8]))
+	}
+	CheckError(err)
+	return producers
+}

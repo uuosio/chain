@@ -13,6 +13,8 @@ typedef double Double;
 #include "../chain.h"
 #include "../structs.h"
 
+uint32_t get_active_producers( uint64_t* producers, uint32_t datalen );
+
 uint32_t read_action_data( void* msg, uint32_t len );
 
 uint32_t action_data_size( void );
@@ -866,4 +868,15 @@ func GetContextFreeData(index uint32) []byte {
 	buf := make([]byte, ret)
 	C.get_context_free_data(C.uint32_t(index), (*C.char)(unsafe.Pointer(&buff[0])), C.size_t(len(buff)))
 	return buf
+}
+
+func GetActiveProducers() []uint64 {
+	datalen := C.get_active_producers((*C.uint64_t)(unsafe.Pointer(uintptr(0))), 0)
+	if datalen == 0 {
+		return nil
+	}
+
+	var producers = make([]uint64, int(datalen)/8)
+	C.get_active_producers((*C.uint64_t)(unsafe.Pointer(&producers[0])), datalen)
+	return producers
 }
