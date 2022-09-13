@@ -62,7 +62,7 @@ jobs:
         run: |
           go generate
           go-contract build -o tests.wasm
-          go test --cover -coverpkg=.. -coverprofile=cover.out
+          go test --cover -coverpkg=..,../database,../eosio -coverprofile=cover.out
       - name: upload coverage
         if: ${{ matrix.os == 'ubuntu-18.04' }}
         working-directory: tests
