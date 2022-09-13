@@ -187,7 +187,8 @@ func (a *Asset) Mul(b *Asset) *Asset {
 func (a *Asset) Div(b *Asset) *Asset {
 	Check(a.Symbol == b.Symbol, "Asset.Mul:Symbol not the same")
 	Check(b.Amount != 0, "divide by zero")
-	Check(!(a.Amount == int64(-9223372036854775808) && b.Amount == -1), "signed division overflow")
+	Check(b.Amount > 0, "divide by negative value")
+	// Check(!(a.Amount == int64(-9223372036854775808) && b.Amount == -1), "signed division overflow")
 	a.Amount /= b.Amount
 	return a
 }
