@@ -26,6 +26,7 @@ replace (
 	github.com/uuosio/chain/tests/testtransaction => ./testtransaction
 	github.com/uuosio/chain/tests/testuint128 => ./testuint128
 	github.com/uuosio/chain/tests/testvariant => ./testvariant
+	github.com/uuosio/chain/tests/testtransaction => ./testtransaction
 )
 
 require (
@@ -49,5 +50,6 @@ require (
 	github.com/uuosio/chain/tests/testtransaction v0.0.1 // indirect
 	github.com/uuosio/chain/tests/testuint128 v0.0.1 // indirect
 	github.com/uuosio/chain/tests/testvariant v0.0.1 // indirect
+	github.com/uuosio/chain/tests/testtransaction v0.0.1 //indirect
 	github.com/uuosio/chaintester v0.0.0-20220913042449-c88b86fe0fdf // indirect
 )

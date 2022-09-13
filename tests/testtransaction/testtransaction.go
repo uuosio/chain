@@ -42,8 +42,8 @@ func main() {
 	ContractApply(receiver.N, firstReceiver.N, action.N)
 }
 
-func ContractApply(receiver, firstReceiver, action uint64) {
-	_, _, action := chain.GetApplyArgs()
+func ContractApply(receiver, firstReceiver, _action uint64) {
+	action := chain.Name{_action}
 
 	code := chain.NewName("hello")
 	scope := code

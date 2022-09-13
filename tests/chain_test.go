@@ -407,3 +407,30 @@ func TestPrivileged(t *testing.T) {
 	}
 	t.Logf("+++++:%v", ret.ToString())
 }
+
+func TestTransaction(t *testing.T) {
+	permissions := `
+	{
+		"hello": "active"
+	}
+	`
+	tester := initTest("testtransaction", "tests.abi", true)
+	defer tester.FreeChain()
+
+	ret, err := tester.PushAction("hello", "sayhello1", "", permissions)
+	if err != nil {
+		panic(err)
+	}
+	t.Logf("+++++:%v", ret.ToString())
+	tester.EnableDebugContract("hello", false)
+	tester.ProduceBlock()
+	tester.ProduceBlock()
+	tester.ProduceBlock()
+
+	tester.EnableDebugContract("hello", true)
+	ret, err = tester.PushAction("hello", "sayhello3", "", permissions)
+	if err != nil {
+		panic(err)
+	}
+	t.Logf("+++++++++++ret: %v", ret.ToString())
+}

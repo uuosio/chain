@@ -19,6 +19,7 @@ import (
 	"github.com/uuosio/chain/tests/testsingleton"
 	"github.com/uuosio/chain/tests/testsort"
 	"github.com/uuosio/chain/tests/testtoken"
+	"github.com/uuosio/chain/tests/testtransaction"
 	"github.com/uuosio/chain/tests/testuint128"
 	"github.com/uuosio/chain/tests/testvariant"
 )
@@ -108,5 +109,7 @@ func contract_apply(_receiver, _firstReceiver, _action uint64) {
 		testlargecode.ContractApply(_receiver, _firstReceiver, _action)
 	} else if curTest == "testprivileged" {
 		testprivileged.ContractApply(_receiver, _firstReceiver, _action)
+	} else if curTest == "testtransaction" {
+		testtransaction.ContractApply(_receiver, _firstReceiver, _action)
 	}
 }
