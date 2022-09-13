@@ -63,6 +63,10 @@ jobs:
           go generate
           go-contract build -o tests.wasm
           go test --cover -coverpkg=.. -coverprofile=cover.out
+      - name: upload coverage
+        if: ${{ matrix.os == 'ubuntu-18.04' }}
+        working-directory: tests
+        run: |
           curl -S -f https://codecov.io/bash -o codecov
           chmod +x codecov
           ./codecov -f cover.out
