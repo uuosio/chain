@@ -25,8 +25,8 @@ func NewContract(receiver, firstReceiver, action chain.Name) *MyContract {
 	return &MyContract{receiver, firstReceiver, action}
 }
 
-//action testvariant
-func (c *MyContract) TestVariant(v MyVariant) {
+//action test
+func (c *MyContract) Test(v MyVariant) {
 	chain.Check(*v.value.(*uint64) == 123, "bad value")
 	chain.Println("+++value:", *v.value.(*uint64))
 	payer := c.Receiver

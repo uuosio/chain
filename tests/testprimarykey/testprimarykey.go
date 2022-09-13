@@ -21,8 +21,8 @@ func NewContract(receiver, firstReceiver, action chain.Name) *MyContract {
 	return &MyContract{receiver, firstReceiver, action}
 }
 
-//action sayhello
-func (c *MyContract) SayHello(name string) {
+//action test
+func (c *MyContract) Test(name string) {
 	code := chain.NewName("hello")
 	payer := code
 	mydb := NewMyDataTable(code)

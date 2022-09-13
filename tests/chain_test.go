@@ -60,36 +60,6 @@ func initTest(test string, abi string, debug bool) *chaintester.ChainTester {
 		"hello": "active"
 	}
 	`
-	_, err = tester.PushAction("hello", "settest", hex.EncodeToString([]byte(test)), permissions)
-	if err != nil {
-		panic(err)
-	}
-	return tester
-}
-
-func TestGenCode(t *testing.T) {
-	cmd := exec.Command("go-contract", "gencode", "-p", "testasset")
-	cmd.Dir = "./testasset"
-	cmd.Run()
-
-	t.Logf("done!\n")
-	if os.Getenv("GENCODE") == "" {
-		t.Skip("Skipping TestGenCode")
-	}
-}
-
-func TestHello(t *testing.T) {
-	// t.Errorf("++++++enable_debug: %v", os.Getenv("enable_debug"))
-	permissions := `
-	{
-		"hello": "active"
-	}
-	`
-
-	tester := chaintester.NewChainTester()
-	defer tester.FreeChain()
-
-	tester.EnableDebugContract("hello", true)
 
 	updateAuthArgs := `{
 		"account": "hello",
@@ -109,24 +79,22 @@ func TestHello(t *testing.T) {
 	}`
 	tester.PushAction("eosio", "updateauth", updateAuthArgs, permissions)
 
-	err := tester.DeployContract("hello", "tests.wasm", "tests.abi")
+	_, err = tester.PushAction("hello", "settest", hex.EncodeToString([]byte(test)), permissions)
 	if err != nil {
 		panic(err)
 	}
-	tester.ProduceBlock()
+	return tester
+}
 
-	ret, err := tester.PushAction("hello", "settest", hex.EncodeToString([]byte("testhello")), permissions)
-	if err != nil {
-		panic(err)
-	}
+func TestGenCode(t *testing.T) {
+	cmd := exec.Command("go-contract", "gencode", "-p", "testasset")
+	cmd.Dir = "./testasset"
+	cmd.Run()
 
-	ret, err = tester.PushAction("hello", "sayhello", "", permissions)
-	if err != nil {
-		panic(err)
+	t.Logf("done!\n")
+	if os.Getenv("GENCODE") == "" {
+		t.Skip("Skipping TestGenCode")
 	}
-	elapsed, _ := ret.GetString("elapsed")
-	t.Logf("++++++++%v", elapsed)
-	tester.ProduceBlock()
 }
 
 func CheckAssertError(err error, msg string) {
@@ -138,8 +106,26 @@ func CheckAssertError(err error, msg string) {
 	}
 }
 
+func TestHello(t *testing.T) {
+	permissions := `
+	{
+		"hello": "active"
+	}
+	`
+
+	tester := initTest("testhello", "tests.abi", true)
+	defer tester.FreeChain()
+
+	ret, err := tester.PushAction("hello", "sayhello", "", permissions)
+	if err != nil {
+		panic(err)
+	}
+	elapsed, _ := ret.GetString("elapsed")
+	t.Logf("++++++++%v", elapsed)
+	tester.ProduceBlock()
+}
+
 func TestAsset(t *testing.T) {
-	// t.Errorf("++++++enable_debug: %v", os.Getenv("enable_debug"))
 	permissions := `
 	{
 		"hello": "active"
@@ -177,7 +163,6 @@ func TestAsset(t *testing.T) {
 }
 
 func TestCrypto(t *testing.T) {
-	// t.Errorf("++++++enable_debug: %v", os.Getenv("enable_debug"))
 	permissions := `
 	{
 		"hello": "active"
@@ -192,7 +177,7 @@ func TestCrypto(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	t.Logf("+++++++%v", ret)
+	t.Logf("+++++++%v", ret.ToString())
 
 	// data = b'hello,world'
 	args := `{
@@ -204,13 +189,9 @@ func TestCrypto(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-
-	// r = self.chain.push_action('hello', 'testrecover', args)
-	// print_console(r)
 }
 
 func TestMI(t *testing.T) {
-	// t.Errorf("++++++enable_debug: %v", os.Getenv("enable_debug"))
 	permissions := `
 	{
 		"hello": "active"
@@ -224,5 +205,205 @@ func TestMI(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	t.Logf("+++++:%v", ret)
+	t.Logf("+++++:%v", ret.ToString())
+}
+
+func TestSingleton(t *testing.T) {
+	permissions := `
+	{
+		"hello": "active"
+	}
+	`
+
+	tester := initTest("testsingleton", "tests.abi", true)
+	defer tester.FreeChain()
+
+	ret, err := tester.PushAction("hello", "sayhello", "", permissions)
+	if err != nil {
+		panic(err)
+	}
+	t.Logf("+++++:%v", ret.ToString())
+}
+
+func TestDB(t *testing.T) {
+	permissions := `
+	{
+		"hello": "active"
+	}
+	`
+
+	tester := initTest("testdb", "tests.abi", true)
+	defer tester.FreeChain()
+
+	ret, err := tester.PushAction("hello", "sayhello", "", permissions)
+	if err != nil {
+		panic(err)
+	}
+	t.Logf("+++++:%v", ret.ToString())
+}
+
+func TestSort(t *testing.T) {
+	permissions := `
+	{
+		"hello": "active"
+	}
+	`
+
+	tester := initTest("testsort", "testsort/test.abi", true)
+	defer tester.FreeChain()
+
+	args := `
+	{
+		"pubs": [
+			"EOS6SD6yzqaZhdPHw2LUVmZxWLeWxnp76KLnnBbqP94TsDsjNLosG",
+			"EOS4vtCi4jbaVCLVJ9Moenu9j7caHeoNSWgWY65bJgEW8MupWsRMo",
+			"EOS82JTja1SbcUjSUCK8SNLLMcMPF8W5fwUYRXmX32obtjsZMW9nx"
+		]
+	}
+	`
+	ret, err := tester.PushAction("hello", "test", args, permissions)
+	if err != nil {
+		panic(err)
+	}
+	t.Logf("+++++:%v", ret.ToString())
+}
+
+func TestUint128(t *testing.T) {
+	permissions := `
+	{
+		"hello": "active"
+	}
+	`
+	tester := initTest("testuint128", "tests.abi", true)
+	defer tester.FreeChain()
+	ret, err := tester.PushAction("hello", "test", "", permissions)
+	if err != nil {
+		panic(err)
+	}
+	t.Logf("+++++:%v", ret.ToString())
+}
+
+func TestPackSize(t *testing.T) {
+	permissions := `
+	{
+		"hello": "active"
+	}
+	`
+	tester := initTest("testpacksize", "tests.abi", true)
+	defer tester.FreeChain()
+	ret, err := tester.PushAction("hello", "test", "", permissions)
+	if err != nil {
+		panic(err)
+	}
+	t.Logf("+++++:%v", ret.ToString())
+}
+
+func TestPrint(t *testing.T) {
+	permissions := `
+	{
+		"hello": "active"
+	}
+	`
+	tester := initTest("testprint", "tests.abi", true)
+	defer tester.FreeChain()
+	ret, err := tester.PushAction("hello", "test", "", permissions)
+	if err != nil {
+		panic(err)
+	}
+	t.Logf("+++++:%v", ret.ToString())
+}
+
+func TestPrimaryKey(t *testing.T) {
+	permissions := `
+	{
+		"hello": "active"
+	}
+	`
+	tester := initTest("testprimarykey", "tests.abi", true)
+	defer tester.FreeChain()
+	ret, err := tester.PushAction("hello", "test", "", permissions)
+	if err != nil {
+		panic(err)
+	}
+	t.Logf("+++++:%v", ret.ToString())
+}
+
+func TestMath(t *testing.T) {
+	permissions := `
+	{
+		"hello": "active"
+	}
+	`
+	tester := initTest("testmath", "tests.abi", true)
+	defer tester.FreeChain()
+	ret, err := tester.PushAction("hello", "test", "", permissions)
+	if err != nil {
+		panic(err)
+	}
+	t.Logf("+++++:%v", ret.ToString())
+}
+
+func TestVariant(t *testing.T) {
+	permissions := `
+	{
+		"hello": "active"
+	}
+	`
+	tester := initTest("testvariant", "testvariant/test.abi", true)
+	defer tester.FreeChain()
+
+	args := `{
+		"v": ["uint64", 123]
+	}`
+	ret, err := tester.PushAction("hello", "test", args, permissions)
+	if err != nil {
+		panic(err)
+	}
+	t.Logf("+++++:%v", ret.ToString())
+	//code string, scope string, table string, lower_bound string, upper_bound string, limit int64
+	ret, err = tester.GetTableRows(true, "hello", "", "mytable", "", "", 10)
+	if err != nil {
+		panic(err)
+	}
+	//['rows'][0]['a'] == ['uint64', 123]
+	{
+		value, err := ret.GetString("rows", 0, "a")
+		if err != nil {
+			panic(err)
+		}
+		if value != `["uint64",123]` {
+			panic(fmt.Errorf("invalid value: %v", value))
+		}
+	}
+}
+
+func TestLargeCode(t *testing.T) {
+	permissions := `
+	{
+		"hello": "active"
+	}
+	`
+	tester := initTest("testlargecode", "tests.abi", true)
+	defer tester.FreeChain()
+	ret, err := tester.PushAction("hello", "test", "", permissions)
+	if err != nil {
+		panic(err)
+	}
+	t.Logf("+++++:%v", ret.ToString())
+}
+
+func TestPrivileged(t *testing.T) {
+	permissions := `
+	{
+		"hello": "active"
+	}
+	`
+	tester := initTest("testprivileged", "tests.abi", true)
+	defer tester.FreeChain()
+	return
+	ret, err := tester.PushAction("hello", "test", "", permissions)
+	if err != nil {
+		panic(err)
+	}
+	t.Logf("+++++:%v", ret.ToString())
 }

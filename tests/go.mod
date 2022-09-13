@@ -49,5 +49,5 @@ require (
 	github.com/uuosio/chain/tests/testtransaction v0.0.1 // indirect
 	github.com/uuosio/chain/tests/testuint128 v0.0.1 // indirect
 	github.com/uuosio/chain/tests/testvariant v0.0.1 // indirect
-	github.com/uuosio/chaintester v0.0.0-20220913023946-ca3143aa960f // indirect
+	github.com/uuosio/chaintester v0.0.0-20220913042449-c88b86fe0fdf // indirect
 )

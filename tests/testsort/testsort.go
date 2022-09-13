@@ -12,7 +12,7 @@ type MySingleton struct {
 	a1 uint64
 }
 
-//contract hello
+//contract test
 type MyContract struct {
 	Receiver      chain.Name
 	FirstReceiver chain.Name
@@ -61,7 +61,6 @@ func (t *MyContract) test(pubs []chain.PublicKey) {
 	for _, pub := range pubs {
 		chain.Println(pub.Type, pub.Data[:])
 	}
-	return
 
 	sort.Sort(chain.PublicKeyList(pubs))
 	for _, pub := range pubs {
