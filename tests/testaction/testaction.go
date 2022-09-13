@@ -26,7 +26,7 @@ func NewContract(receiver, firstReceiver, action chain.Name) *ActionTest {
 func (c *ActionTest) SayHello() {
 	a := chain.Action{
 		chain.NewName("hello"), //gContractName,
-		gActionName,
+		chain.NewName("sayhello2"),
 		[]*chain.PermissionLevel{&chain.PermissionLevel{gContractName, chain.ActiveName}},
 		[]byte("hello,world"),
 	}

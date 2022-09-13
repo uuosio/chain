@@ -23,6 +23,7 @@ package main
 
 import (
 	"context"
+	"encoding/binary"
 	"encoding/hex"
 	"fmt"
 	"github.com/uuosio/chain"
@@ -432,4 +433,48 @@ func TestTransaction(t *testing.T) {
 		panic(err)
 	}
 	t.Logf("+++++++++++ret: %v", ret.ToString())
+}
+
+func getBalance(tester *chaintester.ChainTester, account string) uint64 {
+	rows, err := tester.GetTableRows(false, "eosio.token", account, "accounts", "EOS", "EOS", 1)
+	if err != nil {
+		panic(err)
+	}
+	hexString, err := rows.GetString("rows", 0)
+	if err != nil {
+		panic(err)
+	}
+
+	rawBalance, err := hex.DecodeString(hexString)
+	if err != nil {
+		panic(err)
+	}
+	return binary.LittleEndian.Uint64(rawBalance[:8])
+}
+
+func TestAction(t *testing.T) {
+	permissions := `
+	{
+		"hello": "active"
+	}
+	`
+	tester := initTest("testaction", "tests.abi", true)
+	defer tester.FreeChain()
+
+	ret, err := tester.PushAction("hello", "sayhello", "", permissions)
+	if err != nil {
+		panic(err)
+	}
+	t.Logf("+++++:%v", ret.ToString())
+	oldBalance := getBalance(tester, "hello")
+	t.Logf("++++++++old Balance: %v", oldBalance)
+
+	// r = self.chain.push_action('hello', 'sayhello3', b'hello,world')
+	ret, err = tester.PushAction("hello", "sayhello3", "", permissions)
+
+	newBalance := getBalance(tester, "hello")
+	t.Logf("++++++++new balance: %v", newBalance)
+	if oldBalance-newBalance != 10000 {
+		panic("invalid balance")
+	}
 }
