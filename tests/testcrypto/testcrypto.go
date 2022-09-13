@@ -27,8 +27,6 @@ func NewContract(receiver, firstReceiver, action chain.Name) *CryptoTest {
 
 //action testhash
 func (c *CryptoTest) TestHash() {
-	producers := chain.GetActiveProducers()
-	logger.Println(producers)
 	hash := chain.Sha1([]byte("hello"))
 	logger.Println(hex.EncodeToString(hash[:]))
 

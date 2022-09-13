@@ -163,3 +163,49 @@ func TestAsset(t *testing.T) {
 	_, err = tester.PushAction("hello", "test13", "", permissions)
 	CheckAssertError(err, "multiplication underflow")
 }
+
+func TestCrypto(t *testing.T) {
+	// t.Errorf("++++++enable_debug: %v", os.Getenv("enable_debug"))
+	permissions := `
+	{
+		"hello": "active"
+	}
+	`
+
+	tester := chaintester.NewChainTester()
+	defer tester.FreeChain()
+
+	tester.EnableDebugContract("hello", true)
+
+	err := tester.DeployContract("hello", "tests.wasm", "testcrypto/test.abi")
+	if err != nil {
+		panic(err)
+	}
+	tester.ProduceBlock()
+
+	_, err = tester.PushAction("hello", "settest", hex.EncodeToString([]byte("testcrypto")), permissions)
+	if err != nil {
+		panic(err)
+	}
+
+	var ret *chaintester.JsonValue
+	ret, err = tester.PushAction("hello", "testhash", "", permissions)
+	if err != nil {
+		panic(err)
+	}
+	t.Logf("+++++++%v", ret)
+
+	// data = b'hello,world'
+	args := `{
+		"data": "68656c6c6f2c776f726c64",
+		"sig": "SIG_K1_KiXXExwMGG5NvAngS3X58fXVVcnmPc7fxgwLQAbbkSDj9gwcxWHxHwgpUegSCfgp4nFMMgjLDAKSQWZ2NLEmcJJn1m2UUg",
+		"pub": "EOS7wy4M8ZTYqtoghhDRtE37yRoSNGc6zC2zFgdVmaQnKV5ZXe4kV"
+	}`
+	_, err = tester.PushAction("hello", "testrecover", args, permissions)
+	if err != nil {
+		panic(err)
+	}
+
+	// r = self.chain.push_action('hello', 'testrecover', args)
+	// print_console(r)
+}
