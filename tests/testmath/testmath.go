@@ -10,7 +10,7 @@ func main() {
 }
 
 func ContractApply(receiver, firstReceiver, action uint64) {
-	a, _, _ := chain.GetApplyArgs()
+	a := chain.Name{receiver}
 	b := 0
 	if a.N == 0 {
 		b = 1

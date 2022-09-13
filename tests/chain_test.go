@@ -29,6 +29,7 @@ import (
 	"github.com/uuosio/chaintester"
 	"os"
 	"os/exec"
+	"strings"
 	"testing"
 )
 
@@ -101,7 +102,7 @@ func CheckAssertError(err error, msg string) {
 	_err := err.(*chaintester.TransactionError)
 	__err := _err.Json()
 	_msg, _ := __err.GetString("action_traces", 0, "except", "stack", 0, "data", "s")
-	if _msg != msg {
+	if strings.Index(_msg, msg) < 0 {
 		panic(fmt.Errorf("invalid error: %s %s", _msg, msg))
 	}
 }
@@ -336,11 +337,9 @@ func TestMath(t *testing.T) {
 	`
 	tester := initTest("testmath", "tests.abi", true)
 	defer tester.FreeChain()
-	ret, err := tester.PushAction("hello", "test", "", permissions)
-	if err != nil {
-		panic(err)
-	}
-	t.Logf("+++++:%v", ret.ToString())
+	_, err := tester.PushAction("hello", "test", "", permissions)
+	CheckAssertError(err, "divide by zero")
+	// t.Logf("+++++:%v", ret.ToString())
 }
 
 func TestVariant(t *testing.T) {

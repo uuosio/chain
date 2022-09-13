@@ -71,7 +71,7 @@ func ContractApply(receiver, firstReceiver, _action uint64) {
 		t.Actions = []*chain.Action{a}
 		id := chain.NewUint128(1, 0)
 		t.Send(id, false, payer)
-		logger.Println("send done!")
+		logger.Println("send done!", t)
 
 		rawTx := t.Pack()
 		t2 := chain.Transaction{}
