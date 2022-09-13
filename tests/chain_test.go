@@ -44,6 +44,29 @@ func init() {
 	chaintester.SetApplyFunc(OnApply)
 }
 
+func initTest(test string, abi string, debug bool) *chaintester.ChainTester {
+	tester := chaintester.NewChainTester()
+
+	tester.EnableDebugContract("hello", debug)
+
+	err := tester.DeployContract("hello", "tests.wasm", abi)
+	if err != nil {
+		panic(err)
+	}
+	tester.ProduceBlock()
+
+	permissions := `
+	{
+		"hello": "active"
+	}
+	`
+	_, err = tester.PushAction("hello", "settest", hex.EncodeToString([]byte(test)), permissions)
+	if err != nil {
+		panic(err)
+	}
+	return tester
+}
+
 func TestGenCode(t *testing.T) {
 	cmd := exec.Command("go-contract", "gencode", "-p", "testasset")
 	cmd.Dir = "./testasset"
@@ -123,21 +146,10 @@ func TestAsset(t *testing.T) {
 	}
 	`
 
-	tester := chaintester.NewChainTester()
+	tester := initTest("testasset", "tests.abi", true)
 	defer tester.FreeChain()
+	var err error
 
-	tester.EnableDebugContract("hello", true)
-
-	err := tester.DeployContract("hello", "tests.wasm", "tests.abi")
-	if err != nil {
-		panic(err)
-	}
-	tester.ProduceBlock()
-
-	_, err = tester.PushAction("hello", "settest", hex.EncodeToString([]byte("testasset")), permissions)
-	if err != nil {
-		panic(err)
-	}
 	//	var ret *chaintester.JsonValue
 	_, err = tester.PushAction("hello", "test1", "", permissions)
 	CheckAssertError(err, "addition overflow")
@@ -171,22 +183,9 @@ func TestCrypto(t *testing.T) {
 		"hello": "active"
 	}
 	`
-
-	tester := chaintester.NewChainTester()
+	tester := initTest("testcrypto", "testcrypto/test.abi", true)
 	defer tester.FreeChain()
-
-	tester.EnableDebugContract("hello", true)
-
-	err := tester.DeployContract("hello", "tests.wasm", "testcrypto/test.abi")
-	if err != nil {
-		panic(err)
-	}
-	tester.ProduceBlock()
-
-	_, err = tester.PushAction("hello", "settest", hex.EncodeToString([]byte("testcrypto")), permissions)
-	if err != nil {
-		panic(err)
-	}
+	var err error
 
 	var ret *chaintester.JsonValue
 	ret, err = tester.PushAction("hello", "testhash", "", permissions)
@@ -208,4 +207,22 @@ func TestCrypto(t *testing.T) {
 
 	// r = self.chain.push_action('hello', 'testrecover', args)
 	// print_console(r)
+}
+
+func TestMI(t *testing.T) {
+	// t.Errorf("++++++enable_debug: %v", os.Getenv("enable_debug"))
+	permissions := `
+	{
+		"hello": "active"
+	}
+	`
+
+	tester := initTest("testmi", "tests.abi", true)
+	defer tester.FreeChain()
+
+	ret, err := tester.PushAction("hello", "test1", "", permissions)
+	if err != nil {
+		panic(err)
+	}
+	t.Logf("+++++:%v", ret)
 }
