@@ -22,7 +22,7 @@ func (c *MyContract) Test1() {
 
 //action test2
 func (c *MyContract) Test2() {
-	a := chain.NewAsset(0, chain.NewSymbol("EOS", 4))
+	a := chain.NewAsset(-MAX_AMOUNT, chain.NewSymbol("EOS", 4))
 	b := chain.NewAsset(1, chain.NewSymbol("EOS", 4))
 	a.Sub(b)
 	println(a.Amount)

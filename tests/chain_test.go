@@ -24,6 +24,7 @@ package main
 import (
 	"context"
 	"encoding/hex"
+	"fmt"
 	"github.com/uuosio/chain"
 	"github.com/uuosio/chaintester"
 	"os"
@@ -103,4 +104,62 @@ func TestHello(t *testing.T) {
 	elapsed, _ := ret.GetString("elapsed")
 	t.Logf("++++++++%v", elapsed)
 	tester.ProduceBlock()
+}
+
+func CheckAssertError(err error, msg string) {
+	_err := err.(*chaintester.TransactionError)
+	__err := _err.Json()
+	_msg, _ := __err.GetString("action_traces", 0, "except", "stack", 0, "data", "s")
+	if _msg != msg {
+		panic(fmt.Errorf("invalid error: %s %s", _msg, msg))
+	}
+}
+
+func TestAsset(t *testing.T) {
+	// t.Errorf("++++++enable_debug: %v", os.Getenv("enable_debug"))
+	permissions := `
+	{
+		"hello": "active"
+	}
+	`
+
+	tester := chaintester.NewChainTester()
+	defer tester.FreeChain()
+
+	tester.EnableDebugContract("hello", true)
+
+	err := tester.DeployContract("hello", "tests.wasm", "tests.abi")
+	if err != nil {
+		panic(err)
+	}
+	tester.ProduceBlock()
+
+	_, err = tester.PushAction("hello", "settest", hex.EncodeToString([]byte("testasset")), permissions)
+	if err != nil {
+		panic(err)
+	}
+	//	var ret *chaintester.JsonValue
+	_, err = tester.PushAction("hello", "test1", "", permissions)
+	CheckAssertError(err, "addition overflow")
+
+	_, err = tester.PushAction("hello", "test2", "", permissions)
+	CheckAssertError(err, "subtraction underflow")
+
+	_, err = tester.PushAction("hello", "test3", "", permissions)
+	CheckAssertError(err, "magnitude of asset amount must be less than 2^62")
+
+	_, err = tester.PushAction("hello", "test4", "", permissions)
+	CheckAssertError(err, "divide by zero")
+
+	_, err = tester.PushAction("hello", "test5", "", permissions)
+	CheckAssertError(err, "divide by negative value")
+
+	_, err = tester.PushAction("hello", "test11", "", permissions)
+	CheckAssertError(err, "bad symbol")
+
+	_, err = tester.PushAction("hello", "test12", "", permissions)
+	CheckAssertError(err, "multiplication overflow")
+
+	_, err = tester.PushAction("hello", "test13", "", permissions)
+	CheckAssertError(err, "multiplication underflow")
 }

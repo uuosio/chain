@@ -2,6 +2,8 @@ module testlargecode
 
 go 1.17
 
+replace github.com/uuosio/chain => ../..
+
 require github.com/uuosio/chain v0.2.1
 
 require (
