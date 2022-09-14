@@ -17,7 +17,7 @@ jobs:
     strategy:
       matrix:
         python-version: [3.9]
-        os: ['windows-latest', 'macos-12', 'ubuntu-18.04']
+        os: ['windows-latest', 'macos-12', 'ubuntu-20.04']
         # python-version: [3.9]
         # os: ['ubuntu-18.04']
       fail-fast: false
@@ -47,6 +47,18 @@ jobs:
         if: ${{ matrix.os != 'windows-latest' }}
         run: |
           python -m pip install ipyeos
+      - name: Install binaryen on ubuntu
+        if: ${{ matrix.os == 'ubuntu-20.04' }}
+        run: |
+          set -e
+          curl -L https://github.com/WebAssembly/binaryen/releases/download/version_109/binaryen-version_109-x86_64-linux.tar.gz | tar xzf -
+          echo "`pwd`/binaryen-version_109/bin" > $GITHUB_PATH
+      - name: Install binaryen on macos
+        if: ${{ matrix.os == 'macos-12' }}
+        run: |
+          set -e
+          curl -L https://github.com/WebAssembly/binaryen/releases/download/version_109/binaryen-version_109-x86_64-macos.tar.gz | tar xzf -
+          echo "`pwd`/binaryen-version_109/bin" > $GITHUB_PATH
       # - name: Test compiler
       #   if: ${{ matrix.os == 'windows-latest' }}
       #   working-directory: tests
@@ -64,7 +76,7 @@ jobs:
           go-contract build -o tests.wasm
           go test --cover -coverpkg=..,../database,../eosio -coverprofile=cover.out
       - name: upload coverage
-        if: ${{ matrix.os == 'ubuntu-18.04' }}
+        if: ${{ matrix.os == 'ubuntu-20.04' }}
         working-directory: tests
         run: |
           curl -S -f https://codecov.io/bash -o codecov
