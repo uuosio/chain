@@ -13,7 +13,6 @@ var ctx = context.Background()
 func OnApply(receiver, firstReceiver, action uint64) {
 	println(chain.N2S(receiver), chain.N2S(firstReceiver), chain.N2S(action))
 	contract_apply(receiver, firstReceiver, action)
-	println("++++++++apply end!")
 }
 
 func init() {

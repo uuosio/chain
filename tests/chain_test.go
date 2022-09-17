@@ -38,7 +38,6 @@ var ctx = context.Background()
 func OnApply(receiver, firstReceiver, action uint64) {
 	println(chain.N2S(receiver), chain.N2S(firstReceiver), chain.N2S(action))
 	contract_apply(receiver, firstReceiver, action)
-	println("++++++++apply end!")
 }
 
 func init() {
@@ -458,5 +457,20 @@ func TestAction(t *testing.T) {
 	t.Logf("++++++++new balance: %v", newBalance)
 	if oldBalance-newBalance != 10000 {
 		panic("invalid balance")
+	}
+}
+
+func TestApplyCtx(t *testing.T) {
+	tester := chaintester.NewChainTester()
+	tester.GetInfo()
+	{
+		defer func() {
+			err := recover()
+			if err == nil {
+				panic(err)
+			}
+			t.Logf("++++%v", err)
+		}()
+		chain.Check(false, "oops!")
 	}
 }

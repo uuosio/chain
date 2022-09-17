@@ -102,6 +102,9 @@ func SetActionReturnValue(return_value []byte) {
 //system.h
 func Check(b bool, msg string) {
 	if !b {
+		if !chaintester.IsInApply() {
+			panic(msg)
+		}
 		EosioAssert(false, msg)
 	}
 }
@@ -109,6 +112,9 @@ func Check(b bool, msg string) {
 //Aborts processing of this action and unwinds all pending changes if the test condition is true
 func Assert(test bool, msg string) {
 	if !test {
+		if !chaintester.IsInApply() {
+			panic(msg)
+		}
 		EosioAssert(false, msg)
 	}
 }
@@ -116,6 +122,9 @@ func Assert(test bool, msg string) {
 //Aborts processing of this action and unwinds all pending changes if the test condition is true
 func EosioAssert(test bool, msg string) {
 	if !test {
+		if !chaintester.IsInApply() {
+			panic(msg)
+		}
 		err := chaintester.GetVMAPI().EosioAssertMessage(ctx, false, []byte(msg))
 		CheckError(err)
 	}
