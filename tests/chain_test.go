@@ -420,12 +420,12 @@ func TestTransaction(t *testing.T) {
 		panic(err)
 	}
 	t.Logf("+++++:%v", ret.ToString())
-	tester.EnableDebugContract("hello", false)
+	// tester.EnableDebugContract("hello", false)
 	tester.ProduceBlock()
 	tester.ProduceBlock()
 	tester.ProduceBlock()
 
-	tester.EnableDebugContract("hello", true)
+	// tester.EnableDebugContract("hello", true)
 	ret, err = tester.PushAction("hello", "sayhello3", "", permissions)
 	if err != nil {
 		panic(err)

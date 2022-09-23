@@ -4,6 +4,8 @@ go 1.17
 
 replace github.com/uuosio/chain => ../
 
+// replace github.com/uuosio/chaintester => ../../chaintester
+
 require github.com/uuosio/chain v0.2.1
 
 replace (
@@ -49,5 +51,5 @@ require (
 	github.com/uuosio/chain/tests/testtransaction v0.0.1 // indirect
 	github.com/uuosio/chain/tests/testuint128 v0.0.1 // indirect
 	github.com/uuosio/chain/tests/testvariant v0.0.1 // indirect
-	github.com/uuosio/chaintester v0.0.0-20220917131555-4b2ffe1780c5 // indirect
+	github.com/uuosio/chaintester v0.0.0-20220923081215-8fadd074a7a5 // indirect
 )
