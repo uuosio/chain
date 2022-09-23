@@ -74,8 +74,8 @@ jobs:
         run: |
           go generate
           go-contract build -o tests.wasm
-          go test --cover -coverpkg=$(python3 coverpkgs.py) -coverprofile=cover.out
-          cat cover.out | grep -v "generated.go" > cover.out
+          go test --cover -coverpkg=$(python3 coverpkgs.py) -coverprofile=cover.out.tmp
+          grep -v "generated.go" cover.out.tmp >cover.out
       - name: Upload coverage
         if: ${{ matrix.os == 'ubuntu-20.04' }}
         working-directory: tests
