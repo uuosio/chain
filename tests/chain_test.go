@@ -26,12 +26,14 @@ import (
 	"context"
 	_ "encoding/hex"
 	"fmt"
-	"github.com/uuosio/chain"
-	"github.com/uuosio/chaintester"
 	"os"
 	"os/exec"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/uuosio/chain"
+	"github.com/uuosio/chaintester"
 )
 
 var ctx = context.Background()
@@ -136,6 +138,7 @@ func TestAsset(t *testing.T) {
 	tester := initTest("testasset", "tests.abi", true)
 	defer tester.FreeChain()
 	var err error
+	assert := assert.New(t)
 
 	//	var ret *chaintester.JsonValue
 	_, err = tester.PushAction("hello", "test1", "", permissions)
@@ -161,6 +164,12 @@ func TestAsset(t *testing.T) {
 
 	_, err = tester.PushAction("hello", "test13", "", permissions)
 	CheckAssertError(err, "multiplication underflow")
+
+	_, err = tester.PushAction("hello", "test14", "", permissions)
+	assert.True(err == nil, "test14 failed")
+
+	_, err = tester.PushAction("hello", "test15", "", permissions)
+	assert.True(err == nil, "test15 failed")
 }
 
 func TestCrypto(t *testing.T) {

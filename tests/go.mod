@@ -32,7 +32,10 @@ replace (
 
 require (
 	github.com/apache/thrift v0.16.0 // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-errors/errors v1.4.2 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/stretchr/testify v1.8.1 // indirect
 	github.com/uuosio/chain/tests/testaction v0.0.1 // indirect
 	github.com/uuosio/chain/tests/testasset v0.0.1 // indirect
 	github.com/uuosio/chain/tests/testcrypto v0.0.1 // indirect
@@ -52,4 +55,5 @@ require (
 	github.com/uuosio/chain/tests/testuint128 v0.0.1 // indirect
 	github.com/uuosio/chain/tests/testvariant v0.0.1 // indirect
 	github.com/uuosio/chaintester v0.0.0-20221025021548-5e6d54d31720 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

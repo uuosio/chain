@@ -220,8 +220,8 @@ type ExtendedAsset struct {
 	Contract Name
 }
 
-func NewExtendedAsset(quantity Asset, contract Name) *ExtendedAsset {
-	return &ExtendedAsset{quantity, contract}
+func NewExtendedAsset(quantity *Asset, contract Name) *ExtendedAsset {
+	return &ExtendedAsset{*quantity, contract}
 }
 
 func (t *ExtendedAsset) Pack() []byte {
