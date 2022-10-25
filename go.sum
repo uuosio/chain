@@ -7,6 +7,8 @@ github.com/uuosio/chaintester v0.0.0-20220917131555-4b2ffe1780c5 h1:l0SBTW5Fp5u9
 github.com/uuosio/chaintester v0.0.0-20220917131555-4b2ffe1780c5/go.mod h1:+KdD0RiSkEIdoUKShq+JqoG7ts1fdI4O07hljiudiqg=
 github.com/uuosio/chaintester v0.0.0-20221025012659-f8240d66cb56 h1:cH8SZ1uZAstWqcwdrzfcRyGA0g7rjVcva/qkNBFOwBg=
 github.com/uuosio/chaintester v0.0.0-20221025012659-f8240d66cb56/go.mod h1:+KdD0RiSkEIdoUKShq+JqoG7ts1fdI4O07hljiudiqg=
+github.com/uuosio/chaintester v0.0.0-20221025021548-5e6d54d31720 h1:BAOOFfc5JNS+Wz6sU5OQ7ATi87DRD/VAYjbz/lbQY84=
+github.com/uuosio/chaintester v0.0.0-20221025021548-5e6d54d31720/go.mod h1:+KdD0RiSkEIdoUKShq+JqoG7ts1fdI4O07hljiudiqg=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550/go.mod h1:yigFU9vqHzYiE8UmvKecakEJjdnWj3jj499lnFckfCI=
 golang.org/x/mod v0.3.0/go.mod h1:s0Qsj1ACt9ePp/hMypM3fl4fZqREWJwdYDEqhRiZZUA=

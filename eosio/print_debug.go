@@ -54,7 +54,7 @@ func PrintSf(value float32) {
 //Prints value as double-precision floating point number
 func PrintDf(value float64) {
 	rawValue := (*[8]byte)(unsafe.Pointer(&value))
-	err := chaintester.GetVMAPI().Printsf(ctx, rawValue[:])
+	err := chaintester.GetVMAPI().Printdf(ctx, rawValue[:])
 	CheckError(err)
 }
 
