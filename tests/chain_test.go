@@ -228,11 +228,23 @@ func TestSingleton(t *testing.T) {
 	tester := initTest("testsingleton", "tests.abi", true)
 	defer tester.FreeChain()
 
-	ret, err := tester.PushAction("hello", "sayhello", "", permissions)
+	ret, err := tester.PushAction("hello", "test1", "", permissions)
 	if err != nil {
 		panic(err)
 	}
+	tester.ProduceBlock()
 	t.Logf("+++++:%v", ret.ToString())
+
+	ret, err = tester.PushAction("hello", "test1", "", permissions)
+	if err != nil {
+		panic(err)
+	}
+	tester.ProduceBlock()
+
+	ret, err = tester.PushAction("hello", "test2", "", permissions)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func TestDB(t *testing.T) {

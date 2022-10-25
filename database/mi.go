@@ -56,53 +56,53 @@ var (
 	ErrNotMultiIndexValue = errors.New("not a MultiIndexValue type")
 )
 
-func NewMultiIndex(code chain.Name, scope chain.Name, table chain.Name, idxTableNameToIndex func(string) int, indexTypes []int, saveState bool, unpacker ...Unpacker) *MultiIndex {
-	chain.Check(code != chain.Name{0}, "bad code name")
+// func NewMultiIndex(code chain.Name, scope chain.Name, table chain.Name, idxTableNameToIndex func(string) int, indexTypes []int, saveState bool, unpacker ...Unpacker) *MultiIndex {
+// 	chain.Check(code != chain.Name{0}, "bad code name")
 
-	if table.N&uint64(0x0f) != 0 {
-		// Limit table names to 12 characters so that the last character (4 bits) can be used to distinguish between the secondary indices.
-		panic("NewMultiIndex:Invalid multi-index table name ")
-	}
+// 	if table.N&uint64(0x0f) != 0 {
+// 		// Limit table names to 12 characters so that the last character (4 bits) can be used to distinguish between the secondary indices.
+// 		panic("NewMultiIndex:Invalid multi-index table name ")
+// 	}
 
-	mi := &MultiIndex{}
-	mi.code = code
-	mi.scope = scope
-	mi.table = table
-	mi.Table = NewTableI64(code, scope, table, func(data []byte) TableValue {
-		return mi.Unpack(data)
-	})
-	mi.IdxTableNameToIndex = idxTableNameToIndex
-	mi.IndexTypes = indexTypes
-	mi.IDXTables = make([]SecondaryTable, len(indexTypes))
-	if len(unpacker) == 0 {
-		mi.Unpack = nil
-	} else {
-		mi.Unpack = unpacker[0]
-	}
-	for i, v := range indexTypes {
-		idxTable := (table.N & uint64(0xfffffffffffffff0)) | uint64(i)
-		switch v {
-		case IDX64:
-			mi.IDXTables[i] = NewIdxTable64(i, code.N, scope.N, idxTable)
-			break
-		case IDX128:
-			mi.IDXTables[i] = NewIdxTable128(i, code.N, scope.N, idxTable)
-			break
-		case IDX256:
-			mi.IDXTables[i] = NewIdxTable256(i, code.N, scope.N, idxTable)
-			break
-		case IDXFloat64:
-			mi.IDXTables[i] = NewIdxTableFloat64(i, code.N, scope.N, idxTable)
-			break
-		case IDXFloat128:
-			mi.IDXTables[i] = NewIdxTableFloat128(i, code.N, scope.N, idxTable)
-		default:
-			panic("invalid index")
-		}
-		// mi.secondaryTables[v] = NewSecondaryTable(code.N, scope.N, table.N, v)
-	}
-	return mi
-}
+// 	mi := &MultiIndex{}
+// 	mi.code = code
+// 	mi.scope = scope
+// 	mi.table = table
+// 	mi.Table = NewTableI64(code, scope, table, func(data []byte) TableValue {
+// 		return mi.Unpack(data)
+// 	})
+// 	mi.IdxTableNameToIndex = idxTableNameToIndex
+// 	mi.IndexTypes = indexTypes
+// 	mi.IDXTables = make([]SecondaryTable, len(indexTypes))
+// 	if len(unpacker) == 0 {
+// 		mi.Unpack = nil
+// 	} else {
+// 		mi.Unpack = unpacker[0]
+// 	}
+// 	for i, v := range indexTypes {
+// 		idxTable := (table.N & uint64(0xfffffffffffffff0)) | uint64(i)
+// 		switch v {
+// 		case IDX64:
+// 			mi.IDXTables[i] = NewIdxTable64(i, code.N, scope.N, idxTable)
+// 			break
+// 		case IDX128:
+// 			mi.IDXTables[i] = NewIdxTable128(i, code.N, scope.N, idxTable)
+// 			break
+// 		case IDX256:
+// 			mi.IDXTables[i] = NewIdxTable256(i, code.N, scope.N, idxTable)
+// 			break
+// 		case IDXFloat64:
+// 			mi.IDXTables[i] = NewIdxTableFloat64(i, code.N, scope.N, idxTable)
+// 			break
+// 		case IDXFloat128:
+// 			mi.IDXTables[i] = NewIdxTableFloat128(i, code.N, scope.N, idxTable)
+// 		default:
+// 			panic("invalid index")
+// 		}
+// 		// mi.secondaryTables[v] = NewSecondaryTable(code.N, scope.N, table.N, v)
+// 	}
+// 	return mi
+// }
 
 func (mi *MultiIndex) SetTable(code chain.Name, scope chain.Name, table chain.Name) {
 	mi.code = code
@@ -280,19 +280,19 @@ func (mi *MultiIndex) IdxFind(index int, secondary interface{}) *SecondaryIterat
 	return mi.IDXTables[index].FindEx(secondary)
 }
 
-func (mi *MultiIndex) UpdateSecondaryValue(idxTable SecondaryTable, primary uint64, secondary interface{}, payer chain.Name) {
-	itPrimary := mi.Table.Find(primary)
-	chain.Check(itPrimary.IsOk(), "primary not found!")
-	v := mi.Table.GetByIterator(itPrimary)
-	_v := mi.Unpack(v)
+// func (mi *MultiIndex) UpdateSecondaryValue(idxTable SecondaryTable, primary uint64, secondary interface{}, payer chain.Name) {
+// 	itPrimary := mi.Table.Find(primary)
+// 	chain.Check(itPrimary.IsOk(), "primary not found!")
+// 	v := mi.Table.GetByIterator(itPrimary)
+// 	_v := mi.Unpack(v)
 
-	newSecondary := _v.GetSecondaryValue(idxTable.GetIndex())
-	if IsEqual(mi.IndexTypes[idxTable.GetIndex()], newSecondary, secondary) {
-		return
-	}
-	_v.SetSecondaryValue(idxTable.GetIndex(), secondary)
-	mi.Table.Update(itPrimary, _v.Pack(), payer)
-}
+// 	newSecondary := _v.GetSecondaryValue(idxTable.GetIndex())
+// 	if IsEqual(mi.IndexTypes[idxTable.GetIndex()], newSecondary, secondary) {
+// 		return
+// 	}
+// 	_v.SetSecondaryValue(idxTable.GetIndex(), secondary)
+// 	mi.Table.Update(itPrimary, _v.Pack(), payer)
+// }
 
 func (mi *MultiIndex) IdxFindByName(idxTableName string, secondary interface{}) *SecondaryIterator {
 	chain.Check(mi.IdxTableNameToIndex != nil, "idxTableNameToIndex is nil")

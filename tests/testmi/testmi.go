@@ -77,6 +77,7 @@ func (t *TestMI) clearTest() {
 
 //action test1
 func (t *TestMI) test1() {
+	chain.Println("++++++++++TestMI:test1")
 	payer := t.receiver
 	mi := t.initTest()
 	{
@@ -86,6 +87,7 @@ func (t *TestMI) test1() {
 
 		it = mi.Lowerbound(2)
 		check(it.IsOk(), "mi.Lowerbound(2)")
+		check(it.GetPrimary() == 11, "Lowerbound(2):it.GetPrimary() == 11")
 		check(mi.GetByIterator(it).primary == 11, "mi.Lowerbound(2)")
 
 		it = mi.Upperbound(1)
@@ -373,5 +375,13 @@ func (t *TestMI) test1() {
 		idx := mi.GetIdxTableBya5()
 		it := idx.Find(chain.NewFloat128(5.0))
 		check(!it.IsOk(), "bad return")
+		code, scope, table := idx.GetTable()
+		_ = code
+		_ = scope
+		_ = table
+		chain.Println(`+++++++chain.NewName("mydata"):`, chain.NewName("mydata"))
+		chain.Println("++++++++chain.Name{N: table}:", chain.Name{N: table})
+		check(code == t.receiver.N && scope == 0 && table == (chain.NewName("mydata").N&0xfffffffffffffff0)+uint64(idx.GetIndex()), `code == t.receiver.N && scope == 0 && table == chain.NewName("mydata").N`)
 	}
+	chain.Println("++++++++++TestMI:test1 end")
 }
