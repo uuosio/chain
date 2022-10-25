@@ -15,6 +15,7 @@
 //go:generate bash gencode.sh testlargecode
 //go:generate bash gencode.sh testprivileged
 //go:generate bash gencode.sh testtransaction
+//go:generate bash gencode.sh testserializer
 
 //export GENCODE=TRUE &&
 ////go:generate go test -run TestGenCode -v
@@ -23,7 +24,7 @@ package main
 
 import (
 	"context"
-	"encoding/hex"
+	_ "encoding/hex"
 	"fmt"
 	"github.com/uuosio/chain"
 	"github.com/uuosio/chaintester"
@@ -79,7 +80,7 @@ func initTest(test string, abi string, debug bool) *chaintester.ChainTester {
 	}`
 	tester.PushAction("eosio", "updateauth", updateAuthArgs, permissions)
 
-	_, err = tester.PushAction("hello", "settest", hex.EncodeToString([]byte(test)), permissions)
+	_, err = tester.PushActionEx("hello", "settest", []byte(test), permissions)
 	if err != nil {
 		panic(err)
 	}
