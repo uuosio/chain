@@ -9,6 +9,14 @@ github.com/uuosio/chaintester v0.0.0-20221025012659-f8240d66cb56 h1:cH8SZ1uZAstW
 github.com/uuosio/chaintester v0.0.0-20221025012659-f8240d66cb56/go.mod h1:+KdD0RiSkEIdoUKShq+JqoG7ts1fdI4O07hljiudiqg=
 github.com/uuosio/chaintester v0.0.0-20221025021548-5e6d54d31720 h1:BAOOFfc5JNS+Wz6sU5OQ7ATi87DRD/VAYjbz/lbQY84=
 github.com/uuosio/chaintester v0.0.0-20221025021548-5e6d54d31720/go.mod h1:+KdD0RiSkEIdoUKShq+JqoG7ts1fdI4O07hljiudiqg=
+github.com/uuosio/chaintester v0.0.0-20221108022901-863b0cc7b989 h1:iSHZ6mZws7X6KwnirgKdOWoKn1fULxHu72hVEuvSJAA=
+github.com/uuosio/chaintester v0.0.0-20221108022901-863b0cc7b989/go.mod h1:+KdD0RiSkEIdoUKShq+JqoG7ts1fdI4O07hljiudiqg=
+github.com/uuosio/chaintester v0.0.0-20221108024553-7e61fd375954 h1:uJvAw5XYnLk5BoNkk4fYn0efYQpSgRIZnPP1JohCeUM=
+github.com/uuosio/chaintester v0.0.0-20221108024553-7e61fd375954/go.mod h1:+KdD0RiSkEIdoUKShq+JqoG7ts1fdI4O07hljiudiqg=
+github.com/uuosio/chaintester v0.0.0-20221108025815-7bc6eaffe695 h1:8p5ddGR0nHLywpjkKN7uYrXvJ1w9Ud9rRwNvDIk5jWg=
+github.com/uuosio/chaintester v0.0.0-20221108025815-7bc6eaffe695/go.mod h1:+KdD0RiSkEIdoUKShq+JqoG7ts1fdI4O07hljiudiqg=
+github.com/uuosio/chaintester v0.0.0-20221108030052-a405ff36b294 h1:hhQrFzBBW1LTR5PR1p7DjbP77CegIjFPm2G9714KBrw=
+github.com/uuosio/chaintester v0.0.0-20221108030052-a405ff36b294/go.mod h1:+KdD0RiSkEIdoUKShq+JqoG7ts1fdI4O07hljiudiqg=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550/go.mod h1:yigFU9vqHzYiE8UmvKecakEJjdnWj3jj499lnFckfCI=
 golang.org/x/mod v0.3.0/go.mod h1:s0Qsj1ACt9ePp/hMypM3fl4fZqREWJwdYDEqhRiZZUA=

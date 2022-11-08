@@ -43,14 +43,10 @@ func OnApply(receiver, firstReceiver, action uint64) {
 	contract_apply(receiver, firstReceiver, action)
 }
 
-func init() {
-	chaintester.SetApplyFunc(OnApply)
-}
-
 func initTest(test string, abi string, debug bool) *chaintester.ChainTester {
 	tester := chaintester.NewChainTester()
 
-	tester.EnableDebugContract("hello", debug)
+	tester.SetNativeApply("hello", OnApply)
 
 	err := tester.DeployContract("hello", "tests.wasm", abi)
 	if err != nil {
