@@ -7,13 +7,13 @@ import (
 //table test
 type MyData struct {
 	id    uint64 //primary: t.id
-	value uint64 //IDX64: ByValue : t.value : t.value
+	value uint64 //secondary
 }
 
 //table test2
 type MyData2 struct {
 	id    uint64        //primary: t.id
-	value chain.Uint128 //IDX128: ByValue : t.value : t.value
+	value chain.Uint128 //secondary
 }
 
 func main() {
@@ -23,7 +23,7 @@ func main() {
 	db.Store(&MyData{2, 3}, receiver)
 	db.Store(&MyData{4, 5}, receiver)
 
-	idxTable := db.GetIdxTableByValue()
+	idxTable := db.GetIdxTableByvalue()
 	a := 0
 	it, secondary := idxTable.Lowerbound(uint64(a))
 	chain.Println(it.I, secondary, a)
