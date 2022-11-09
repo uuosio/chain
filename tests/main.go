@@ -9,6 +9,7 @@ import (
 	"github.com/uuosio/chain/tests/testcrypto"
 	"github.com/uuosio/chain/tests/testdb"
 	"github.com/uuosio/chain/tests/testfloat128"
+	"github.com/uuosio/chain/tests/testgenerics"
 	"github.com/uuosio/chain/tests/testlargecode"
 	"github.com/uuosio/chain/tests/testmath"
 	"github.com/uuosio/chain/tests/testmi"
@@ -111,5 +112,7 @@ func contract_apply(_receiver, _firstReceiver, _action uint64) {
 		testprivileged.ContractApply(_receiver, _firstReceiver, _action)
 	} else if curTest == "testtransaction" {
 		testtransaction.ContractApply(_receiver, _firstReceiver, _action)
+	} else if curTest == "testgenerics" {
+		testgenerics.ContractApply(_receiver, _firstReceiver, _action)
 	}
 }

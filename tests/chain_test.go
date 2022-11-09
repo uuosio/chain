@@ -16,6 +16,7 @@
 //go:generate bash gencode.sh testprivileged
 //go:generate bash gencode.sh testtransaction
 //go:generate bash gencode.sh testserializer
+//go:generate bash gencode.sh testgenerics
 
 //export GENCODE=TRUE &&
 ////go:generate go test -run TestGenCode -v
@@ -46,7 +47,10 @@ func OnApply(receiver, firstReceiver, action uint64) {
 func initTest(test string, abi string, debug bool) *chaintester.ChainTester {
 	tester := chaintester.NewChainTester()
 
-	tester.SetNativeApply("hello", OnApply)
+	testCoverage := os.Getenv("TEST_COVERAGE")
+	if testCoverage == "TRUE" || testCoverage == "true" || testCoverage == "1" {
+		tester.SetNativeApply("hello", OnApply)
+	}
 
 	err := tester.DeployContract("hello", "tests.wasm", abi)
 	if err != nil {
@@ -490,5 +494,20 @@ func TestApplyCtx(t *testing.T) {
 			t.Logf("++++%v", err)
 		}()
 		chain.Check(false, "oops!")
+	}
+}
+
+func TestGenerics(t *testing.T) {
+	permissions := `
+	{
+		"hello": "active"
+	}
+	`
+	tester := initTest("testgenerics", "tests.abi", true)
+	defer tester.FreeChain()
+
+	_, err := tester.PushAction("hello", "sayhello", "", permissions)
+	if err != nil {
+		panic(err)
 	}
 }
