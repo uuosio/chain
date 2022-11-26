@@ -86,17 +86,19 @@ func (c *MyContract) Test14() {
 
 	a = chain.NewSymbolCode("EOS EOS")
 	chain.Check(!a.IsValid(), "bad symbol")
-	a.Pack()
-	_a := chain.SymbolCode{}
-	_a.Unpack(a.Pack())
-	chain.Check(a.Value == _a.Value, "bad value")
+	{
+		_a := chain.SymbolCode{}
+		_a.Unpack(chain.EncoderPack(&a))
+		chain.Check(a.Value == _a.Value, "bad value")
+	}
 
-	s := chain.NewSymbol("EOS", 4)
-
-	_s := chain.Symbol{}
-	_s.Unpack(s.Pack())
-	chain.Check(_s.Value == s.Value, "_s.Value == s.Value")
-	s.Print()
+	{
+		s := chain.NewSymbol("EOS", 4)
+		_s := chain.Symbol{}
+		_s.Unpack(chain.EncoderPack(&s))
+		chain.Check(_s.Value == s.Value, "_s.Value == s.Value")
+		s.Print()
+	}
 	chain.Println()
 	chain.Println("+++++++=hello, world")
 }
@@ -106,7 +108,7 @@ func (c *MyContract) Test15() {
 	{
 		a := chain.NewExtendedAsset(chain.NewAsset(100, chain.NewSymbol("EOS", 4)), chain.NewName("alice"))
 		_a := chain.ExtendedAsset{}
-		_a.Unpack(a.Pack())
+		_a.Unpack(chain.EncoderPack(a))
 
 		chain.Check(a.Quantity.Amount == _a.Quantity.Amount, "")
 		chain.Check(a.Quantity.Symbol.Value == _a.Quantity.Symbol.Value, "")
@@ -120,8 +122,8 @@ func (c *MyContract) Test15() {
 			Memo:     "hello",
 		}
 		_a := chain.Transfer{}
-		_a.Unpack(a.Pack())
-		chain.Check(bytes.Compare(a.Pack(), _a.Pack()) == 0, "bytes.Compare(a.Pack(), _a.Pack())")
+		_a.Unpack(chain.EncoderPack(&a))
+		chain.Check(bytes.Compare(chain.EncoderPack(&a), chain.EncoderPack(&_a)) == 0, "bytes.Compare(a.Pack(), _a.Pack())")
 		chain.Check(a.Size() == _a.Size(), "a.Size() == _a.Size()")
 	}
 }

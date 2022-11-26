@@ -6,8 +6,10 @@ import (
 
 type Checksum160 [20]byte
 
-func (t *Checksum160) Pack() []byte {
-	return t[:]
+func (t *Checksum160) Pack(enc *Encoder) int {
+	oldSize := enc.GetSize()
+	enc.WriteBytes(t[:])
+	return enc.GetSize() - oldSize
 }
 
 func (t *Checksum160) Unpack(data []byte) int {
@@ -22,8 +24,10 @@ func (t *Checksum160) Size() int {
 
 type Checksum256 [32]byte
 
-func (t *Checksum256) Pack() []byte {
-	return t[:]
+func (t *Checksum256) Pack(enc *Encoder) int {
+	oldSize := enc.GetSize()
+	enc.WriteBytes(t[:])
+	return enc.GetSize() - oldSize
 }
 
 func (t *Checksum256) Unpack(data []byte) int {
@@ -38,8 +42,10 @@ func (t *Checksum256) Size() int {
 
 type Checksum512 [64]byte
 
-func (t *Checksum512) Pack() []byte {
-	return t[:]
+func (t *Checksum512) Pack(enc *Encoder) int {
+	oldSize := enc.GetSize()
+	enc.WriteBytes(t[:])
+	return enc.GetSize() - oldSize
 }
 
 func (t *Checksum512) Unpack(data []byte) int {
@@ -94,7 +100,7 @@ func Ripemd160(data []byte) Checksum160 {
 
 //Recover the public key from digest and signature
 func RecoverKey(digest Checksum256, sig *Signature) *PublicKey {
-	_sig := sig.Pack()
+	_sig := EncoderPack(sig)
 	pub := eosio.RecoverKey(digest, _sig)
 	_pub := &PublicKey{}
 	_pub.Unpack(pub[:])
@@ -103,8 +109,8 @@ func RecoverKey(digest Checksum256, sig *Signature) *PublicKey {
 
 //Tests a given public key with the generated key from digest and the signature
 func AssertRecoverKey(digest Checksum256, sig Signature, pub PublicKey) {
-	_sig := sig.Pack()
-	_pub := pub.Pack()
+	_sig := EncoderPack(&sig)
+	_pub := EncoderPack(&pub)
 	eosio.AssertRecoverKey(digest, _sig, _pub)
 }
 
@@ -113,11 +119,11 @@ type Signature struct {
 	Data [65]byte
 }
 
-func (t *Signature) Pack() []byte {
-	enc := NewEncoder(1 + len(t.Data))
+func (t *Signature) Pack(enc *Encoder) int {
+	oldSize := enc.GetSize()
 	enc.WriteUint8(t.Type)
 	enc.WriteBytes(t.Data[:])
-	return enc.GetBytes()
+	return enc.GetSize() - oldSize
 }
 
 func (t *Signature) Unpack(data []byte) int {
@@ -137,11 +143,11 @@ type PublicKey struct {
 	Data [33]byte
 }
 
-func (t *PublicKey) Pack() []byte {
-	enc := NewEncoder(34)
+func (t *PublicKey) Pack(enc *Encoder) int {
+	oldSize := enc.GetSize()
 	enc.WriteUint8(t.Type)
 	enc.WriteBytes(t.Data[:])
-	return enc.GetBytes()
+	return enc.GetSize() - oldSize
 }
 
 func (t *PublicKey) Unpack(data []byte) int {

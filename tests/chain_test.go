@@ -436,7 +436,6 @@ func TestTransaction(t *testing.T) {
 	`
 	tester := initTest("testtransaction", "tests.abi", true)
 	defer tester.FreeChain()
-
 	ret, err := tester.PushAction("hello", "sayhello1", "", permissions)
 	if err != nil {
 		panic(err)

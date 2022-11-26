@@ -110,11 +110,11 @@ func ContractApply(receiver, firstReceiver, action uint64) {
 
 		payer := code
 		if itr.IsOk() {
-			db.Store(data.primary, data.Pack(), payer)
+			db.Store(data.primary, chain.EncoderPack(&data), payer)
 		} else {
 			_data := db.Get(itr)
 			logger.Println(_data.primary, _data.n)
-			db.Update(itr, data.Pack(), payer)
+			db.Update(itr, chain.EncoderPack(&data), payer)
 		}
 		logger.Println(itr)
 	}

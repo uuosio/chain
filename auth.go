@@ -31,11 +31,11 @@ func NewPermissionLevel(actor Name, permission Name) *PermissionLevel {
 	return &PermissionLevel{actor, permission}
 }
 
-func (t *PermissionLevel) Pack() []byte {
-	enc := NewEncoder(t.Size())
+func (t *PermissionLevel) Pack(enc *Encoder) int {
+	size := enc.GetSize()
 	enc.PackUint64(t.Actor.N)
 	enc.PackUint64(t.Permission.N)
-	return enc.GetBytes()
+	return enc.GetSize() - size
 }
 
 func (t *PermissionLevel) Unpack(data []byte) int {
@@ -52,11 +52,11 @@ func (t *PermissionLevel) Size() int {
 	return size
 }
 
-func (t *PermissionLevelWeight) Pack() []byte {
-	enc := NewEncoder(t.Size())
-	enc.Pack(&t.Permission)
+func (t *PermissionLevelWeight) Pack(enc *Encoder) int {
+	oldSize := enc.GetSize()
+	t.Permission.Pack(enc)
 	enc.PackUint16(t.Weight)
-	return enc.GetBytes()
+	return enc.GetSize() - oldSize
 }
 
 func (t *PermissionLevelWeight) Unpack(data []byte) int {
@@ -73,11 +73,11 @@ func (t *PermissionLevelWeight) Size() int {
 	return size
 }
 
-func (t *WaitWeight) Pack() []byte {
-	enc := NewEncoder(t.Size())
+func (t *WaitWeight) Pack(enc *Encoder) int {
+	size := enc.GetSize()
 	enc.PackUint32(t.WaitSec)
 	enc.PackUint16(t.Weight)
-	return enc.GetBytes()
+	return enc.GetSize() - size
 }
 
 func (t *WaitWeight) Unpack(data []byte) int {
@@ -94,31 +94,32 @@ func (t *WaitWeight) Size() int {
 	return size
 }
 
-func (t *Authority) Pack() []byte {
-	enc := NewEncoder(t.Size())
+func (t *Authority) Pack(enc *Encoder) int {
+	oldSize := enc.GetSize()
+
 	enc.PackUint32(t.Threshold)
 	{
 		enc.PackLength(len(t.Keys))
 		for i := range t.Keys {
-			enc.Pack(&t.Keys[i])
+			t.Keys[i].Pack(enc)
 		}
 	}
 
 	{
 		enc.PackLength(len(t.Accounts))
 		for i := range t.Accounts {
-			enc.Pack(&t.Accounts[i])
+			t.Accounts[i].Pack(enc)
 		}
 	}
 
 	{
 		enc.PackLength(len(t.Waits))
 		for i := range t.Waits {
-			enc.Pack(&t.Waits[i])
+			t.Waits[i].Pack(enc)
 		}
 	}
 
-	return enc.GetBytes()
+	return enc.GetSize() - oldSize
 }
 
 func (t *Authority) Unpack(data []byte) int {
@@ -172,11 +173,11 @@ func (t *Authority) Size() int {
 	return size
 }
 
-func (t *KeyWeight) Pack() []byte {
-	enc := NewEncoder(t.Size())
-	enc.Pack(&t.Key)
+func (t *KeyWeight) Pack(enc *Encoder) int {
+	oldSize := enc.GetSize()
+	t.Key.Pack(enc)
 	enc.PackUint16(t.Weight)
-	return enc.GetBytes()
+	return enc.GetSize() - oldSize
 }
 
 func (t *KeyWeight) Unpack(data []byte) int {

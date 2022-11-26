@@ -62,8 +62,10 @@ func NewInt128FromBytes(bs []byte) Int128 {
 	return a
 }
 
-func (n *Int128) Pack() []byte {
-	return n[:]
+func (n *Int128) Pack(enc *Encoder) int {
+	oldSize := enc.GetSize()
+	enc.WriteBytes(n[:])
+	return enc.GetSize() - oldSize
 }
 
 func (n *Int128) Unpack(data []byte) int {

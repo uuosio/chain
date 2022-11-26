@@ -29,8 +29,10 @@ func NewFloat128(v float64) Float128 {
 	return t
 }
 
-func (n *Float128) Pack() []byte {
-	return n[:]
+func (n *Float128) Pack(enc *Encoder) int {
+	oldSize := enc.GetSize()
+	enc.WriteBytes(n[:])
+	return enc.GetSize() - oldSize
 }
 
 func (n *Float128) Unpack(data []byte) int {

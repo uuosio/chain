@@ -4,8 +4,10 @@ import "encoding/binary"
 
 type VarInt32 int32
 
-func (t *VarInt32) Pack() []byte {
-	return PackVarInt32(int32(*t))
+func (t *VarInt32) Pack(enc *Encoder) int {
+	oldSize := enc.GetSize()
+	enc.PackVarInt32(int32(*t))
+	return enc.GetSize() - oldSize
 }
 
 func (t *VarInt32) Unpack(data []byte) int {
@@ -20,8 +22,10 @@ func (t *VarInt32) Size() int {
 
 type VarUint32 uint32
 
-func (t *VarUint32) Pack() []byte {
-	return PackVarUint32(uint32(*t))
+func (t *VarUint32) Pack(enc *Encoder) int {
+	oldSize := enc.GetSize()
+	enc.PackVarUint32(uint32(*t))
+	return enc.GetSize() - oldSize
 }
 
 func (t *VarUint32) Unpack(data []byte) int {
@@ -58,10 +62,10 @@ func (n *Uint256) SetUint64(v uint64) {
 	binary.LittleEndian.PutUint64(n[:8], v)
 }
 
-func (n *Uint256) Pack() []byte {
-	enc := NewEncoder(32)
+func (n *Uint256) Pack(enc *Encoder) int {
+	oldSize := enc.GetSize()
 	enc.Write(n[:])
-	return enc.GetBytes()
+	return enc.GetSize() - oldSize
 }
 
 func (n *Uint256) Unpack(data []byte) int {
@@ -82,10 +86,10 @@ type TimePoint struct {
 	Elapsed uint64
 }
 
-func (t *TimePoint) Pack() []byte {
-	enc := NewEncoder(t.Size())
+func (t *TimePoint) Pack(enc *Encoder) int {
+	oldSize := enc.GetSize()
 	enc.PackUint64(t.Elapsed)
-	return enc.GetBytes()
+	return enc.GetSize() - oldSize
 }
 
 func (t *TimePoint) Unpack(data []byte) int {
@@ -102,10 +106,10 @@ type TimePointSec struct {
 	UTCSeconds uint32
 }
 
-func (t *TimePointSec) Pack() []byte {
-	enc := NewEncoder(t.Size())
+func (t *TimePointSec) Pack(enc *Encoder) int {
+	oldSize := enc.GetSize()
 	enc.PackUint32(t.UTCSeconds)
-	return enc.GetBytes()
+	return enc.GetSize() - oldSize
 }
 
 func (t *TimePointSec) Unpack(data []byte) int {
@@ -122,10 +126,10 @@ type BlockTimestampType struct {
 	Slot uint32
 }
 
-func (t *BlockTimestampType) Pack() []byte {
-	enc := NewEncoder(t.Size())
+func (t *BlockTimestampType) Pack(enc *Encoder) int {
+	oldSize := enc.GetSize()
 	enc.PackUint32(t.Slot)
-	return enc.GetBytes()
+	return enc.GetSize() - oldSize
 }
 
 func (t *BlockTimestampType) Unpack(data []byte) int {

@@ -59,11 +59,11 @@ func (a *TransactionExtension) Size() int {
 	return 2 + 5 + len(a.Data)
 }
 
-func (t *TransactionExtension) Pack() []byte {
-	enc := NewEncoder(2 + 5 + len(t.Data))
-	enc.Pack(t.Type)
-	enc.Pack(t.Data)
-	return enc.GetBytes()
+func (t *TransactionExtension) Pack(enc *Encoder) int {
+	oldSize := enc.GetSize()
+	enc.PackUint16(t.Type)
+	enc.PackBytes(t.Data)
+	return enc.GetSize() - oldSize
 }
 
 func (t *TransactionExtension) Unpack(data []byte) int {
@@ -126,49 +126,54 @@ func AddTransactionCache(sendId *Uint128, payer Name, transaction []byte, replac
 }
 
 func (t *Transaction) Send(senderId Uint128, replaceExisting bool, payer Name) {
-	SendDeferred(senderId, payer, t.Pack(), replaceExisting)
+	SendDeferred(senderId, payer, EncoderPack(t), replaceExisting)
 }
 
-func (t *Transaction) Pack() []byte {
-	initSize := 4 + 2 + 4 + 5 + 1 + 5
-
-	initSize += 5 // Max varint size
-	for _, action := range t.ContextFreeActions {
-		initSize += action.Size()
-	}
-
-	initSize += 5 // Max varint size
-	for _, action := range t.Actions {
-		initSize += action.Size()
-	}
-
-	initSize += 5 // Max varint size
-	for _, extention := range t.Extention {
-		initSize += extention.Size()
-	}
-	enc := NewEncoder(initSize)
-	enc.Pack(t.Expiration)
-	enc.Pack(t.RefBlockNum)
-	enc.Pack(t.RefBlockPrefix)
-	enc.WriteBytes(t.MaxNetUsageWords.Pack())
+func (t *Transaction) Pack(enc *Encoder) int {
+	oldSize := enc.GetSize()
+	//4+2+4
+	enc.PackUint32(t.Expiration)
+	enc.PackUint16(t.RefBlockNum)
+	enc.PackUint32(t.RefBlockPrefix)
+	t.MaxNetUsageWords.Pack(enc)
 	enc.PackUint8(t.MaxCpuUsageMs)
-	enc.WriteBytes(t.DelaySec.Pack())
+	t.DelaySec.Pack(enc)
 
 	enc.PackLength(len(t.ContextFreeActions))
 	for _, action := range t.ContextFreeActions {
-		enc.Pack(action)
+		action.Pack(enc)
 	}
 
 	enc.PackLength(len(t.Actions))
 	for _, action := range t.Actions {
-		enc.Pack(action)
+		action.Pack(enc)
 	}
 
 	enc.PackLength(len(t.Extention))
 	for _, extention := range t.Extention {
-		enc.Pack(extention)
+		extention.Pack(enc)
 	}
-	return enc.GetBytes()
+	return enc.GetSize() - oldSize
+}
+
+func (t *Transaction) Size() int {
+	initSize := 4 + 2 + 4 + 5 + 1 + 5
+
+	initSize += PackedVarUint32Length(uint32(len(t.ContextFreeActions))) // Max varint size
+	for _, action := range t.ContextFreeActions {
+		initSize += action.Size()
+	}
+
+	initSize += PackedVarUint32Length(uint32(len(t.Actions)))
+	for _, action := range t.Actions {
+		initSize += action.Size()
+	}
+
+	initSize += PackedVarUint32Length(uint32(len(t.Extention)))
+	for _, extention := range t.Extention {
+		initSize += extention.Size()
+	}
+	return initSize
 }
 
 func (t *Transaction) Unpack(data []byte) int {

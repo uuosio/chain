@@ -51,17 +51,18 @@ type ProducerAuthority struct {
 	Authority    BlockSigningAuthorityV0
 }
 
-func (t *BlockSigningAuthorityV0) Pack() []byte {
-	enc := NewEncoder(t.Size())
+func (t *BlockSigningAuthorityV0) Pack(enc *Encoder) int {
+	oldSize := enc.GetSize()
+
 	enc.PackUint32(t.Threshold)
 
 	{
 		enc.PackLength(len(t.Keys))
 		for _, v := range t.Keys {
-			enc.Pack(&v)
+			v.Pack(enc)
 		}
 	}
-	return enc.GetBytes()
+	return enc.GetSize() - oldSize
 }
 
 func (t *BlockSigningAuthorityV0) Unpack(data []byte) int {
@@ -88,12 +89,11 @@ func (t *BlockSigningAuthorityV0) Size() int {
 	return size
 }
 
-func (t *ProducerAuthority) Pack() []byte {
-	enc := NewEncoder(t.Size())
+func (t *ProducerAuthority) Pack(enc *Encoder) int {
+	oldSize := enc.GetSize()
 	enc.PackUint64(t.ProducerName.N)
-	enc.PackLength(0) //variant
-	enc.Pack(&t.Authority)
-	return enc.GetBytes()
+	t.Authority.Pack(enc)
+	return enc.GetSize() - oldSize
 }
 
 func (t *ProducerAuthority) Unpack(data []byte) int {
@@ -127,9 +127,13 @@ func SetProposedProducers(producers []Name) int64 {
 
 // Proposes a schedule change with extended features
 func SetProposedProducersEx(producers []ProducerAuthority) int64 {
-	enc := NewEncoder(len(producers) * int(unsafe.Sizeof(producers[0])))
+	size := 0
+	for _, prod := range producers {
+		size += prod.Size()
+	}
+	enc := NewEncoder(size)
 	for i := range producers {
-		enc.Write(producers[i].Pack())
+		producers[i].Pack(enc)
 	}
 	producer_data := enc.GetBytes()
 	ret := C.set_proposed_producers_ex(C.uint64_t(1), (*C.char)(unsafe.Pointer(&producer_data[0])), C.uint32_t(len(producer_data)))

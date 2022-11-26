@@ -28,7 +28,7 @@ func testTransaction() {
 	tx.Unpack(rawTx)
 	tx.Print()
 
-	rawTx2 := tx.Pack()
+	rawTx2 := chain.EncoderPack(&tx)
 	chain.Println(rawTx2)
 
 	chain.Check(len(rawTx) == len(rawTx2), "bad")
@@ -70,13 +70,14 @@ func ContractApply(receiver, firstReceiver, _action uint64) {
 		t := chain.NewTransaction(1)
 		t.Actions = []*chain.Action{a}
 		id := chain.NewUint128(1, 0)
+		chain.Print(chain.EncoderPack(t))
 		t.Send(id, false, payer)
 		logger.Println("send done!", t)
 
-		rawTx := t.Pack()
+		rawTx := chain.EncoderPack(t)
 		t2 := chain.Transaction{}
 		t2.Unpack(rawTx)
-		rawTx2 := t2.Pack()
+		rawTx2 := chain.EncoderPack(&t2)
 		chain.Check(bytes.Compare(rawTx, rawTx2) == 0, "bad transaction")
 	} else if action == chain.NewName("sayhello2") {
 		db := database.NewTableI64(code, scope, table, nil)

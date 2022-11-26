@@ -17,10 +17,10 @@ func N(s string) Name {
 	return Name{N: S2N(s)}
 }
 
-func (a *Name) Pack() []byte {
-	enc := NewEncoder(8)
+func (a *Name) Pack(enc *Encoder) int {
+	oldSize := enc.GetSize()
 	enc.WriteUint64(a.N)
-	return enc.GetBytes()
+	return enc.GetSize() - oldSize
 }
 
 func (a *Name) Unpack(data []byte) int {

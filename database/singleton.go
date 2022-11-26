@@ -27,7 +27,7 @@ func NewSingletonTable(code, scope, table chain.Name, unpacker ...Unpacker) *Sin
 }
 
 func (t *SingletonTable) Set(data TableValue, payer chain.Name) {
-	t.TableI64.Set(t.TableI64.GetTableName(), data.Pack(), payer)
+	t.TableI64.Set(t.TableI64.GetTableName(), chain.EncoderPack(data), payer)
 }
 
 func (t *SingletonTable) Get() interface{} {

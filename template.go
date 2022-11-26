@@ -2,10 +2,10 @@ package chain
 
 type Template struct{}
 
-func (t *Template) Pack() []byte {
+func (t *Template) Pack(enc *Encoder) int {
 	// enc := chain.NewEncoder(10)
 	// return enc.GetBytes()
-	return nil
+	return 0
 }
 
 func (t *Template) Unpack(data []byte) int {

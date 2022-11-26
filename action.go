@@ -1,8 +1,6 @@
 package chain
 
 import (
-	"unsafe"
-
 	"github.com/uuosio/chain/eosio"
 )
 
@@ -105,46 +103,20 @@ func NewAction(perm *PermissionLevel, account Name, name Name, args ...interface
 	return a
 }
 
-func PackUint64(n uint64) []byte {
-	p := [8]byte{}
-	pp := (*[8]byte)(unsafe.Pointer(&n))
-	copy(p[:], pp[:])
-	return p[:]
-}
-
-func PackArray(a []Serializer) []byte {
-	buf := []byte{byte(len(a))}
-	for _, v := range a {
-		buf = append(buf, v.Pack()...)
-	}
-	return buf
-}
-
 func (a *Action) Size() int {
 	return 8 + 8 + 5 + len(a.Authorization)*8 + 5 + len(a.Data)
 }
 
-func (a *Action) Pack() []byte {
-	enc := NewEncoder(a.Size())
+func (a *Action) Pack(enc *Encoder) int {
+	oldSize := enc.GetSize()
 	enc.PackName(a.Account)
 	enc.PackName(a.Name)
 	enc.PackLength(len(a.Authorization))
 	for _, v := range a.Authorization {
-		enc.Pack(v)
+		v.Pack(enc)
 	}
-	enc.Pack(a.Data)
-	return enc.GetBytes()
-	// buf := []byte{}
-	// buf = append(buf, PackUint64(a.Account)...)
-	// buf = append(buf, PackUint64(a.Name)...)
-
-	// buf = append(buf, PackUint32(uint32(len(a.Authorization)))...)
-	// for _, v := range a.Authorization {
-	// 	buf = append(buf, v.Pack()...)
-	// }
-
-	// buf = append(buf, a.Data.Pack()...)
-	// return buf
+	enc.PackBytes(a.Data)
+	return enc.GetSize() - oldSize
 }
 
 func (a *Action) Unpack(b []byte) int {
@@ -178,12 +150,12 @@ func (a *Action) AddPermission(actor Name, permission Name) {
 }
 
 func (a *Action) Send() {
-	data := a.Pack()
+	data := EncoderPack(a)
 	SendInline(data)
 }
 
 //send action directly, no cache
 func (a *Action) SendEx() {
-	data := a.Pack()
+	data := EncoderPack(a)
 	SendInline(data)
 }

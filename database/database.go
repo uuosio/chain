@@ -78,7 +78,6 @@ type SecondaryTable interface {
 }
 
 type TableValue interface {
+	chain.Serializer
 	GetPrimary() uint64
-	Pack() []byte
-	Unpack(data []byte) int
 }

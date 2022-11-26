@@ -45,10 +45,10 @@ func (a *SymbolCode) IsValid() bool {
 	return true
 }
 
-func (a *SymbolCode) Pack() []byte {
-	enc := NewEncoder(8)
-	enc.Pack(a.Value)
-	return enc.GetBytes()
+func (a *SymbolCode) Pack(enc *Encoder) int {
+	oldSize := enc.GetSize()
+	enc.PackUint64(a.Value)
+	return enc.GetSize() - oldSize
 }
 
 func (a *SymbolCode) Unpack(data []byte) int {
@@ -106,10 +106,10 @@ func (a *Symbol) IsValid() bool {
 	return true
 }
 
-func (a *Symbol) Pack() []byte {
-	enc := NewEncoder(8)
-	enc.Pack(a.Value)
-	return enc.GetBytes()
+func (a *Symbol) Pack(enc *Encoder) int {
+	oldSize := enc.GetSize()
+	enc.PackUint64(a.Value)
+	return enc.GetSize() - oldSize
 }
 
 func (a *Symbol) Unpack(data []byte) int {
@@ -197,11 +197,11 @@ func (a *Asset) IsValid() bool {
 	return isAmountWithInRange(a.Amount) && a.Symbol.IsValid()
 }
 
-func (a *Asset) Pack() []byte {
-	enc := NewEncoder(16)
+func (a *Asset) Pack(enc *Encoder) int {
+	oldSize := enc.GetSize()
 	enc.WriteUint64(uint64(a.Amount))
 	enc.WriteUint64(a.Symbol.Value)
-	return enc.GetBytes()
+	return enc.GetSize() - oldSize
 }
 
 func (a *Asset) Unpack(data []byte) int {
@@ -224,11 +224,11 @@ func NewExtendedAsset(quantity *Asset, contract Name) *ExtendedAsset {
 	return &ExtendedAsset{*quantity, contract}
 }
 
-func (t *ExtendedAsset) Pack() []byte {
-	enc := NewEncoder(16 + 8)
-	enc.Pack(&t.Quantity)
-	enc.PackName(t.Contract)
-	return enc.GetBytes()
+func (t *ExtendedAsset) Pack(enc *Encoder) int {
+	oldSize := enc.GetSize()
+	t.Quantity.Pack(enc)
+	t.Contract.Pack(enc)
+	return enc.GetSize() - oldSize
 }
 
 func (t *ExtendedAsset) Unpack(data []byte) int {
@@ -249,13 +249,13 @@ type Transfer struct {
 	Memo     string
 }
 
-func (a *Transfer) Pack() []byte {
-	enc := NewEncoder(8 + 8 + 16 + len(a.Memo) + 5)
-	enc.Pack(&a.From)
-	enc.Pack(&a.To)
-	enc.Pack(&a.Quantity)
+func (a *Transfer) Pack(enc *Encoder) int {
+	oldSize := enc.GetSize()
+	enc.PackName(a.From)
+	enc.PackName(a.To)
+	a.Quantity.Pack(enc)
 	enc.PackString(a.Memo)
-	return enc.GetBytes()
+	return enc.GetSize() - oldSize
 }
 
 func (a *Transfer) Unpack(data []byte) int {

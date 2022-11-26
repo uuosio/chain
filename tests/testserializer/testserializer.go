@@ -127,7 +127,5 @@ func (c *SerializerTest) testvarint(a1 chain.VarInt32, a2 chain.VarInt32) {
 //action testpack
 func (c *SerializerTest) testpack() {
 	a := chain.Asset{}
-	enc := chain.NewEncoder(100)
-	enc.Pack(a)
-	chain.Check(len(enc.GetBytes()) == 16, "bad value")
+	chain.Check(len(chain.EncoderPack(&a)) == 16, "bad value")
 }

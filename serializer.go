@@ -103,8 +103,9 @@ func PackedVarUint32Length(val uint32) int {
 }
 
 type Serializer interface {
-	Pack() []byte
-	Unpack([]byte) (int, uint64)
+	Size() int
+	Pack(enc *Encoder) int
+	Unpack([]byte) int
 }
 
 type Decoder struct {
@@ -400,7 +401,7 @@ type Encoder struct {
 }
 
 type Packer interface {
-	Pack() []byte
+	Pack(enc *Encoder) int
 }
 
 func NewEncoder(initSize int) *Encoder {
@@ -409,12 +410,22 @@ func NewEncoder(initSize int) *Encoder {
 	return ret
 }
 
+func EncoderPack(packer Serializer) []byte {
+	enc := NewEncoder(packer.Size())
+	packer.Pack(enc)
+	return enc.GetBytes()
+}
+
 func (enc *Encoder) Reset() {
 	enc.buf = enc.buf[:0]
 }
 
 func (enc *Encoder) Bytes() []byte {
 	return enc.buf
+}
+
+func (enc *Encoder) GetSize() int {
+	return len(enc.buf)
 }
 
 func (enc *Encoder) Write(b []byte) {
@@ -433,7 +444,7 @@ func (enc *Encoder) WriteByte(b byte) {
 func (enc *Encoder) Pack(i interface{}) error {
 	switch v := i.(type) {
 	case Packer:
-		enc.Write(v.Pack())
+		v.Pack(enc)
 	case string:
 		enc.PackString(v)
 	case []byte:
@@ -471,7 +482,7 @@ func (enc *Encoder) Pack(i interface{}) error {
 	case Name:
 		enc.WriteUint64(v.N)
 	case Asset:
-		enc.Write(v.Pack())
+		v.Pack(enc)
 	default:
 		// if DEBUG {
 		// 	panic(fmt.Sprintf("Unknow Pack type <%v>", i))

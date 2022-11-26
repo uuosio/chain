@@ -111,7 +111,7 @@ func (mi *MultiIndex) SetTable(code chain.Name, scope chain.Name, table chain.Na
 }
 
 func (mi *MultiIndex) Store(v MultiIndexValue, payer chain.Name) *Iterator {
-	it := mi.Table.Store(v.GetPrimary(), v.Pack(), payer)
+	it := mi.Table.Store(v.GetPrimary(), chain.EncoderPack(v), payer)
 	primary := v.GetPrimary()
 	for i, db := range mi.IDXTables {
 		db.StoreEx(primary, v.GetSecondaryValue(i), payer.N)
@@ -123,7 +123,7 @@ func (mi *MultiIndex) Set(primary uint64, v MultiIndexValue, payer chain.Name) {
 	chain.Check(primary == v.GetPrimary(), "mi.Store: Invalid primary key")
 	it := mi.Find(primary)
 	if !it.IsOk() {
-		mi.Table.Store(primary, v.Pack(), payer)
+		mi.Table.Store(primary, chain.EncoderPack(v), payer)
 		for i, db := range mi.IDXTables {
 			db.StoreEx(primary, v.GetSecondaryValue(i), payer.N)
 		}
@@ -215,7 +215,8 @@ func (mi *MultiIndex) Update(it *Iterator, v MultiIndexValue, payer chain.Name) 
 
 	chain.Check(mi.code == chain.CurrentReceiver(), "mi.Update: Can not update other contract")
 
-	mi.Table.Update(it, v.Pack(), payer)
+	mi.Table.Update(it, chain.EncoderPack(v), payer)
+
 	for i, db := range mi.IDXTables {
 		it, oldSecondary := db.FindByPrimary(primary)
 		// logger.Println(primary, i, oldSecondary, ":")
@@ -312,7 +313,7 @@ func (mi *MultiIndex) IdxUpdate(it *SecondaryIterator, secondary interface{}, pa
 		return
 	}
 	_v.SetSecondaryValue(idxTable.GetIndex(), secondary)
-	mi.Table.Update(itPrimary, _v.Pack(), payer)
+	mi.Table.Update(itPrimary, chain.EncoderPack(_v), payer)
 	idxTable.UpdateEx(it, secondary, payer.N)
 }
 
