@@ -157,6 +157,7 @@ int32_t db_idx_long_double_find_secondary(uint64_t code, uint64_t scope, uint64_
 int32_t db_idx_long_double_lowerbound(uint64_t code, uint64_t scope, uint64_t table, float128_t* secondary, uint64_t* primary);
 int32_t db_idx_long_double_upperbound(uint64_t code, uint64_t scope, uint64_t table, float128_t* secondary, uint64_t* primary);
 int32_t db_idx_long_double_end(uint64_t code, uint64_t scope, uint64_t table);
+uint32_t get_code_hash( uint64_t account, uint32_t struct_version, void* result_buffer, uint32_t buffer_size );
 */
 import "C"
 import "unsafe"
@@ -195,7 +196,7 @@ func GetBytesPtr(bs []byte) unsafe.Pointer {
 	return unsafe.Pointer(uintptr(0))
 }
 
-//Read current action data
+// Read current action data
 func ReadActionData() []byte {
 	n := C.action_data_size()
 	if n <= 0 {
@@ -207,12 +208,12 @@ func ReadActionData() []byte {
 	return buf
 }
 
-//Get the length of the current action's data field
+// Get the length of the current action's data field
 func ActionDataSize() uint32 {
 	return uint32(C.action_data_size())
 }
 
-//Add the specified account to set of accounts to be notified
+// Add the specified account to set of accounts to be notified
 func RequireRecipient(name uint64) {
 	C.require_recipient(C.uint64_t(name))
 }
@@ -221,12 +222,12 @@ func RequireRecipientEx(name uint64) {
 	C.require_recipient(C.uint64_t(name))
 }
 
-//Verifies that name exists in the set of provided auths on a action. Throws if not found.
+// Verifies that name exists in the set of provided auths on a action. Throws if not found.
 func RequireAuth(name uint64) {
 	C.require_auth(C.uint64_t(name))
 }
 
-//Verifies that name has auth.
+// Verifies that name has auth.
 func HasAuth(name uint64) bool {
 	ret := C.has_auth(C.uint64_t(name))
 	if ret == 0 {
@@ -235,12 +236,12 @@ func HasAuth(name uint64) bool {
 	return true
 }
 
-//Verifies that name exists in the set of provided auths on a action. Throws if not found.
+// Verifies that name exists in the set of provided auths on a action. Throws if not found.
 func RequireAuth2(name uint64, permission uint64) {
 	C.require_auth2(C.uint64_t(name), C.uint64_t(permission))
 }
 
-//Verifies that name is an existing account.
+// Verifies that name is an existing account.
 func IsAccount(name uint64) bool {
 	ret := C.is_account(C.uint64_t(name))
 	if ret == 0 {
@@ -249,44 +250,44 @@ func IsAccount(name uint64) bool {
 	return true
 }
 
-//Send an inline action in the context of this action's parent transaction
+// Send an inline action in the context of this action's parent transaction
 func SendInline(data []byte) {
 	//	a := (*sliceHeader)(unsafe.Pointer(&data))
 	p := (*C.char)(unsafe.Pointer(&data[0]))
 	C.send_inline(p, C.size_t(len(data)))
 }
 
-//Send an inline context free action in the context of this action's parent transaction
+// Send an inline context free action in the context of this action's parent transaction
 func SendContextFreeInline(data []byte) {
 	a := (*SliceHeader)(unsafe.Pointer(&data))
 	C.send_context_free_inline((*C.char)(unsafe.Pointer(a.Data)), C.size_t(a.Len))
 }
 
-//Returns the time in microseconds from 1970 of the publication_time
+// Returns the time in microseconds from 1970 of the publication_time
 func PublicationTime() uint64 {
 	return uint64(C.publication_time())
 }
 
-//Get the current receiver of the action
+// Get the current receiver of the action
 func CurrentReceiver() uint64 {
 	n := C.current_receiver()
 	return uint64(n)
 }
 
-//Set the action return value which will be included in the action_receipt
+// Set the action return value which will be included in the action_receipt
 func SetActionReturnValue(return_value []byte) {
 	a := (*SliceHeader)(unsafe.Pointer(&return_value))
 	C.set_action_return_value((*C.char)(unsafe.Pointer(a.Data)), C.size_t(a.Len))
 }
 
-//system.h
+// system.h
 func Check(b bool, msg string) {
 	if !b {
 		EosioAssert(false, msg)
 	}
 }
 
-//Aborts processing of this action and unwinds all pending changes if the test condition is true
+// Aborts processing of this action and unwinds all pending changes if the test condition is true
 func Assert(test bool, msg string) {
 	if !test {
 		EosioAssert(false, msg)
@@ -298,7 +299,7 @@ type StringHeader struct {
 	len  uintptr
 }
 
-//Aborts processing of this action and unwinds all pending changes if the test condition is true
+// Aborts processing of this action and unwinds all pending changes if the test condition is true
 func EosioAssert(test bool, msg string) {
 	if !test {
 		_msg := (*StringHeader)(unsafe.Pointer(&msg))
@@ -306,25 +307,25 @@ func EosioAssert(test bool, msg string) {
 	}
 }
 
-//Aborts processing of this action and unwinds all pending changes if the test condition is true
+// Aborts processing of this action and unwinds all pending changes if the test condition is true
 func EosioAssertCode(test bool, code uint64) {
 	if !test {
 		C.eosio_assert_code(C.uint32_t(0), C.uint64_t(code))
 	}
 }
 
-//Returns the time in microseconds from 1970 of the current block
+// Returns the time in microseconds from 1970 of the current block
 func CurrentTime() uint64 {
 	return uint64(C.current_time())
 }
 
-//Check if specified protocol feature has been activated
+// Check if specified protocol feature has been activated
 func IsFeatureActivated(featureDigest [32]byte) bool {
 	_featureDigest := (*C.uint8_t)(unsafe.Pointer(&featureDigest[0]))
 	return C.is_feature_activated(_featureDigest) != 0
 }
 
-//Return name of account that sent current inline action
+// Return name of account that sent current inline action
 func GetSender() uint64 {
 	return uint64(C.get_sender())
 }
@@ -333,56 +334,56 @@ func Exit() {
 	C.eosio_exit(0)
 }
 
-//crypto.h
-//Tests if the sha256 hash generated from data matches the provided checksum.
+// crypto.h
+// Tests if the sha256 hash generated from data matches the provided checksum.
 func AssertSha256(data []byte, hash [32]byte) {
 	C.assert_sha256((*C.char)(unsafe.Pointer(&data[0])), C.uint32_t(len(data)), (*C.capi_checksum256)(unsafe.Pointer(&hash)))
 }
 
-//Tests if the sha1 hash generated from data matches the provided checksum.
+// Tests if the sha1 hash generated from data matches the provided checksum.
 func AssertSha1(data []byte, hash [20]byte) {
 	C.assert_sha1((*C.char)(unsafe.Pointer(&data[0])), C.uint32_t(len(data)), (*C.capi_checksum160)(unsafe.Pointer(&hash)))
 }
 
-//Tests if the sha512 hash generated from data matches the provided checksum.
+// Tests if the sha512 hash generated from data matches the provided checksum.
 func AssertSha512(data []byte, hash [64]byte) {
 	C.assert_sha512((*C.char)(unsafe.Pointer(&data[0])), C.uint32_t(len(data)), (*C.capi_checksum512)(unsafe.Pointer(&hash)))
 }
 
-//Tests if the ripemod160 hash generated from data matches the provided checksum.
+// Tests if the ripemod160 hash generated from data matches the provided checksum.
 func AssertRipemd160(data []byte, hash [20]byte) {
 	C.assert_ripemd160((*C.char)(unsafe.Pointer(&data[0])), C.uint32_t(len(data)), (*C.capi_checksum160)(unsafe.Pointer(&hash)))
 }
 
-//Hashes data using sha256 and return hash value.
+// Hashes data using sha256 and return hash value.
 func Sha256(data []byte) [32]byte {
 	var hash [32]byte
 	C.sha256((*C.char)(unsafe.Pointer(&data[0])), C.uint32_t(len(data)), (*C.capi_checksum256)(unsafe.Pointer(&hash)))
 	return hash
 }
 
-//Hashes data using sha1 and return hash value.
+// Hashes data using sha1 and return hash value.
 func Sha1(data []byte) [20]byte {
 	var hash [20]byte
 	C.sha1((*C.char)(unsafe.Pointer(&data[0])), C.uint32_t(len(data)), (*C.capi_checksum160)(unsafe.Pointer(&hash)))
 	return hash
 }
 
-//Hashes data using sha512 and return hash value.
+// Hashes data using sha512 and return hash value.
 func Sha512(data []byte) [64]byte {
 	var hash [64]byte
 	C.sha512((*C.char)(unsafe.Pointer(&data[0])), C.uint32_t(len(data)), (*C.capi_checksum512)(unsafe.Pointer(&hash)))
 	return hash
 }
 
-//Hashes data using ripemd160 and return hash value.
+// Hashes data using ripemd160 and return hash value.
 func Ripemd160(data []byte) [20]byte {
 	var hash [20]byte
 	C.ripemd160((*C.char)(unsafe.Pointer(&data[0])), C.uint32_t(len(data)), (*C.capi_checksum160)(unsafe.Pointer(&hash)))
 	return hash
 }
 
-//Recover the public key from digest and signature
+// Recover the public key from digest and signature
 func RecoverKey(digest [32]byte, sig []byte) []byte {
 	//TODO: handle webauth signature
 	var pub [34]byte //34
@@ -390,7 +391,7 @@ func RecoverKey(digest [32]byte, sig []byte) []byte {
 	return pub[:]
 }
 
-//Tests a given public key with the generated key from digest and the signature
+// Tests a given public key with the generated key from digest and the signature
 func AssertRecoverKey(digest [32]byte, sig []byte, pub []byte) {
 	C.assert_recover_key((*C.capi_checksum256)(unsafe.Pointer(&digest)), (*C.char)(unsafe.Pointer(&sig[0])), C.size_t(len(sig)), (*C.char)(unsafe.Pointer(&pub[0])), C.size_t(len(pub)))
 }
@@ -879,4 +880,14 @@ func GetActiveProducers() []uint64 {
 	var producers = make([]uint64, int(datalen)/8)
 	C.get_active_producers((*C.uint64_t)(unsafe.Pointer(&producers[0])), datalen)
 	return producers
+}
+
+// uint32_t get_code_hash( uint64_t account, uint32_t struct_version, char* result_buffer, uint32_t buffer_size )
+
+func GetCodeHash(account uint64) []byte {
+	data := make([]byte, 43)
+	ptr := GetBytesPtr(data)
+	ret := C.get_code_hash(account, 0, ptr, 43)
+	EosioAssert(ret == 43, "bad get_code_hash return value")
+	return data
 }

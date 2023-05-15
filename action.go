@@ -7,63 +7,63 @@ import (
 var gActionCache [][]byte
 var gNotifyCache []Name
 
-//Read current action data
+// Read current action data
 func ReadActionData() []byte {
 	return eosio.ReadActionData()
 }
 
-//Get the length of the current action's data field
+// Get the length of the current action's data field
 func ActionDataSize() uint32 {
 	return eosio.ActionDataSize()
 }
 
-//Add the specified account to set of accounts to be notified
+// Add the specified account to set of accounts to be notified
 func RequireRecipient(name Name) {
 	eosio.RequireRecipient(name.N)
 }
 
-//Verifies that name exists in the set of provided auths on a action. Throws if not found.
+// Verifies that name exists in the set of provided auths on a action. Throws if not found.
 func RequireAuth(name Name) {
 	eosio.RequireAuth(name.N)
 }
 
-//Verifies that name has auth.
+// Verifies that name has auth.
 func HasAuth(name Name) bool {
 	return eosio.HasAuth(name.N)
 }
 
-//Verifies that name exists in the set of provided auths on a action. Throws if not found.
+// Verifies that name exists in the set of provided auths on a action. Throws if not found.
 func RequireAuth2(name Name, permission Name) {
 	eosio.RequireAuth2(name.N, permission.N)
 }
 
-//Verifies that name is an existing account.
+// Verifies that name is an existing account.
 func IsAccount(name Name) bool {
 	return eosio.IsAccount(name.N)
 }
 
-//Send an inline action in the context of this action's parent transaction
+// Send an inline action in the context of this action's parent transaction
 func SendInline(data []byte) {
 	eosio.SendInline(data)
 }
 
-//Send an inline context free action in the context of this action's parent transaction
+// Send an inline context free action in the context of this action's parent transaction
 func SendContextFreeInline(data []byte) {
 	eosio.SendContextFreeInline(data)
 }
 
-//Returns the time in microseconds from 1970 of the publication_time
+// Returns the time in microseconds from 1970 of the publication_time
 func PublicationTime() uint64 {
 	return eosio.PublicationTime()
 }
 
-//Get the current receiver of the action
+// Get the current receiver of the action
 func CurrentReceiver() Name {
 	n := eosio.CurrentReceiver()
 	return Name{n}
 }
 
-//Set the action return value which will be included in the action_receipt
+// Set the action return value which will be included in the action_receipt
 func SetActionReturnValue(return_value []byte) {
 	eosio.SetActionReturnValue(return_value)
 }
@@ -154,8 +154,49 @@ func (a *Action) Send() {
 	SendInline(data)
 }
 
-//send action directly, no cache
+// send action directly, no cache
 func (a *Action) SendEx() {
 	data := EncoderPack(a)
 	SendInline(data)
+}
+
+type GetCodeHashResult struct {
+	StructVersion VarUint32
+	CodeSequence  uint64
+	CodeHash      Checksum256
+	VMType        uint8
+	VMVersion     uint8
+}
+
+func (t *GetCodeHashResult) Pack(enc *Encoder) int {
+	oldSize := enc.GetSize()
+
+	t.StructVersion.Pack(enc)
+	enc.PackUint64(t.CodeSequence)
+	t.CodeHash.Pack(enc)
+	enc.PackUint8(t.VMType)
+	enc.PackUint8(t.VMVersion)
+
+	return enc.GetSize() - oldSize
+}
+
+func (t *GetCodeHashResult) Unpack(data []byte) int {
+	dec := NewDecoder(data)
+	dec.Unpack(&t.StructVersion)
+	dec.Unpack(&t.CodeSequence)
+	dec.Unpack(&t.CodeHash)
+	dec.Unpack(&t.VMType)
+	dec.Unpack(&t.VMVersion)
+	return dec.Pos()
+}
+
+func (t *GetCodeHashResult) Size() int {
+	return t.StructVersion.Size() + 8 + 32 + 1 + 1
+}
+
+func GetCodeHash(account Name) Checksum256 {
+	data := eosio.GetCodeHash(account.N)
+	ret := GetCodeHashResult{}
+	ret.Unpack(data)
+	return ret.CodeHash
 }
