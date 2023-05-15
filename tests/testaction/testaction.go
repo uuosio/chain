@@ -7,7 +7,7 @@ import (
 var gContractName = chain.NewName("hello")
 var gActionName = chain.NewName("sayhello2")
 
-//contract test
+// contract test
 type ActionTest struct {
 	self   chain.Name
 	code   chain.Name
@@ -22,7 +22,7 @@ func NewContract(receiver, firstReceiver, action chain.Name) *ActionTest {
 	}
 }
 
-//action sayhello
+// action sayhello
 func (c *ActionTest) SayHello() {
 	a := chain.Action{
 		chain.NewName("hello"), //gContractName,
@@ -33,12 +33,12 @@ func (c *ActionTest) SayHello() {
 	a.Send()
 }
 
-//action sayhello2
+// action sayhello2
 func (c *ActionTest) SayHello2() {
 	chain.Println(chain.ReadActionData())
 }
 
-//action sayhello3
+// action sayhello3
 func (c *ActionTest) SayHello3() {
 	a := chain.NewAction(
 		&chain.PermissionLevel{gContractName, chain.ActiveName},
@@ -50,4 +50,10 @@ func (c *ActionTest) SayHello3() {
 		"hello,world",                                    //memo
 	)
 	a.Send()
+}
+
+// action getcodehash
+func (c *ActionTest) GetCodeHash(hash chain.Checksum256) {
+	ret := chain.GetCodeHash(c.code)
+	chain.Check(ret == hash, "bad code hash")
 }

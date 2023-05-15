@@ -22,84 +22,84 @@ func CheckError(err error) {
 
 //action.h
 
-//Read current action data
+// Read current action data
 func ReadActionData() []byte {
 	ret, err := chaintester.GetVMAPI().ReadActionData(ctx)
 	CheckError(err)
 	return ret
 }
 
-//Get the length of the current action's data field
+// Get the length of the current action's data field
 func ActionDataSize() uint32 {
 	size, err := chaintester.GetVMAPI().ActionDataSize(ctx)
 	CheckError(err)
 	return uint32(size)
 }
 
-//Add the specified account to set of accounts to be notified
+// Add the specified account to set of accounts to be notified
 func RequireRecipient(name uint64) {
 	err := chaintester.GetVMAPI().RequireRecipient(ctx, to_raw_uint64(name))
 	CheckError(err)
 }
 
-//Verifies that name exists in the set of provided auths on a action. Throws if not found.
+// Verifies that name exists in the set of provided auths on a action. Throws if not found.
 func RequireAuth(name uint64) {
 	err := chaintester.GetVMAPI().RequireAuth(ctx, to_raw_uint64(name))
 	CheckError(err)
 }
 
-//Verifies that name has auth.
+// Verifies that name has auth.
 func HasAuth(name uint64) bool {
 	ret, err := chaintester.GetVMAPI().HasAuth(ctx, to_raw_uint64(name))
 	CheckError(err)
 	return ret
 }
 
-//Verifies that name exists in the set of provided auths on a action. Throws if not found.
+// Verifies that name exists in the set of provided auths on a action. Throws if not found.
 func RequireAuth2(name uint64, permission uint64) {
 	err := chaintester.GetVMAPI().RequireAuth2(ctx, to_raw_uint64(name), to_raw_uint64(permission))
 	CheckError(err)
 }
 
-//Verifies that name is an existing account.
+// Verifies that name is an existing account.
 func IsAccount(name uint64) bool {
 	ret, err := chaintester.GetVMAPI().IsAccount(ctx, to_raw_uint64(name))
 	CheckError(err)
 	return ret
 }
 
-//Send an inline action in the context of this action's parent transaction
+// Send an inline action in the context of this action's parent transaction
 func SendInline(data []byte) {
 	err := chaintester.GetVMAPI().SendInline(ctx, data)
 	CheckError(err)
 }
 
-//Send an inline context free action in the context of this action's parent transaction
+// Send an inline context free action in the context of this action's parent transaction
 func SendContextFreeInline(data []byte) {
 	err := chaintester.GetVMAPI().SendContextFreeInline(ctx, data)
 	CheckError(err)
 }
 
-//Returns the time in microseconds from 1970 of the publication_time
+// Returns the time in microseconds from 1970 of the publication_time
 func PublicationTime() uint64 {
 	ret, err := chaintester.GetVMAPI().PublicationTime(ctx)
 	CheckError(err)
 	return from_raw_uint64(ret)
 }
 
-//Get the current receiver of the action
+// Get the current receiver of the action
 func CurrentReceiver() uint64 {
 	ret, err := chaintester.GetVMAPI().CurrentReceiver(ctx)
 	CheckError(err)
 	return from_raw_uint64(ret)
 }
 
-//Set the action return value which will be included in the action_receipt
+// Set the action return value which will be included in the action_receipt
 func SetActionReturnValue(return_value []byte) {
 	panic("SetActionReturnValue not implemented")
 }
 
-//system.h
+// system.h
 func Check(b bool, msg string) {
 	if !b {
 		if !chaintester.IsInApply() {
@@ -109,7 +109,7 @@ func Check(b bool, msg string) {
 	}
 }
 
-//Aborts processing of this action and unwinds all pending changes if the test condition is true
+// Aborts processing of this action and unwinds all pending changes if the test condition is true
 func Assert(test bool, msg string) {
 	if !test {
 		if !chaintester.IsInApply() {
@@ -119,7 +119,7 @@ func Assert(test bool, msg string) {
 	}
 }
 
-//Aborts processing of this action and unwinds all pending changes if the test condition is true
+// Aborts processing of this action and unwinds all pending changes if the test condition is true
 func EosioAssert(test bool, msg string) {
 	if !test {
 		if !chaintester.IsInApply() {
@@ -141,7 +141,7 @@ func from_raw_uint64(value *interfaces.Uint64) uint64 {
 	return binary.LittleEndian.Uint64(value.RawValue)
 }
 
-//Aborts processing of this action and unwinds all pending changes if the test condition is true
+// Aborts processing of this action and unwinds all pending changes if the test condition is true
 func EosioAssertCode(test bool, code uint64) {
 	if !test {
 		err := chaintester.GetVMAPI().EosioAssertCode(ctx, false, to_raw_uint64(code))
@@ -149,21 +149,21 @@ func EosioAssertCode(test bool, code uint64) {
 	}
 }
 
-//Returns the time in microseconds from 1970 of the current block
+// Returns the time in microseconds from 1970 of the current block
 func CurrentTime() uint64 {
 	ret, err := chaintester.GetVMAPI().CurrentTime(ctx)
 	CheckError(err)
 	return from_raw_uint64(ret)
 }
 
-//TODO:
-//Check if specified protocol feature has been activated
+// TODO:
+// Check if specified protocol feature has been activated
 func IsFeatureActivated(featureDigest [32]byte) bool {
 	panic("IsFeatureActivated not implemented")
 	return false
 }
 
-//Return name of account that sent current inline action
+// Return name of account that sent current inline action
 func GetSender() uint64 {
 	ret, err := chaintester.GetVMAPI().GetSender(ctx)
 	CheckError(err)
@@ -175,31 +175,31 @@ func Exit() {
 	CheckError(err)
 }
 
-//Tests if the sha256 hash generated from data matches the provided checksum.
+// Tests if the sha256 hash generated from data matches the provided checksum.
 func AssertSha256(data []byte, hash [32]byte) {
 	err := chaintester.GetVMAPI().AssertSha256(ctx, data, hash[:])
 	CheckError(err)
 }
 
-//Tests if the sha1 hash generated from data matches the provided checksum.
+// Tests if the sha1 hash generated from data matches the provided checksum.
 func AssertSha1(data []byte, hash [20]byte) {
 	err := chaintester.GetVMAPI().AssertSha1(ctx, data, hash[:])
 	CheckError(err)
 }
 
-//Tests if the sha512 hash generated from data matches the provided checksum.
+// Tests if the sha512 hash generated from data matches the provided checksum.
 func AssertSha512(data []byte, hash [64]byte) {
 	err := chaintester.GetVMAPI().AssertSha512(ctx, data, hash[:])
 	CheckError(err)
 }
 
-//Tests if the ripemod160 hash generated from data matches the provided checksum.
+// Tests if the ripemod160 hash generated from data matches the provided checksum.
 func AssertRipemd160(data []byte, hash [20]byte) {
 	err := chaintester.GetVMAPI().AssertRipemd160(ctx, data, hash[:])
 	CheckError(err)
 }
 
-//Hashes data using sha256 and return hash value.
+// Hashes data using sha256 and return hash value.
 func Sha256(data []byte) [32]byte {
 	_ret, err := chaintester.GetVMAPI().Sha256(ctx, data[:])
 	CheckError(err)
@@ -208,7 +208,7 @@ func Sha256(data []byte) [32]byte {
 	return ret
 }
 
-//Hashes data using sha1 and return hash value.
+// Hashes data using sha1 and return hash value.
 func Sha1(data []byte) [20]byte {
 	_ret, err := chaintester.GetVMAPI().Sha1(ctx, data[:])
 	CheckError(err)
@@ -217,7 +217,7 @@ func Sha1(data []byte) [20]byte {
 	return ret
 }
 
-//Hashes data using sha512 and return hash value.
+// Hashes data using sha512 and return hash value.
 func Sha512(data []byte) [64]byte {
 	_ret, err := chaintester.GetVMAPI().Sha512(ctx, data[:])
 	CheckError(err)
@@ -226,7 +226,7 @@ func Sha512(data []byte) [64]byte {
 	return ret
 }
 
-//Hashes data using ripemd160 and return hash value.
+// Hashes data using ripemd160 and return hash value.
 func Ripemd160(data []byte) [20]byte {
 	_ret, err := chaintester.GetVMAPI().Ripemd160(ctx, data[:])
 	CheckError(err)
@@ -235,14 +235,14 @@ func Ripemd160(data []byte) [20]byte {
 	return ret
 }
 
-//Recover the public key from digest and signature
+// Recover the public key from digest and signature
 func RecoverKey(digest [32]byte, sig []byte) []byte {
 	ret, err := chaintester.GetVMAPI().RecoverKey(ctx, digest[:], sig)
 	CheckError(err)
 	return ret
 }
 
-//Tests a given public key with the generated key from digest and the signature
+// Tests a given public key with the generated key from digest and the signature
 func AssertRecoverKey(digest [32]byte, sig []byte, pub []byte) {
 	err := chaintester.GetVMAPI().AssertRecoverKey(ctx, digest[:], sig, pub)
 	CheckError(err)
@@ -779,4 +779,10 @@ func GetActiveProducers() []uint64 {
 	}
 	CheckError(err)
 	return producers
+}
+
+func GetCodeHash(account uint64) []byte {
+	ret, err := chaintester.GetVMAPI().GetCodeHash(ctx, to_raw_uint64(account), 0)
+	CheckError(err)
+	return ret
 }

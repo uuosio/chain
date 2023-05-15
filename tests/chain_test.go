@@ -27,11 +27,13 @@ import (
 	"context"
 	_ "encoding/hex"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"strings"
 	"testing"
 
+	"crypto/sha256"
 	"github.com/stretchr/testify/assert"
 	"github.com/uuosio/chain"
 	"github.com/uuosio/chaintester"
@@ -460,7 +462,7 @@ func TestAction(t *testing.T) {
 		"hello": "active"
 	}
 	`
-	tester := initTest("testaction", "tests.abi", true)
+	tester := initTest("testaction", "testaction/test.abi", true)
 	defer tester.FreeChain()
 
 	ret, err := tester.PushAction("hello", "sayhello", "", permissions)
@@ -478,6 +480,26 @@ func TestAction(t *testing.T) {
 	t.Logf("++++++++new balance: %v", newBalance)
 	if oldBalance-newBalance != 10000 {
 		panic("invalid balance")
+	}
+
+	hash := sha256.New()
+	file, err := os.Open("tests.wasm")
+	if err != nil {
+		panic(err)
+	}
+	_, err = io.Copy(hash, file)
+	if err != nil {
+		panic(err)
+	}
+	file.Close()
+
+	hashBytes := hash.Sum(nil)
+	// Convert the hash bytes to a string.
+	args := fmt.Sprintf("{\"hash\": \"%x\"}", hashBytes)
+	ret, err = tester.PushAction("hello", "getcodehash", args, permissions)
+
+	if err != nil {
+		panic(err)
 	}
 }
 
