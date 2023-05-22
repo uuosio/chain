@@ -17,6 +17,7 @@ import (
 	"github.com/uuosio/chain/tests/testprimarykey"
 	"github.com/uuosio/chain/tests/testprint"
 	"github.com/uuosio/chain/tests/testprivileged"
+	"github.com/uuosio/chain/tests/testserializer"
 	"github.com/uuosio/chain/tests/testsingleton"
 	"github.com/uuosio/chain/tests/testsort"
 	"github.com/uuosio/chain/tests/testtoken"
@@ -25,7 +26,7 @@ import (
 	"github.com/uuosio/chain/tests/testvariant"
 )
 
-//contract tests
+// contract tests
 type MyContract struct {
 	Receiver      chain.Name
 	FirstReceiver chain.Name
@@ -58,7 +59,6 @@ func contract_apply(_receiver, _firstReceiver, _action uint64) {
 	receiver := chain.Name{_receiver}
 	// firstReceiver := chain.Name{_firstReceiver}
 	action := chain.Name{_action}
-
 	table := database.NewTableI64(receiver, receiver, chain.NewName("curtest"), nil)
 	keyCurTest := chain.NewName("curtest").N
 	if action == chain.NewName("settest") {
@@ -72,11 +72,9 @@ func contract_apply(_receiver, _firstReceiver, _action uint64) {
 	chain.Check(it.IsOk(), "bad value")
 	raw := table.GetByIterator(it)
 	curTest = string(raw)
+	chain.Println("++++++current test::", curTest)
 
-	if curTest == "testhello" {
-		chain.Println("Hello, World!!!")
-		return
-	} else if curTest == "testaction" {
+	if curTest == "testaction" {
 		testaction.ContractApply(_receiver, _firstReceiver, _action)
 	} else if curTest == "testasset" {
 		testasset.ContractApply(_receiver, _firstReceiver, _action)
@@ -114,5 +112,7 @@ func contract_apply(_receiver, _firstReceiver, _action uint64) {
 		testtransaction.ContractApply(_receiver, _firstReceiver, _action)
 	} else if curTest == "testgenerics" {
 		testgenerics.ContractApply(_receiver, _firstReceiver, _action)
+	} else if curTest == "testserializer" {
+		testserializer.ContractApply(_receiver, _firstReceiver, _action)
 	}
 }

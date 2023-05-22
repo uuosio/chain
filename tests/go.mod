@@ -28,6 +28,7 @@ require (
 	github.com/uuosio/chain/tests/testtransaction v0.0.1
 	github.com/uuosio/chain/tests/testuint128 v0.0.1
 	github.com/uuosio/chain/tests/testvariant v0.0.1
+	github.com/uuosio/chain/tests/testserializer v0.0.1
 	github.com/uuosio/chaintester v0.0.0-20221108030052-a405ff36b294
 )
 
@@ -52,6 +53,7 @@ replace (
 	github.com/uuosio/chain/tests/testtransaction => ./testtransaction
 	github.com/uuosio/chain/tests/testuint128 => ./testuint128
 	github.com/uuosio/chain/tests/testvariant => ./testvariant
+	github.com/uuosio/chain/tests/testserializer => ./testserializer
 )
 
 require (

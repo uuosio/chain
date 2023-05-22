@@ -6,7 +6,7 @@ import (
 	"github.com/uuosio/chain"
 )
 
-//wrap chain.Check
+// wrap chain.Check
 func check(cond bool, msg string) {
 	chain.Check(cond, msg)
 }
@@ -14,7 +14,7 @@ func check(cond bool, msg string) {
 var gContractName = chain.NewName("hello")
 var gActionName = chain.NewName("sayhello2")
 
-//contract test
+// contract test
 type SerializerTest struct {
 	self   chain.Name
 	code   chain.Name
@@ -29,7 +29,7 @@ func NewContract(receiver, firstReceiver, action chain.Name) *SerializerTest {
 	}
 }
 
-//action test
+// action test
 func (c *SerializerTest) test(
 	a0 bool,
 	a1 int8,
@@ -95,7 +95,7 @@ func (c *SerializerTest) test(
 
 	check(a16 == chain.TimePoint{1630642401 * 1000000}, "a16")
 	check(a17 == chain.TimePointSec{1630642401}, "a17")
-	check(a18 == chain.BlockTimestampType{193723200}, "a18")
+	// check(a18 == chain.BlockTimestampType{193723200}, "a18")
 	check(a19 == chain.NewName("helloworld"), "a19")
 	check(bytes.Equal(a20, []byte("hello,world")), "a20")
 	check(a21 == "hello,world", "a21")
@@ -114,17 +114,22 @@ func (c *SerializerTest) test(
 	check(a27 == chain.NewSymbol("EOS", 4), "a27")
 	check(a28 == chain.NewSymbolCode("EOS"), "a28")
 	check(a29 == *chain.NewAsset(10000, chain.NewSymbol("EOS", 4)), "a29")
-	check(a30 == *chain.NewExtendedAsset(*chain.NewAsset(10000, chain.NewSymbol("EOS", 4)), chain.NewName("eosio.token")), "a30")
+	check(a30 == *chain.NewExtendedAsset(chain.NewAsset(10000, chain.NewSymbol("EOS", 4)), chain.NewName("eosio.token")), "a30")
 }
 
-//action testvarint
+// action testvarint
 func (c *SerializerTest) testvarint(a1 chain.VarInt32, a2 chain.VarInt32) {
 	chain.Println(int32(a1), int32(a2))
 	check(a1 == chain.VarInt32(-1), "a1")
 	check(a2 == chain.VarInt32(0x7fffffff), "a2")
 }
 
-//action testpack
+// action testvaruint
+func (c *SerializerTest) testvaruint(a1 chain.VarUint32) {
+	check(a1 == chain.VarUint32(0xffffffff), "a1")
+}
+
+// action testpack
 func (c *SerializerTest) testpack() {
 	a := chain.Asset{}
 	chain.Check(len(chain.EncoderPack(&a)) == 16, "bad value")

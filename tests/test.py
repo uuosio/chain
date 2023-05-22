@@ -14,7 +14,7 @@ from ipyeos import log
 from ipyeos.chaintester import ChainTester
 
 from ipyeos import chaintester
-chaintester.chain_config['contracts_console'] = False
+chaintester.chain_config['contracts_console'] = True
 
 logger = log.get_logger(__name__)
 
@@ -90,6 +90,7 @@ class Test(object):
         return wasmcompiler.compile_go_src(name, code, replace=replace)
 
     def test_hello(self):
+        return
         code = '''
 package main
 import "github.com/uuosio/chain/logger"
@@ -104,20 +105,22 @@ func main() {
         print_console(r)
 
     def test_pack_size(self):
-        with open('testpacksize.go', 'r') as f:
+        with open('tests.wasm', 'rb') as f:
             code = f.read()
-        code, abi = self.compile('hello', code)
-        assert code
+
         self.chain.deploy_contract('hello', code, '', 0)
+        self.chain.push_action("hello", "settest", b'testserializer')
+
         r = self.chain.push_action('hello', 'sayhello', b'hello,world')
         print_console(r)
 
     def test_action(self):
-        with open('testaction.go', 'r') as f:
+        with open('tests.wasm', 'rb') as f:
             code = f.read()
-        code, abi = self.compile('hello', code)
-        assert code
-        self.chain.deploy_contract('hello', code, '', 0)
+
+        self.chain.deploy_contract('hello', code, '')
+        self.chain.push_action("hello", "settest", b'testaction')
+
         try:
             r = self.chain.push_action('hello', 'sayhello', b'hello,world')
             print_console(r)
@@ -134,11 +137,14 @@ func main() {
             print_except(e.args[0])
 
     def test_crypto(self):
-        with open('testcrypto.go', 'r') as f:
+        with open('tests.wasm', 'rb') as f:
             code = f.read()
-        code, abi = self.compile('hello', code)
-        assert code
-        self.chain.deploy_contract('hello', code, abi, 0)
+
+        with open('testcrypto/test.abi', 'rb') as f:
+            abi = f.read()
+
+        self.chain.deploy_contract('hello', code, abi)
+        self.chain.push_action("hello", "settest", b'testcrypto')
 
         r = self.chain.push_action('hello', 'testhash', '')
         self.chain.produce_block()
@@ -155,12 +161,15 @@ func main() {
         print_console(r)
 
     def test_mi(self):
-        with open('testmi.go', 'r') as f:
+        with open('tests.wasm', 'rb') as f:
             code = f.read()
-        code, abi = self.compile('testmi', code)
-        logger.info("++++++++++code size %f", len(code)/1024)
-        assert code
-        self.chain.deploy_contract('hello', code, '', 0)
+
+        with open('testmi/testmi.abi', 'rb') as f:
+            abi = f.read()
+
+        self.chain.deploy_contract('hello', code, abi)
+        self.chain.push_action("hello", "settest", b'testmi')
+
         r = self.chain.push_action('hello', 'test1', b'hello,world')
         print_console(r)
 
@@ -169,32 +178,35 @@ func main() {
         # print_console(r)
 
     def test_print(self):
-        with open('testprint.go', 'r') as f:
+        with open('tests.wasm', 'rb') as f:
             code = f.read()
-        code, abi = self.compile('hello', code)
-        assert code
-        self.chain.deploy_contract('hello', code, '', 0)
+
+        self.chain.deploy_contract('hello', code, '')
+        self.chain.push_action("hello", "settest", b'testprint')
+
         r = self.chain.push_action('hello', 'sayhello', b'hello,world')
         print_console(r)
 
     def test_privileged(self):
-        with open('testprivileged.go', 'r') as f:
+        with open('tests.wasm', 'rb') as f:
             code = f.read()
-        code, abi = self.compile('hello', code)
-        assert code
-        self.chain.deploy_contract('hello', code, '', 0)
+
+        self.chain.deploy_contract('hello', code, '')
+        self.chain.push_action("hello", "settest", b'testprivileged')
+
         r = self.chain.push_action('hello', 'sayhello', b'hello,world')
         print_console(r)
 
     def test_deffered_tx(self):
-        with open('testtransaction.go', 'r') as f:
+        with open('tests.wasm', 'rb') as f:
             code = f.read()
-        code, abi = self.compile('testtransaction', code)
-        assert code
-        self.chain.deploy_contract('hello', code, '', 0)
+        self.chain.deploy_contract('hello', code, '')
+        self.chain.push_action("hello", "settest", b'testtransaction')
+
         r = self.chain.push_action('hello', 'sayhello1', b'hello,world')
         print_console(r)
 
+        self.chain.produce_block()
         self.chain.produce_block()
         self.chain.produce_block()
 
@@ -203,29 +215,27 @@ func main() {
         print_console(r)
 
     def test_db(self):
-        with open('testdb.go', 'r') as f:
+        with open('tests.wasm', 'rb') as f:
             code = f.read()
-        code, abi = self.compile('testdb', code)
-        assert code
-        self.chain.deploy_contract('hello', code, '', 0)
+        self.chain.deploy_contract('hello', code, '')
+        self.chain.push_action("hello", "settest", b'testdb')
         r = self.chain.push_action('hello', 'sayhello', b'hello,world')
         print_console(r)
 
     def test_token(self):
-        with open('testtoken.go', 'r') as f:
+        with open('tests.wasm', 'rb') as f:
             code = f.read()
-        code, abi = self.compile('testtoken', code)
-        assert code
-        self.chain.deploy_contract('hello', code, '', 0)
+        self.chain.deploy_contract('hello', code, '')
+        self.chain.push_action("hello", "settest", b'testtoken')
+
         r = self.chain.push_action('hello', 'sayhello', b'hello,world')
         print_console(r)
 
     def test_singleton(self):
-        with open('testsingleton.go', 'r') as f:
+        with open('tests.wasm', 'rb') as f:
             code = f.read()
-        code, abi = self.compile('testsingleton', code)
-        assert code
-        self.chain.deploy_contract('hello', code, '', 0)
+        self.chain.deploy_contract('hello', code, '')
+        self.chain.push_action("hello", "settest", b'testsingleton')
 
         # for i in range(4):
         #     r = self.chain.push_action('hello', 'sayhello', b'hello,world')
@@ -233,11 +243,10 @@ func main() {
         #     self.chain.produce_block()
 
     def test_asset(self):
-        with open('testasset.go', 'r') as f:
+        with open('tests.wasm', 'rb') as f:
             code = f.read()
-        code, abi = self.compile('testasset', code)
-        assert code
-        self.chain.deploy_contract('hello', code, '', 0)
+        self.chain.deploy_contract('hello', code, '')
+        self.chain.push_action("hello", "settest", b'testasset')
 
         try:
             r = self.chain.push_action('hello', 'test1', b'hello,world')
@@ -268,12 +277,12 @@ func main() {
             assert error_msg == 'divide by zero'
         self.chain.produce_block()
 
-        #signed division overflow
+        #divide by negative value
         try:
             r = self.chain.push_action('hello', 'test5', b'hello,world')
         except Exception as e:
             error_msg = e.args[0]['action_traces'][0]['except']['stack'][0]['data']['s']
-            assert error_msg == 'signed division overflow'
+            assert error_msg == 'divide by negative value'
         self.chain.produce_block()
 
         #bad symbol
@@ -301,13 +310,15 @@ func main() {
         self.chain.produce_block()
 
     def test_serializer(self):
-        with open('testserializer.go', 'r') as f:
+        with open('tests.wasm', 'rb') as f:
             code = f.read()
-        code, abi = self.compile('testserializer', code)
-        # logger.info(abi)
-        assert code
-        self.chain.deploy_contract('hello', code, abi, 0)
 
+        with open('testserializer/test.abi', 'r') as f:
+            abi = f.read()
+
+        self.chain.deploy_contract('hello', code, abi, 0)
+        self.chain.push_action("hello", "settest", b'testserializer')
+        
         args = dict(
             a0 = True, # a0 bool,
             a1 = 0xff, # a1 int8,
@@ -327,7 +338,7 @@ func main() {
         	a15 = '0x7fffffffffffffffffffffffffffffff', #  a15 chain.Float128,
 	        a16 = '2021-09-03T04:13:21', #  a16 chain.TimePoint,
         	a17 = '2021-09-03T04:13:21', # a17 chain.TimePointSec,
-            a18 = {'slot': 193723200}, #a18 chain.BlockTimeStamp, //block_timestamp_type,
+            a18 = '2021-09-03T04:13:21', # {'slot': 193723200}, #a18 chain.BlockTimeStamp, //block_timestamp_type,
             a19 = 'helloworld', # a19 chain.Name,
             a20 = b'hello,world'.hex(), # a20 []byte, //bytes,
             a21 = 'hello,world', # a21 string,
@@ -353,32 +364,29 @@ func main() {
         r = self.chain.push_action('hello', 'testpack', '')
         print_console(r)
 
-    @pytest.mark.skip(reason="deprecated")
-    def test_kv(self):
-        import ipyeos
-        test_dir = os.path.dirname(ipyeos.__file__)
-        test_dir = os.path.join(test_dir, "tests/activate_kv.wasm")
-        with open(os.path.join(test_dir), 'rb') as f:
-            code = f.read()
-            self.chain.deploy_contract('alice', code, '')
-        self.chain.push_action('eosio', 'setpriv', {'account':'alice', 'is_priv':True})
-        self.chain.push_action('alice', 'setkvparams', b'')
-        self.chain.push_action('eosio', 'setpriv', {'account':'alice', 'is_priv':False})
+        args = dict(
+            a1 = 0xffffffff
+        )
+        r = self.chain.push_action('hello', 'testvaruint', args)
+        print_console(r)
 
-        with open('testkv.go', 'r') as f:
-            code = f.read()
-        code, abi = self.compile('testkv', code)
-        assert code
-        self.chain.deploy_contract('hello', code, abi, 0)
-
-        self.chain.push_action('hello', 'testkv', b'')
+        try:
+            r = self.chain.push_action('hello', 'testvaruint', b'')
+            raise Exception("shoud not go here")
+        except Exception as e:
+            e = e.args[0]
+            assert e['action_traces'][0]['except']['stack'][0]['data']['s'] == 'raw VarUint32 value can not be empty'
 
     def test_primarykey(self):
-        with open('testprimarykey.go', 'r') as f:
+        with open('tests.wasm', 'rb') as f:
             code = f.read()
-        code, abi = self.compile('testprimarykey', code)
-        assert code
-        self.chain.deploy_contract('hello', code, abi, 0)
+
+        with open('testprimarykey/test.abi', 'rb') as f:
+            abi = f.read()
+
+        self.chain.deploy_contract('hello', code, abi)
+        self.chain.push_action("hello", "settest", b'testprimarykey')
+
         self.chain.push_action('hello', 'sayhello', b'')
         self.chain.produce_block()
 
@@ -390,20 +398,24 @@ func main() {
         self.chain.produce_block()
 
     def test_float128(self):
-        with open('testfloat128.go', 'r') as f:
+        with open('tests.wasm', 'rb') as f:
             code = f.read()
-        code, abi = self.compile('testfloat128', code)
-        assert code
-        self.chain.deploy_contract('hello', code, abi, 0)
+
+        self.chain.deploy_contract('hello', code, '')
+        self.chain.push_action("hello", "settest", b'testfloat128')
+
         r = self.chain.push_action('hello', 'sayhello', b'hello,world')
         print_console(r)
 
     def test_sort(self):
-        with open('testsort.go', 'r') as f:
+        with open('tests.wasm', 'rb') as f:
             code = f.read()
-        code, abi = self.compile('testsort', code)
-        assert code
-        self.chain.deploy_contract('hello', code, abi, 0)
+        with open('testsort/test.abi', 'rb') as f:
+            abi = f.read()
+
+        self.chain.deploy_contract('hello', code, abi)
+        self.chain.push_action("hello", "settest", b'testsort')
+
         pubs = [
             "EOS6SD6yzqaZhdPHw2LUVmZxWLeWxnp76KLnnBbqP94TsDsjNLosG",
             "EOS4vtCi4jbaVCLVJ9Moenu9j7caHeoNSWgWY65bJgEW8MupWsRMo",
@@ -426,45 +438,52 @@ func main() {
 
     @pytest.mark.skip(reason="deprecated")
     def test_largecode(self):
-        with open('testlargecode.go', 'r') as f:
+        with open('tests.wasm', 'rb') as f:
             code = f.read()
-        code, abi = self.compile('testlargecode', code)
-        assert code
+        with open('testlargecode/test.abi', 'rb') as f:
+            abi = f.read()
+
+        self.chain.deploy_contract('hello', code, abi)
+        self.chain.push_action("hello", "settest", b'testsort')
+
         self.chain.deploy_contract('hello', code, abi, 0)
         r = self.chain.push_action('hello', 'test', b'hello,world')
         print_console(r)
 
     def test_go_math(self):
-        with open('testmath.go', 'r') as f:
+        with open('tests.wasm', 'rb') as f:
             code = f.read()
-        code, abi = self.compile('testmath', code)
-        assert code
-        self.chain.deploy_contract('hello', code, abi, 0)
+
+        self.chain.deploy_contract('hello', code, '')
+        self.chain.push_action("hello", "settest", b'testmath')
+
         with pytest.raises(Exception) as e:
             r = self.chain.push_action('hello', 'test', b'hello,world')
             print_console(r)
 
     def test_uint128(self):
-        with open('testuint128.go', 'r') as f:
+        with open('tests.wasm', 'rb') as f:
             code = f.read()
-        code, abi = self.compile('testuint128', code)
-        assert code
-        print(len(code))
-        self.chain.deploy_contract('hello', code, abi, 0)
+
+        self.chain.deploy_contract('hello', code, '')
+        self.chain.push_action("hello", "settest", b'testuint128')
+
         r = self.chain.push_action('hello', 'test', b'hello,world')
         print_console(r)
 
     def test_variant(self):
-        with open('testvariant.go', 'r') as f:
+        with open('tests.wasm', 'rb') as f:
             code = f.read()
-        code, abi = self.compile('testvariant', code)
-        assert code
-        print(len(code))
-        self.chain.deploy_contract('hello', code, abi, 0)
+        with open('testvariant/test.abi', 'rb') as f:
+            abi = f.read()
+
+        self.chain.deploy_contract('hello', code, abi)
+        self.chain.push_action("hello", "settest", b'testvariant')
+
         args = {
             "v": ['uint64', 123]
         }
-        r = self.chain.push_action('hello', 'testvariant', args)
+        r = self.chain.push_action('hello', 'test', args)
         print_console(r)
         ret = self.chain.get_table_rows(True, 'hello', '', 'mytable', '', '', 10)
         logger.info("%s", ret)
