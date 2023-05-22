@@ -74,6 +74,7 @@ func PackVarUint32(val uint32) []byte {
 }
 
 func UnpackVarUint32(val []byte) (v uint32, n int) {
+	Check(len(val) > 0, "raw VarUint32 value can not be empty")
 	var by int = 0
 	// if len(val) > 5 {
 	// 	val = val[:5]
