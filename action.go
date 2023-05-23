@@ -76,12 +76,18 @@ type Action struct {
 }
 
 func NewAction(perm *PermissionLevel, account Name, name Name, args ...interface{}) *Action {
+	return NewActionEx([]*PermissionLevel{perm}, account, name, args...)
+}
+
+func NewActionEx(perms []*PermissionLevel, account Name, name Name, args ...interface{}) *Action {
 	a := &Action{}
 	a.Account = account
 	a.Name = name
 
-	if perm != nil {
-		a.Authorization = append(a.Authorization, perm)
+	if perms != nil {
+		for _, perm := range perms {
+			a.Authorization = append(a.Authorization, perm)
+		}
 	}
 
 	if len(args) == 0 {

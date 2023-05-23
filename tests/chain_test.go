@@ -482,6 +482,17 @@ func TestAction(t *testing.T) {
 		panic("invalid balance")
 	}
 
+	oldBalance = tester.GetBalance("hello")
+	t.Logf("++++++++old Balance: %v", oldBalance)
+
+	ret, err = tester.PushAction("hello", "sayhello4", "", permissions)
+
+	newBalance = tester.GetBalance("hello")
+	t.Logf("++++++++new balance: %v", newBalance)
+	if oldBalance-newBalance != 10000 {
+		panic("invalid balance")
+	}
+
 	hash := sha256.New()
 	file, err := os.Open("tests.wasm")
 	if err != nil {
