@@ -40,6 +40,7 @@ type MultiIndexInterface interface {
 	IdxFindByName(idxTableName string, secondary interface{}) *SecondaryIterator
 	//	UpdateSecondaryValue(idxTable SecondaryTable, primary uint64, secondary interface{}, payer chain.Name)
 	IdxUpdate(it *SecondaryIterator, secondary interface{}, payer chain.Name)
+	GetPrimaryTable() *TableI64
 	GetIdxTableByIndex(index int) SecondaryTable
 	GetIdxTable(idxTableName string) SecondaryTable
 }
@@ -136,9 +137,9 @@ func (mi *MultiIndex) Find(primary uint64) *Iterator {
 	return mi.Table.Find(primary)
 }
 
-//Get value by primary index
-//Returns iterator and value
-//iterator can be used by MultiIndex.Update method to update value
+// Get value by primary index
+// Returns iterator and value
+// iterator can be used by MultiIndex.Update method to update value
 func (mi *MultiIndex) Get(id uint64) (*Iterator, MultiIndexValue) {
 	return mi.GetByKey(id)
 }
@@ -155,7 +156,7 @@ func (mi *MultiIndex) GetByKey(id uint64) (*Iterator, MultiIndexValue) {
 	return it, _data
 }
 
-//Get value by primary Iterator
+// Get value by primary Iterator
 func (mi *MultiIndex) GetByIterator(it *Iterator) MultiIndexValue {
 	v := mi.Table.GetByIterator(it)
 	vv := mi.Unpack(v)
@@ -255,12 +256,12 @@ func (mi *MultiIndex) GetIndexType(index int) int {
 	return mi.IndexTypes[index]
 }
 
-//Find the table row following the referenced table row in a primary 64-bit integer index table
+// Find the table row following the referenced table row in a primary 64-bit integer index table
 func (mi *MultiIndex) Next(it *Iterator) (next_iterator *Iterator, primary uint64) {
 	return mi.Table.Next(it)
 }
 
-//Find the table row preceding the referenced table row in a primary 64-bit integer index table
+// Find the table row preceding the referenced table row in a primary 64-bit integer index table
 func (mi *MultiIndex) Previous(it *Iterator) (previous_iterator *Iterator, primary uint64) {
 	return mi.Table.Previous(it)
 }
@@ -335,6 +336,10 @@ func (mi *MultiIndex) IdxGet(itSecondary *SecondaryIterator) interface{} {
 		chain.Check(equal, "mi.IdxGet: secondary not the same!")
 		return secondary
 	}
+}
+
+func (mi *MultiIndex) GetPrimaryTable() *TableI64 {
+	return mi.Table
 }
 
 func (mi *MultiIndex) GetIdxTableByIndex(index int) SecondaryTable {
