@@ -74,7 +74,7 @@ jobs:
         run: |
           go generate
           go-contract build -o tests.wasm
-          ipyeos -m pytest -s -x test.py
+          PYTHON_SHARED_LIB_PATH=${{ env.pythonLocation }}/lib/libpython3.9.so ipyeos -m pytest -s -x test.py
           go test
           TEST_COVERAGE=1 go test --cover -coverpkg=$(python3 coverpkgs.py) -coverprofile=cover.out.tmp
           grep -v "generated.go" cover.out.tmp >cover.out
