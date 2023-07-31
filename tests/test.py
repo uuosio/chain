@@ -14,6 +14,8 @@ from ipyeos import log
 from ipyeos.chaintester import ChainTester
 
 from ipyeos import chaintester
+from ipyeos.chain_exceptions import ChainException
+
 chaintester.chain_config['contracts_console'] = True
 
 logger = log.get_logger(__name__)
@@ -47,8 +49,14 @@ def print_except(tx):
         logger.info(trace['console'])
         logger.info(json.dumps(trace['except'], indent=4))
 
+class MyChainTester(ChainTester):
+    def push_action(self, account, action, args,  permissions=None, explicit_cpu_bill=False):
+        if not permissions:
+            permissions = {account: 'active'}
+        return self.push_action_ex(account, action, args, permissions, explicit_cpu_bill)
+
 def init_chain():
-    chain = ChainTester()
+    chain = MyChainTester()
     test_account1 = 'hello'
     a = {
         "account": test_account1,
@@ -124,17 +132,17 @@ func main() {
         try:
             r = self.chain.push_action('hello', 'sayhello', b'hello,world')
             print_console(r)
-        except Exception as e:
-            print_except(e.args[0])
+        except ChainException as e:
+            print_except(e.json())
 
         try:
             old_balance = self.chain.get_balance('hello')
             r = self.chain.push_action('hello', 'sayhello3', b'hello,world')
             print_console(r)
             new_balance = self.chain.get_balance('hello')
-            assert abs(new_balance + 1.0 - old_balance) < 1e-9
-        except Exception as e:
-            print_except(e.args[0])
+            assert new_balance + 10000 == old_balance
+        except ChainException as e:
+            print_except(e.json())
 
     def test_crypto(self):
         with open('tests.wasm', 'rb') as f:
@@ -250,22 +258,22 @@ func main() {
 
         try:
             r = self.chain.push_action('hello', 'test1', b'hello,world')
-        except Exception as e:
-            error_msg = e.args[0]['action_traces'][0]['except']['stack'][0]['data']['s']
+        except ChainException as e:
+            error_msg = e.json()['action_traces'][0]['except']['stack'][0]['data']['s']
             assert error_msg == 'addition overflow'
 
         try:
             r = self.chain.push_action('hello', 'test2', b'hello,world')
-        except Exception as e:
-            error_msg = e.args[0]['action_traces'][0]['except']['stack'][0]['data']['s']
+        except ChainException as e:
+            error_msg = e.json()['action_traces'][0]['except']['stack'][0]['data']['s']
             assert error_msg == 'subtraction underflow'
         self.chain.produce_block()
 
         # magnitude of asset amount must be less than 2^62
         try:
             r = self.chain.push_action('hello', 'test3', b'hello,world')
-        except Exception as e:
-            error_msg = e.args[0]['action_traces'][0]['except']['stack'][0]['data']['s']
+        except ChainException as e:
+            error_msg = e.json()['action_traces'][0]['except']['stack'][0]['data']['s']
             assert error_msg == 'magnitude of asset amount must be less than 2^62'
         self.chain.produce_block()
 
@@ -273,7 +281,7 @@ func main() {
         try:
             r = self.chain.push_action('hello', 'test4', b'hello,world')
         except Exception as e:
-            error_msg = e.args[0]['action_traces'][0]['except']['stack'][0]['data']['s']
+            error_msg = e.json()['action_traces'][0]['except']['stack'][0]['data']['s']
             assert error_msg == 'divide by zero'
         self.chain.produce_block()
 
@@ -281,7 +289,7 @@ func main() {
         try:
             r = self.chain.push_action('hello', 'test5', b'hello,world')
         except Exception as e:
-            error_msg = e.args[0]['action_traces'][0]['except']['stack'][0]['data']['s']
+            error_msg = e.json()['action_traces'][0]['except']['stack'][0]['data']['s']
             assert error_msg == 'divide by negative value'
         self.chain.produce_block()
 
@@ -289,7 +297,7 @@ func main() {
         try:
             r = self.chain.push_action('hello', 'test11', b'hello,world')
         except Exception as e:
-            error_msg = e.args[0]['action_traces'][0]['except']['stack'][0]['data']['s']
+            error_msg = e.json()['action_traces'][0]['except']['stack'][0]['data']['s']
             assert error_msg == 'bad symbol'
         self.chain.produce_block()
 
@@ -297,7 +305,7 @@ func main() {
         try:
             r = self.chain.push_action('hello', 'test12', b'hello,world')
         except Exception as e:
-            error_msg = e.args[0]['action_traces'][0]['except']['stack'][0]['data']['s']
+            error_msg = e.json()['action_traces'][0]['except']['stack'][0]['data']['s']
             assert error_msg == 'multiplication overflow'
         self.chain.produce_block()
 
@@ -305,7 +313,7 @@ func main() {
         try:
             r = self.chain.push_action('hello', 'test13', b'hello,world')
         except Exception as e:
-            error_msg = e.args[0]['action_traces'][0]['except']['stack'][0]['data']['s']
+            error_msg = e.json()['action_traces'][0]['except']['stack'][0]['data']['s']
             assert error_msg == 'multiplication underflow'
         self.chain.produce_block()
 
@@ -374,7 +382,7 @@ func main() {
             r = self.chain.push_action('hello', 'testvaruint', b'')
             raise Exception("shoud not go here")
         except Exception as e:
-            e = e.args[0]
+            e = e.json()
             assert e['action_traces'][0]['except']['stack'][0]['data']['s'] == 'raw VarUint32 value can not be empty'
 
     def test_primarykey(self):
@@ -393,7 +401,7 @@ func main() {
         try:
             self.chain.push_action('hello', 'sayhello', b'')
         except Exception as e:
-            error_msg = e.args[0]['action_traces'][0]['except']['stack'][0]['data']['s']
+            error_msg = e.json()['action_traces'][0]['except']['stack'][0]['data']['s']
             assert error_msg == 'mi.Update: Can not change primary key duration update'
         self.chain.produce_block()
 
