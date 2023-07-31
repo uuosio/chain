@@ -281,8 +281,8 @@ func SetActionReturnValue(return_value []byte) {
 }
 
 // system.h
-func Check(b bool, msg string) {
-	if !b {
+func Check(test bool, msg string) {
+	if !test {
 		EosioAssert(false, msg)
 	}
 }

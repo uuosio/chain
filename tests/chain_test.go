@@ -84,7 +84,7 @@ func initTest(test string, abi string, debug bool) *chaintester.ChainTester {
 	}`
 	tester.PushAction("eosio", "updateauth", updateAuthArgs, permissions)
 
-	_, err = tester.PushActionEx("hello", "settest", []byte(test), permissions)
+	_, err = tester.PushAction("hello", "settest", []byte(test), permissions)
 	if err != nil {
 		panic(err)
 	}
@@ -218,6 +218,73 @@ func TestMI(t *testing.T) {
 		panic(err)
 	}
 	t.Logf("+++++:%v", ret.ToString())
+	tester.FreeChain()
+
+
+	// primary uint64         //primary
+	// a1      uint64         //secondary
+	// a2      chain.Uint128  //secondary
+	// a3      chain.Uint256  //secondary
+	// a4      float64        //secondary
+	// a5      chain.Float128 //secondary
+	tester = initTest("testmi", "./testmi/testmi.abi", true)
+	defer tester.FreeChain()
+	args := `{
+		"data": {
+			"primary": 1,
+			"a1": 2,
+			"a2": "0x01000000000000000000000000000000",
+			"a3": "0100000000000000000000000000000000000000000000000000000000000000",
+			"a4": 1.0,
+			"a5": "0x01000000000000000000000000000000"
+		}
+	}`
+	ret, err = tester.PushAction("hello", "teststore", args, permissions)
+	if err != nil {
+		panic(err)
+	}
+
+	args = `{
+		"data": {
+			"primary": 11,
+			"a1": 22,
+			"a2": "0x01000000000000000000000000000000",
+			"a3": "0300000000000000000000000000000000000000000000000000000000000000",
+			"a4": 44.0,
+			"a5": "0x55000000000000000000000000000000"
+		}
+	}`
+	ret, err = tester.PushAction("hello", "teststore", args, permissions)
+	if err != nil {
+		panic(err)
+	}
+
+	args = `{
+		"data": {
+			"primary": 111,
+			"a1": 222,
+			"a2": "0x01000000000000000000000000000000",
+			"a3": "0000000000000000000000000000000001000000000000000000000000000000",
+			"a4": 44.0,
+			"a5": "0x55000000000000000000000000000000"
+		}
+	}`
+	ret, err = tester.PushAction("hello", "teststore", args, permissions)
+	if err != nil {
+		panic(err)
+	}
+
+	ret, err = tester.GetTableRowsEx(true, "hello", "", "mydata", "0x0000000000000000000000000000000000000000000000000000000000000001", "", 10, "i256", "4", "", false, false)
+	if err != nil {
+		panic(err)
+	}
+	t.Logf("+++++:%v", ret.ToString())
+	a3, err := ret.GetString("rows", 2, "a3")
+	if err != nil {
+		panic(err)
+	}
+	assert := assert.New(t)
+	assert.True(a3 == "0000000000000000000000000000000001000000000000000000000000000000", "test15 failed")
 }
 
 func TestSingleton(t *testing.T) {

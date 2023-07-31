@@ -22,14 +22,14 @@ require (
 	github.com/uuosio/chain/tests/testprimarykey v0.0.1
 	github.com/uuosio/chain/tests/testprint v0.0.1
 	github.com/uuosio/chain/tests/testprivileged v0.0.1
+	github.com/uuosio/chain/tests/testserializer v0.0.1
 	github.com/uuosio/chain/tests/testsingleton v0.0.1
 	github.com/uuosio/chain/tests/testsort v0.0.1
 	github.com/uuosio/chain/tests/testtoken v0.0.1
 	github.com/uuosio/chain/tests/testtransaction v0.0.1
 	github.com/uuosio/chain/tests/testuint128 v0.0.1
 	github.com/uuosio/chain/tests/testvariant v0.0.1
-	github.com/uuosio/chain/tests/testserializer v0.0.1
-	github.com/uuosio/chaintester v0.0.0-20221108030052-a405ff36b294
+	github.com/uuosio/chaintester v0.0.0-20230731093108-4a7feaac57bf
 )
 
 replace (
@@ -47,13 +47,13 @@ replace (
 	github.com/uuosio/chain/tests/testprimarykey => ./testprimarykey
 	github.com/uuosio/chain/tests/testprint => ./testprint
 	github.com/uuosio/chain/tests/testprivileged => ./testprivileged
+	github.com/uuosio/chain/tests/testserializer => ./testserializer
 	github.com/uuosio/chain/tests/testsingleton => ./testsingleton
 	github.com/uuosio/chain/tests/testsort => ./testsort
 	github.com/uuosio/chain/tests/testtoken => ./testtoken
 	github.com/uuosio/chain/tests/testtransaction => ./testtransaction
 	github.com/uuosio/chain/tests/testuint128 => ./testuint128
 	github.com/uuosio/chain/tests/testvariant => ./testvariant
-	github.com/uuosio/chain/tests/testserializer => ./testserializer
 )
 
 require (

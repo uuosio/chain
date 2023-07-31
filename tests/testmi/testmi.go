@@ -385,3 +385,17 @@ func (t *TestMI) test1() {
 	}
 	chain.Println("++++++++++TestMI:test1 end")
 }
+
+//action teststore
+func (t *TestMI) testStore(data MyData) {
+	chain.Println("++++++++++TestMI:teststore")
+	t.mi.Store(&data, t.receiver)
+}
+
+//action testupdate
+func (t *TestMI) testUpdate(data MyData) {
+	chain.Println("++++++++++TestMI:testUpdate")
+	it := t.mi.Find(data.primary)
+	check(it.IsOk(), "bad primary")
+	t.mi.Update(it, &data, t.receiver)
+}

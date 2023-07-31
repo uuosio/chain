@@ -64,13 +64,15 @@ func (n *Uint256) SetUint64(v uint64) {
 
 func (n *Uint256) Pack(enc *Encoder) int {
 	oldSize := enc.GetSize()
-	enc.Write(n[:])
+	enc.Write(n[16:])
+	enc.Write(n[:16])
 	return enc.GetSize() - oldSize
 }
 
 func (n *Uint256) Unpack(data []byte) int {
 	dec := NewDecoder(data)
-	dec.Read(n[:])
+	dec.Read(n[16:])
+	dec.Read(n[:16])
 	return 32
 }
 
